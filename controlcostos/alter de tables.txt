@@ -1,0 +1,5 @@
+Lista de tablas alteradas
+Usuario_rol_permiso - datos
+Usuario - estructura
+Colaborador - estructura
+usuario_detalle - estructura
