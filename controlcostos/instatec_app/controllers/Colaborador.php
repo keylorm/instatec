@@ -60,9 +60,14 @@ class Colaborador extends CI_Controller {
 				$datos_insert = array();				
 				$datos_insert = $post_data;
 				$datos_insert['moneda_id'] = 2;
-				$respuesta = $this->m_colaborador->insertar($datos_insert);
-
-				$this->data['msg'][] = $respuesta;
+				$colaborador_no_existente = $this->m_colaborador->validarExistenciaUsuario($datos_insert);
+				if($colaborador_no_existente['tipo'] == 'success'){	
+					$respuesta = $this->m_colaborador->insertar($datos_insert);
+					$this->data['msg'][] = $respuesta;
+				}else{
+					$this->data['post_data'] = $post_data;
+					$this->data['msg'][] = $colaborador_no_existente;
+				}
 
 			}
 
@@ -91,9 +96,14 @@ class Colaborador extends CI_Controller {
 					$post_data['colaborador_puesto_id'] = str_replace('number:','',$post_data['colaborador_puesto_id']);				
 					$datos_insert = $post_data;
 					$datos_insert['moneda_id'] = 2;	
-					$respuesta = $this->m_colaborador->actualizar($colaborador_id,$datos_insert);
-
-					$this->data['msg'][] = $respuesta;
+					$colaborador_no_existente = $this->m_colaborador->validarExistenciaUsuario($datos_insert, $colaborador_id);
+					if($colaborador_no_existente['tipo'] == 'success'){	
+						$respuesta = $this->m_colaborador->actualizar($colaborador_id,$datos_insert);
+						$this->data['msg'][] = array('tipo' => 'success', 'texto' => 'Colaborador actualizado correctamente.');
+					}else{
+						$this->data['post_data'] = $post_data;
+						$this->data['msg'][] = $colaborador_no_existente;
+					}
 				}
 
 				// carga monedas

@@ -37,30 +37,30 @@
 	        <div class="card-body">
 				<div class="row">
 					<div class="form-group col-12 col-md-4">
-						<label for="nombre">Nombre del colaborador</label>
-						<input type="text" name="nombre" class="form-control input-required" id="nombre" aria-describedby="nombreHelp" >
+						<label for="nombre">Nombre del colaborador *</label>
+						<input type="text" name="nombre" class="form-control input-required" id="nombre" aria-describedby="nombreHelp" value="<?=(isset($post_data['nombre']))?$post_data['nombre']:''?>" >
 						<small id="nombreHelp" class="form-text text-muted">Ingrese el nombre del colaborador.<br/>
 						</small>
 					</div>
 					<div class="form-group col-12 col-md-4">
-						<label for="apellidos">Apellidos del colaborador</label>
-						<input type="text" name="apellidos" class="form-control input-required" id="apellidos" aria-describedby="apellidosHelp">
+						<label for="apellidos">Apellidos del colaborador *</label>
+						<input type="text" name="apellidos" class="form-control input-required" id="apellidos" aria-describedby="apellidosHelp" value="<?=(isset($post_data['apellidos']))?$post_data['apellidos']:''?>">
 						<small id="apellidosHelp" class="form-text text-muted">Ingrese los apellidos del colaborador.</small>
 					</div>
 					<div class="form-group col-12 col-md-4">
-						<label for="cedula">Cédula del colaborador</label>
-						<input type="text" name="cedula" class="form-control input-required"   id="cedula" aria-describedby="correoHelp">
+						<label for="cedula">Cédula del colaborador *</label>
+						<input type="text" name="cedula" class="form-control input-required"   id="cedula" aria-describedby="correoHelp" value="<?=(isset($post_data['cedula']))?$post_data['cedula']:''?>">
 						<small id="correoHelp" class="form-text text-muted">Ingrese la cédula del colaborador.</small>
 					</div>
 					<div class="form-group col-12 col-md-4">
 						<label for="correo_electronico">Correo del colaborador</label>
-						<input type="text" name="correo_electronico" class="form-control" ng-class="{'input-required': colaborador_puesto_id == 1}"  id="correo_electronico" aria-describedby="correoHelp">
+						<input type="text" name="correo_electronico" class="form-control" ng-class="{'input-required': colaborador_puesto_id == 1}"  id="correo_electronico" aria-describedby="correoHelp" value="<?=(isset($post_data['correo_electronico']))?$post_data['correo_electronico']:''?>">
 						<small id="correoHelp" class="form-text text-muted">Ingrese el correo electrónico.</small>
 					</div>
 
 					<div class="form-group col-12 col-md-4">
 						<label for="telefono">Teléfono</label>
-						<input type="text" name="telefono" class="form-control" id="telefono" aria-describedby="telefonoHelp">
+						<input type="text" name="telefono" class="form-control" id="telefono" aria-describedby="telefonoHelp" value="<?=(isset($post_data['telefono']))?$post_data['telefono']:''?>">
 						<small id="telefonoHelp" class="form-text text-muted">Ingrese el teléfono del colaborador</small>
 					</div>
 				
@@ -74,21 +74,23 @@
 	        <div class="card-body">
 				<div class="row">
 					<div class="form-group col-12 col-md-4">
-						<label for="seguro_social">Seguro social</label>
-						<input type="text" name="seguro_social" class="form-control input-required" id="seguro_social" aria-describedby="seguro_socialHelp">
+						<label for="seguro_social">Seguro social *</label>
+						<input type="text" name="seguro_social" class="form-control input-required" id="seguro_social" aria-describedby="seguro_socialHelp" value="<?=(isset($post_data['seguro_social']))?$post_data['seguro_social']:''?>">
 						<small id="seguro_socialHelp" class="form-text text-muted">Ingrese el número de seguro social del colaborador.</small>
 					</div>
 
 					<div class="form-group col-12 col-md-4">
-						<label for="identificador_interno">Identificador interno</label>
-						<input type="text" name="identificador_interno" class="form-control input-required" id="identificador_interno" aria-describedby="identificador_internoHelp">
+						<label for="identificador_interno">Identificador interno *</label>
+						<input type="text" name="identificador_interno" class="form-control input-required" id="identificador_interno" aria-describedby="identificador_internoHelp" value="<?=(isset($post_data['identificador_interno']))?$post_data['identificador_interno']:''?>">
 						<small id="identificador_internoHelp" class="form-text text-muted">Ingrese el número de identificador interno del colaborador.</small>
 					</div>
 					<div class="form-group col-12 col-md-4">
-						<label>Puesto:</label>
+						<label>Puesto *</label>
 						<select class="form-control select-required	" name="colaborador_puesto_id" id="colaborador_puesto_id" ng-model="colaborador_puesto_id" aria-describedby="puestoHelp"  required="required">
-							<?php foreach($puestos as $kpuesto => $vpuesto){ ?>
-								<option value="<?=$vpuesto->colaborador_puesto_id?>"><?=$vpuesto->puesto?></option>
+							<?php 
+							foreach($puestos as $kpuesto => $vpuesto){ 
+							?>
+								<option value="<?=$vpuesto->colaborador_puesto_id?>" ><?=$vpuesto->puesto?></option>
 							<?php } ?>
 						</select>	
 						<small id="puestoHelp" class="form-text text-muted">Ingrese el puesto de este usuario.</small>
@@ -108,9 +110,9 @@
 
 					<div class="col-12 col-md-6 col-lg-4">
 						<div class="form-group">
-							<label for="costo_hora">Valor de la hora laboral:</label>							
-							<input type="text" name="costo_hora" class="form-control input-required input-money-mask-colones"  id="costo_hora"  aria-describedby="costohoraHelp" >
-							<small id="costohoraHelp" class="form-text text-muted">Ingrese el monto qie gana este colaborador por hora.<br/>
+							<label for="costo_hora">Valor de la hora laboral *</label>							
+							<input type="text" name="costo_hora" class="form-control input-required input-money-mask-colones"  id="costo_hora"  aria-describedby="costohoraHelp"  value="<?=(isset($post_data['costo_hora']))?$post_data['costo_hora']:''?>">
+							<small id="costohoraHelp" class="form-text text-muted">Ingrese el monto que gana este colaborador por hora.<br/>
 							</small>
 						</div>
 					</div>
@@ -127,20 +129,20 @@
 				<div class="row">
 					<div class="form-group col-12 col-md-4">
 						<label for="usuario">Usuario</label>
-						<input type="text" name="usuario" class="form-control input-required" id="usuario" aria-describedby="usuarioHelp">
+						<input type="text" name="usuario" class="form-control input-required" id="usuario" aria-describedby="usuarioHelp" value="<?=(isset($post_data['usuario']))?$post_data['usuario']:''?>">
 						<small id="usuarioHelp" class="form-text text-muted">Ingrese el usuario con el cual iniciará sesión.</small>
 					</div>
 
 					<div class="form-group col-12 col-md-4">
 						<label for="password">Contraseña</label>
-						<input type="password" ng-model="password" name="password" class="form-control input-required" id="password" aria-describedby="passwordHelp">
+						<input type="password" ng-model="password" name="password" class="form-control input-required" id="password" aria-describedby="passwordHelp" value="<?=(isset($post_data['password']))?$post_data['password']:''?>">
 						<small id="passwordHelp" class="form-text text-muted">Ingrese la contraseña con la cuál iniciará sesión. Debe ser mayor de 6 caractéres.</small>
 						<div class="alert alert-warning" ng-if="password.length > 0 && password.length <= 6">Debe ingresar una contraseña de al menos 6 caracteres</div>
 					</div>
 
 					<div class="form-group col-12 col-md-4">
 						<label for="repetir_contrasena">Repetir contraseña</label>
-						<input type="password" name="repetir_contrasena" ng-model="repetir_contrasena" class="form-control input-required" id="repetir_contrasena" aria-describedby="repetir_contrasenaHelp">
+						<input type="password" name="repetir_contrasena" ng-model="repetir_contrasena" class="form-control input-required" id="repetir_contrasena" aria-describedby="repetir_contrasenaHelp" value="<?=(isset($post_data['repetir_contrasena']))?$post_data['repetir_contrasena']:''?>">
 						<small id="repetir_contrasenaHelp" class="form-text text-muted">Vuelva a ingresar la contraseña nuevamente</small>
 						<div class="alert alert-warning" ng-if="repetir_contrasena!==undefined && repetir_contrasena!==password">Las contraseñas no coinciden</div>
 					</div>

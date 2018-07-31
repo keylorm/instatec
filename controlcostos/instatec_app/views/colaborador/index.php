@@ -103,6 +103,7 @@
 	            <thead class="thead-light">
 			        <tr>
 						<th class="d-md-none">Acciones</th>
+						<th>ID</th>
 						<th>Nombre</th>
 						<th>Apellidos</th>
 						<th>Cédula</th>
@@ -161,6 +162,7 @@
 								</div>
 							<?php } ?>
 						</td>
+						<td>{{colaborador.colaborador_id}}</td>
 						<td>{{colaborador.nombre}}</td>
 						<td>{{colaborador.apellidos}}</td>
 						<td>{{colaborador.cedula}}</td>

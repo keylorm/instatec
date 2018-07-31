@@ -12,7 +12,7 @@
 <h1  class="text-center"><i class="fa fa-fw fa-users"></i> Colaboradores</h1>
 <hr>
 <div class="row">
-	<div class="col-12 col-md-10"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-plus-circle"></i> Editar colaborador</h3></div>
+	<div class="col-12 col-md-10"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-plus-circle"></i> Editar colaborador: <?=(isset($colaborador->nombre ))?$colaborador->colaborador_id.' - '.$colaborador->nombre.' '.$colaborador->apellidos:''?></h3></div>
 	<div class="col-12 col-md-2"><a class="float-right btn btn-primary" href="<?=base_url()?>colaboradores" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver a colaboradores</a></div>
 </div>
 <div class="page-content" ng-controller="editarColaboradorController" ng-init="colaborador_puesto_id=<?=$colaborador->colaborador_puesto_id?>">
@@ -36,6 +36,12 @@
 	          	Datos personales</div>
 	        <div class="card-body">
 				<div class="row">
+					<div class="form-group col-12 col-md-4">
+						<label for="nombre">ID del colaborador</label>
+						<input type="text" disabled="disabled" class="form-control input-required" aria-describedby="idColaboradorHelp" value="<?=(isset($colaborador->colaborador_id))?$colaborador->colaborador_id:''?>" >
+						<small id="idColaboradorHelp" class="form-text text-muted">ID único del colaborador.<br/>
+						</small>
+					</div>
 					<div class="form-group col-12 col-md-4">
 						<label for="nombre">Nombre del colaborador</label>
 						<input type="text" name="nombre" class="form-control input-required" id="nombre" aria-describedby="nombreHelp" value="<?=(isset($colaborador->nombre))?$colaborador->nombre:''?>" >

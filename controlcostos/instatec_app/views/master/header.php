@@ -17,7 +17,10 @@
 
 		<!-- Custom fonts for this template-->
     	<link href="<?=base_url()?>instatec_pub/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    	<link href="<?=base_url()?>instatec_pub/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">    	
+    	<link href="<?=base_url()?>instatec_pub/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+    	<link href="<?=base_url()?>instatec_pub/css/jquery-ui.min.css" rel="stylesheet" type="text/css">  
+    	<link href="<?=base_url()?>instatec_pub/css/jquery-ui.theme.min.css" rel="stylesheet" type="text/css">  
+    	<link href="<?=base_url()?>instatec_pub/css/jquery-ui.structure.min.css" rel="stylesheet" type="text/css">      	
 		<link rel="stylesheet" type="text/css" href="<?=base_url()?>instatec_pub/css/bootstrap-datepicker3.standalone.min.css" />
 		<link rel="stylesheet" type="text/css" href="<?=base_url()?>instatec_pub/css/bootstrap-datepicker3.min.css" />
 		<link rel="stylesheet" type="text/css" href="<?=base_url()?>instatec_pub/css/chosen.min.css" />
@@ -39,7 +42,7 @@
 		<script src="<?=base_url()?>instatec_pub/js/angular.min.js"></script>
 		<script src="<?=base_url()?>instatec_pub/js/bootstrap-datepicker.min.js"></script>
 		<script src="<?=base_url()?>instatec_pub/js/locales/bootstrap-datepicker.es.min.js"></script>
-		
+		<script src="<?=base_url()?>instatec_pub/js/jquery-ui.min.js"></script>
 		<script src="<?=base_url()?>instatec_pub/js/chosen.jquery.min.js"></script>
 		<script src="<?=base_url()?>instatec_pub/js/angular-chosen.min.js"></script>
 		<script src="<?=base_url()?>instatec_pub/js/jquery.maskMoney.min.js"></script>

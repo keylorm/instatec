@@ -325,5 +325,64 @@ class M_Colaborador extends CI_Model {
 		}
 	}
 
+
+	function validarExistenciaUsuario($data, $colaborador_id = null){
+		$response = array();
+		//se valida que los campos requeridos vengan
+		if(isset($data['cedula']) && isset($data['seguro_social']) && isset($data['identificador_interno'])){
+			if($data['cedula']!='' && $data['seguro_social'] != '' && $data['identificador_interno']!=''){
+				//primero validamos la cedula
+				$this->db->where('cedula', $data['cedula']);
+				// validamos que no sea la cedula del mismo colaborador que se esta consultando para cuando se esta editando un colaborador
+				if($colaborador_id!=null){
+					$this->db->where('colaborador_id !=', $colaborador_id);
+				}
+				$result_consulta = $this->db->get($this->t_colaborador);
+				$result_consulta_num_rows = $result_consulta->num_rows();
+				if ($result_consulta_num_rows > 0) {
+					//si hay resultados es porque ya existe la cedula
+					$result_consulta_info = $result_consulta->row();
+					$response['tipo'] = 'danger';
+					$response['texto'] = 'La cédula ingresada ya se encuetra registrada en el sistema para el usuario: '.$result_consulta_info->nombre.' '.$result_consulta_info->apellidos;
+				}else{
+					// si no hay resultados entonces consultamos por seguro social
+					$this->db->where('seguro_social', $data['seguro_social']);
+					if($colaborador_id!=null){
+						$this->db->where('colaborador_id !=', $colaborador_id);
+					}
+					$result_consulta2 = $this->db->get($this->t_colaborador);
+					$result_consulta2_num_rows = $result_consulta2->num_rows();
+					if ($result_consulta2_num_rows > 0) {
+						// si hay resultados es porque ya existe el seguro social
+						$result_consulta2_info = $result_consulta2->row();
+						$response['tipo'] = 'danger';
+						$response['texto'] = 'El número de seguro social ingresado ya se encuetra registrado en el sistema para el usuario: '.$result_consulta2_info->nombre.' '.$result_consulta2_info->apellidos;
+					}else{
+						// si no hay resultados consultamos por identificador interno
+						$this->db->where('identificador_interno', $data['identificador_interno']);
+						if($colaborador_id!=null){
+							$this->db->where('colaborador_id !=', $colaborador_id);
+						}
+						$result_consulta3 = $this->db->get($this->t_colaborador);
+						$result_consulta3_num_rows = $result_consulta3->num_rows();
+						if ($result_consulta3_num_rows > 0) {
+							// si hay resultados es porque ya existe ese identificador registrado
+							$result_consulta3_info = $result_consulta3->row();
+							$response['tipo'] = 'danger';
+							$response['texto'] = 'El identificador interno ingresado ya se encuetra registrado en el sistema para el usuario: '.$result_consulta3_info->nombre.' '.$result_consulta3_info->apellidos;
+						}else{
+							// si llego aqui es porque paso todas las validaciones
+							$response['tipo'] = 'success';
+						}
+					}
+				}
+			}else{
+				$response['tipo'] = 'warning';
+				$response['texto'] = 'No se introdujeron todos los campos requeridos para este colaborador';
+			}
+		}
+		return $response;
+	}
+
 	
 }
