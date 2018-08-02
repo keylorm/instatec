@@ -60,7 +60,7 @@ class M_Colaborador extends CI_Model {
 		if(isset($data['filtros'])){
 			foreach ($data['filtros'] as $key => $value) {
 				if($value!=='' && $value!=='undefined' && $value!==null  &&  $value!=='all'){
-					if($key=='nombre' || $key=='apellidos'  || $key=='correo_electronico'  || $key=='cedula'  || $key=='seguro_social'  || $key=='identificador_interno' ){
+					if($key=='nombre' || $key=='apellidos'  || $key=='alias' || $key=='correo_electronico'  || $key=='cedula'  || $key=='seguro_social'  || $key=='identificador_interno' ){
 						$this->db->like($this->t_colaborador.'.'.$key, $value);
 					}else{
 						$this->db->where($this->t_colaborador.'.'.$key, $value);

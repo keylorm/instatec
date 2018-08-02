@@ -38,6 +38,11 @@
 							</small>
 						</div>
 						<div class="form-group col-12 col-md-4">
+							<label for="alias">Alias o apodo de colaborador</label>
+							<input type="text" name="alias" class="form-control" id="alias"  ng-model="alias">
+							</small>
+						</div>
+						<div class="form-group col-12 col-md-4">
 							<label for="cedula">Cédula del colaborador</label>
 							<input type="text" name="cedula" class="form-control" id="cedula"  ng-model="cedula">
 							</small>
@@ -104,8 +109,7 @@
 			        <tr>
 						<th class="d-md-none">Acciones</th>
 						<th>ID</th>
-						<th>Nombre</th>
-						<th>Apellidos</th>
+						<th>Nombre completo</th>
 						<th>Cédula</th>
 						<th>Identificador interno</th>
 						<th>Puesto</th>
@@ -163,8 +167,7 @@
 							<?php } ?>
 						</td>
 						<td>{{colaborador.colaborador_id}}</td>
-						<td>{{colaborador.nombre}}</td>
-						<td>{{colaborador.apellidos}}</td>
+						<td>{{colaborador.nombre}} {{colaborador.apellidos}} {{colaborador.alias !== ''? '('+colaborador.alias+')':''}}</td>
 						<td>{{colaborador.cedula}}</td>
 						<td>{{colaborador.identificador_interno}}</td>
 						<td>{{colaborador.puesto }}</td>

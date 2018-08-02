@@ -2,6 +2,7 @@ myApp.controller('colaboradorController', ['$scope', '$log', '$http', '$filter',
     $scope.cedula = '';
     $scope.nombre = '';
     $scope.apelllidos = '';
+    $scope.alias = '';
     $scope.correo_electronico = '';
     $scope.identificador_interno = '';
     $scope.seguro_social = '';
@@ -28,6 +29,7 @@ myApp.controller('colaboradorController', ['$scope', '$log', '$http', '$filter',
                     cedula: $scope.cedula,
                     nombre: $scope.nombre,
                     apellidos: $scope.apellidos,
+                    alias: $scope.alias,
                     identificador_interno: $scope.identificador_interno,
                     seguro_social: $scope.seguro_social,
                     estado: $scope.estado,
@@ -38,7 +40,7 @@ myApp.controller('colaboradorController', ['$scope', '$log', '$http', '$filter',
             },
         })
             .then(function (result) {
-                $log.log(result);
+                //$log.log(result);
                 $scope.colaboradores = result.data.datos;
                 $scope.total_rows = result.data.total_rows;
                 $scope.calcularPaginas();
@@ -112,10 +114,10 @@ myApp.controller('agregarColaboradorController', ['$scope', '$log', '$http', '$f
 
 myApp.controller('editarColaboradorController', ['$scope', '$log', '$http', '$filter', '$timeout', function ($scope, $log, $http, $filter, $timeout) {
     $scope.password = '';
-    $timeout(function(){
+    /*$timeout(function(){
         $log.log($scope.colaborador_puesto_id);
 
-    },122);
+    },122);*/
   
 
 }]);

@@ -48,6 +48,11 @@
 						<small id="apellidosHelp" class="form-text text-muted">Ingrese los apellidos del colaborador.</small>
 					</div>
 					<div class="form-group col-12 col-md-4">
+						<label for="alias">Alias del colaborador *</label>
+						<input type="text" name="alias" class="form-control input-required" id="alias" aria-describedby="aliasHelp" value="<?=(isset($post_data['alias']))?$post_data['alias']:''?>">
+						<small id="aliasHelp" class="form-text text-muted">Ingrese el alias o apodo del colaborador.</small>
+					</div>
+					<div class="form-group col-12 col-md-4">
 						<label for="cedula">Cédula del colaborador *</label>
 						<input type="text" name="cedula" class="form-control input-required"   id="cedula" aria-describedby="correoHelp" value="<?=(isset($post_data['cedula']))?$post_data['cedula']:''?>">
 						<small id="correoHelp" class="form-text text-muted">Ingrese la cédula del colaborador.</small>
@@ -152,8 +157,23 @@
 			</div>
 		</div>
 
+		<div class="card mb-3">
+	        <div class="card-header">
+	          	Información adicional</div>
+	        <div class="card-body">
+				<div class="row">
+					<div class="form-group col-12">
+						<label for="comentario">Comentarios adicionales:</label>
+						<textarea class="form-control" name="comentario" id="comentario" rows="3" aria-describedby="comentarioHelp"></textarea>
+						<small id="comentarioHelp" class="form-text text-muted">Ingrese un comentario adicional sobre este colaborador.<br/>
+						</small>
+						
+					</div>
+				
+				</div>
 
-
+			</div>
+		</div>
 		<div class="card mb-3">
 	        <div class="card-header">
 	          	Estado de colaborador</div>
@@ -179,6 +199,7 @@
 
 			</div>
 		</div>
+		
 	    
 	  <button type="submit" class="btn btn-primary form-submit"><i class="fa fa-fw fa-save"></i> Guardar</button>
 	</form>

@@ -175,6 +175,13 @@
 							<small id="estadoHelp" class="form-text text-muted">Ingrese el estado del gasto.</small>
 						</div>
 	        		</div>
+	        		<div class="form-group col-12">
+						<label for="gasto_detalle">Detalle del gasto:</label>
+						<textarea class="form-control" name="gasto_detalle" id="gasto_detalle" rows="3" aria-describedby="gasto_detalleHelp"><?=(isset($proyecto_gasto->gasto_detalle))?$proyecto_gasto->gasto_detalle:''?></textarea>
+						<small id="gasto_detalleHelp" class="form-text text-muted">Ingrese el detalle del gasto (Lo que se compró, ya sea de manera general o específica).<br/>
+						</small>
+						
+					</div>
 	        	</div>
 	        	
 	        </div>

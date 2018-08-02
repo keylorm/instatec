@@ -1144,6 +1144,7 @@ class M_Proyecto extends CI_Model {
 				unset($datos['proveedor_id']); 
 				unset($datos['numero_factura']);
 				unset($datos['proyecto_gasto_estado_id']);
+				unset($datos['gasto_detalle']);
 			}
 			$datos['tiene_desgloce'] = 0;
 			$this->db->insert($this->t_proyecto_gasto, $datos);
@@ -1158,6 +1159,7 @@ class M_Proyecto extends CI_Model {
 			unset($datos2['fecha_gasto']);
 			unset($datos2['proveedor_id']);
 			unset($datos2['numero_factura']);
+			unset($datos2['gasto_detalle']);
 			unset($datos2['proyecto_gasto_estado_id']);
 			$this->db->insert($this->t_proyecto_gasto_monto, $datos2);
 
@@ -1204,6 +1206,7 @@ class M_Proyecto extends CI_Model {
 					unset($datos['proveedor_id']); 
 					unset($datos['numero_factura']);
 					unset($datos['proyecto_gasto_estado_id']);
+					unset($datos['gasto_detalle']);
 				}
 				$this->db->where('proyecto_gasto_id', $gasto_id);
 				$this->db->update($this->t_proyecto_gasto, $datos);
@@ -1233,6 +1236,7 @@ class M_Proyecto extends CI_Model {
 						unset($datos2['proveedor_id']);
 						unset($datos2['numero_factura']);
 						unset($datos2['proyecto_gasto_estado_id']);
+						unset($datos2['gasto_detalle']);
 						$this->db->insert($this->t_proyecto_gasto_monto, $datos2);
 					}
 				}

@@ -37,12 +37,6 @@
 	        <div class="card-body">
 				<div class="row">
 					<div class="form-group col-12 col-md-4">
-						<label for="nombre">ID del colaborador</label>
-						<input type="text" disabled="disabled" class="form-control input-required" aria-describedby="idColaboradorHelp" value="<?=(isset($colaborador->colaborador_id))?$colaborador->colaborador_id:''?>" >
-						<small id="idColaboradorHelp" class="form-text text-muted">ID único del colaborador.<br/>
-						</small>
-					</div>
-					<div class="form-group col-12 col-md-4">
 						<label for="nombre">Nombre del colaborador</label>
 						<input type="text" name="nombre" class="form-control input-required" id="nombre" aria-describedby="nombreHelp" value="<?=(isset($colaborador->nombre))?$colaborador->nombre:''?>" >
 						<small id="nombreHelp" class="form-text text-muted">Ingrese el nombre del colaborador.<br/>
@@ -52,6 +46,11 @@
 						<label for="apellidos">Apellidos del colaborador</label>
 						<input type="text" name="apellidos" class="form-control input-required" id="apellidos" aria-describedby="apellidosHelp" value="<?=(isset($colaborador->apellidos))?$colaborador->apellidos:''?>">
 						<small id="apellidosHelp" class="form-text text-muted">Ingrese los apellidos del colaborador.</small>
+					</div>
+					<div class="form-group col-12 col-md-4">
+						<label for="alias">Alias del colaborador</label>
+						<input type="text" name="alias" class="form-control input-required" id="alias" aria-describedby="aliasHelp" value="<?=(isset($colaborador->alias))?$colaborador->alias:''?>">
+						<small id="aliasHelp" class="form-text text-muted">Ingrese el alias o apodo del colaborador.</small>
 					</div>
 					<div class="form-group col-12 col-md-4">
 						<label for="cedula">Cédula del colaborador</label>
@@ -69,7 +68,12 @@
 						<input type="text" name="telefono"  class="form-control" id="telefono" aria-describedby="telefonoHelp" value="<?=(isset($colaborador->telefono))?$colaborador->telefono:''?>">
 						<small id="telefonoHelp" class="form-text text-muted">Ingrese el teléfono del colaborador</small>
 					</div>
-				
+					<div class="form-group col-12 col-md-4">
+						<label for="nombre">ID del colaborador</label>
+						<input type="text" disabled="disabled" class="form-control input-required" aria-describedby="idColaboradorHelp" value="<?=(isset($colaborador->colaborador_id))?$colaborador->colaborador_id:''?>" >
+						<small id="idColaboradorHelp" class="form-text text-muted">ID único del colaborador.<br/>
+						</small>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -163,7 +167,23 @@
 			</div>
 		</div>
 
+		<div class="card mb-3">
+	        <div class="card-header">
+	          	Información adicional</div>
+	        <div class="card-body">
+				<div class="row">
+					<div class="form-group col-12">
+						<label for="comentario">Comentarios adicionales:</label>
+						<textarea class="form-control" name="comentario" id="comentario" rows="3" aria-describedby="comentarioHelp"><?=(isset($colaborador->comentario))?$colaborador->comentario:''?></textarea>
+						<small id="comentarioHelp" class="form-text text-muted">Ingrese un comentario adicional sobre este colaborador.<br/>
+						</small>
+						
+					</div>
+				
+				</div>
 
+			</div>
+		</div>
 
 		<div class="card mb-3">
 	        <div class="card-header">
