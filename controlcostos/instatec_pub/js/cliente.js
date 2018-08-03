@@ -1,6 +1,7 @@
 myApp.controller('clienteController', ['$scope','$log','$http', '$filter', function($scope, $log, $http, $filter){
 	$scope.nombre_cliente = '';
 	$scope.cedula_cliente = '';
+	$scope.cliente_calificacion_id = 'all';
 	$scope.estado_cliente = 1;
 	$scope.cantidad_mostrar = 20;
 	$scope.total_rows = 0;
@@ -22,7 +23,8 @@ myApp.controller('clienteController', ['$scope','$log','$http', '$filter', funct
 	        data: {  filtros: { 
 									nombre_cliente: $scope.nombre_cliente, 
 									cedula_cliente: $scope.cedula_cliente, 
-									estado_cliente: $scope.estado_cliente
+									estado_cliente: $scope.estado_cliente,
+									cliente_calificacion_id: $scope.cliente_calificacion_id,
 								},
 								cantidad_mostrar: $scope.cantidad_mostrar,
 	    			},

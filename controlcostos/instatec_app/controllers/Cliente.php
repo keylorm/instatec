@@ -50,6 +50,7 @@ class Cliente extends CI_Controller {
 		if($acceso){
         
 			$this->data['title'] = 'Clientes';
+			$this->data['cliente_calificaciones'] = $this->m_cliente->consultaAllCalificacionesCliente();
 			$this->load->view($this->vista_master, $this->data);
 		}else{
 			redirect('/acceso-denegado', 'refresh');
@@ -91,13 +92,14 @@ class Cliente extends CI_Controller {
 					unset($post_data['telefono']);
 				}
 				$datos_insert['cliente'] = $post_data;
-				$this->m_cliente->insertar($datos_insert);
+				$cliente_id = $this->m_cliente->insertar($datos_insert);
 
-				$this->data['msg'][] = array(
-									'tipo' => 'success',
-									'texto' => 'Cliente registrado con éxito.');
+				redirect('/clientes/ver-cliente/'.$cliente_id, 'refresh');
+
+				
 
 			}
+			$this->data['cliente_calificaciones'] = $this->m_cliente->consultaAllCalificacionesCliente();
 			$this->data['title'] = 'Clientes - Agregar cliente';
 			$this->load->view($this->vista_master, $this->data);
 		}else{
@@ -122,7 +124,11 @@ class Cliente extends CI_Controller {
 
 					$cliente_proyectos = $this->m_proyecto->consultaProyectosPorCliente($cliente_id);
 					$this->data['cliente_proyectos'] = $cliente_proyectos;
-					
+					if($this->input->get('nuevo')!=null  && $this->input->get('nuevo')==1){
+						$this->data['msg'][] = array(
+									'tipo' => 'success',
+									'texto' => 'Cliente registrado con éxito.');
+					}
 					$this->data['title'] = 'Clientes - Ver cliente';
 					$this->load->view($this->vista_master, $this->data);
 				}else{
@@ -178,6 +184,7 @@ class Cliente extends CI_Controller {
 						$this->data['cliente_telefono'] = $cliente_result['cliente_telefono'];
 					}
 				}
+				$this->data['cliente_calificaciones'] = $this->m_cliente->consultaAllCalificacionesCliente();
 				$this->data['title'] = 'Clientes - Editar cliente';
 				$this->load->view($this->vista_master, $this->data);
 			}else{

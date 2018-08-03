@@ -5,6 +5,7 @@ class M_Cliente extends CI_Model {
 	private $t_cliente = 'cliente',
 			$t_cliente_correo =  'cliente_correo',
 			$t_cliente_telefono = 'cliente_telefono',
+			$t_cliente_calificacion = 'cliente_calificacion',
 			$rol_id,
 			$usuario_id;
 
@@ -28,13 +29,16 @@ class M_Cliente extends CI_Model {
 		//Consulta primero los datos
 		if(isset($data['filtros'])){
 			foreach ($data['filtros'] as $key => $value) {
-				if($key=='nombre_cliente' || $key=='cedula_cliente'){
-					$this->db->like($key, $value);
-				}else{
-					$this->db->where($key, $value);
+				if($value!='' && $value!='undefined' && $value!=null  &&  $value!='all'){
+					if($key=='nombre_cliente' || $key=='cedula_cliente'){
+						$this->db->like($this->t_cliente.'.'.$key, $value);
+					}else{
+						$this->db->where($this->t_cliente.'.'.$key, $value);
+					}
 				}
 			}
 		}
+		$this->db->join($this->t_cliente_calificacion, $this->t_cliente_calificacion.'.cliente_calificacion_id = '.$this->t_cliente.'.cliente_calificacion_id', 'LEFT');
 		/*$offset = 0;
 		$cantidad_mostrar = 2;
 		if(isset($data['cantidad_mostrar'])){
@@ -111,12 +115,14 @@ class M_Cliente extends CI_Model {
 				}			
 			}
 		}
+		return $cliente_id;
 	}
 
 	function consultar($cliente_id){
 		if($cliente_id!=null){
 			$result = array();
 			$this->db->where('cliente_id', $cliente_id);
+			$this->db->join($this->t_cliente_calificacion, $this->t_cliente_calificacion.'.cliente_calificacion_id = '.$this->t_cliente.'.cliente_calificacion_id', 'LEFT');
 			$result_cliente = $this->db->get($this->t_cliente);
 			if($result_cliente->num_rows()> 0){
 				$result['cliente'] = $result_cliente->row();
@@ -168,5 +174,16 @@ class M_Cliente extends CI_Model {
 			}
 		}
 		$this->m_bitacora->registrarEdicionBicatora('cliente', $cliente_id);
+	}
+
+	function consultaAllCalificacionesCliente(){
+		$result_calificaciones = $this->db->get($this->t_cliente_calificacion);
+		if($result_calificaciones->num_rows()>0){
+			$result =  $result_calificaciones->result();
+			return $result;
+
+		}else{
+			return false;
+		}
 	}
 }

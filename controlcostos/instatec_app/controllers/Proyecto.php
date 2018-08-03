@@ -684,6 +684,30 @@ class Proyecto extends CI_Controller {
     	}
 	}
 
+	public function consultaColaboradoresActivosProyectoAjax(){
+		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		
+		//$post_data = $this->input->post(NULL, TRUE);
+		$this->output->set_content_type('application/json');
+		$post_data = json_decode(file_get_contents("php://input"), true);
+    	if($post_data!=null){
+			$proyecto_id = $post_data['proyecto_id'];
+			$result_colaboradores = $this->m_colaborador->getAllActiveSoloColaboradores();
+			$result_colaboradores_proyecto = $this->m_proyecto->consultaColaboradoresActivosProyecto($proyecto_id);
+						
+			if($result_colaboradores_proyecto['datos']!=false){
+				foreach ($result_colaboradores_proyecto['datos'] as $kcol => $vcol) {
+					foreach ($result_colaboradores as $key => $value) {
+						if($vcol->colaborador_id == $value->colaborador_id){
+							unset($result_colaboradores[$key]);
+						}
+					}
+				}
+			}
+			$result = array('colaboradores' => $result_colaboradores, 'colaboradores_proyecto' => $result_colaboradores_proyecto);
+			die(json_encode($result));
+    	}
+	}
+
 	
 	public function relacionarColaboradorProyecto(){
 		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		

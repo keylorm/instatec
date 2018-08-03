@@ -788,7 +788,7 @@ myApp.controller('proyectoColaboradoresController', ['$scope', '$log', '$http', 
 	
 	$scope.consultarColaboradoresProyecto = function () {
 		$http({
-			url: '../../../proyecto/consultaColaboradoresProyectoAjax/',
+			url: '../../../proyecto/consultaColaboradoresActivosProyectoAjax/',
 			method: "POST",
 			data: {
 				proyecto_id: $scope.proyecto_id,				
@@ -868,6 +868,7 @@ myApp.controller('editarProyectoColaboradoresController', ['$scope', '$log', '$h
 		.then(function (result) {
 			if (result.data.colaboradores !== false) {
 				//$scope.colaboradores = result.data.colaboradores;
+				$log.log(result.data.colaboradores_proyecto.datos);
 				$scope.colaboradores_proyecto = result.data.colaboradores_proyecto.datos;
 			} else {
 				$scope.colaboradores_proyecto = false;
@@ -919,6 +920,31 @@ myApp.controller('editarProyectoColaboradoresController', ['$scope', '$log', '$h
 		}
 	}
 
+	$scope.addRow = function (row_id) {
+		$http({
+			url: '../../../../proyecto/relacionarColaboradorProyecto/',
+			method: "POST",
+			data: { colaborador_id: row_id, proyecto_id: $scope.proyecto_id },
+		})
+		.then(function (result) {
+			if (result.data !== "false") {
+				$scope.resultado_insert = 'Colaborador relacionado con éxito al proyecto nuevamente';
+				$scope.resultado_type = 'success';
+				$timeout(function () {
+					$window.location.reload();
+				}, 2000);
+			} else {
+				$scope.resultado_insert = 'Hubo un error al relacionar el colaborador al proyecto';
+				$scope.resultado_type = 'danger';
+				$timeout(function () {
+					$window.location.reload();
+				}, 2000);
+			}
+			$scope.consultarColaboradoresProyecto();
+		}, function (result) {
+			$log.error(result);
+		});
+	}
 
 	$scope.borrarRow = function (row_id) {
 		$http({

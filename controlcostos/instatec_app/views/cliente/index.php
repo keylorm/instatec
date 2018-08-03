@@ -36,6 +36,16 @@
 							<input type="text" name="cedula_cliente" class="form-control" id="cedula" aria-describedby="cedulaHelp" ng-model="cedula_cliente">
 						</div>
 						<div class="form-group col-12 col-md-3">
+							<label for="cliente_calificacion_id">Calificación del cliente:</label>
+							<select class="form-control chosen-select" data-placeholder="Seleccione una opción..." name="cliente_calificacion_id" id="cliente_calificacion_id" aria-describedby="clienteHelp" required="true" ng-model="cliente_calificacion_id">
+								<option value=""></option>
+								<option value="all">Todos</option>
+								<?php foreach($cliente_calificaciones as $kcliente_calificacion => $vcliente_calificacion){ ?>
+									<option value="<?=$vcliente_calificacion->cliente_calificacion_id?>"><?=$vcliente_calificacion->cliente_calificacion?></option>
+								<?php } ?>
+							</select>
+						</div>
+						<div class="form-group col-12 col-md-3">
 							<label>Estado del cliente:</label>
 							<div class="form-check">
 								<label class="form-check-label">
@@ -69,6 +79,7 @@
 						<th>Nombre</th>
 						<th>Cédula</th>
 						<th>Fecha de registro</th>
+						<th>Calificación</th>
 						<th>Estado</th>
 						<th class="d-none d-md-table-cell">Acciones</th>
 					</tr>
@@ -100,6 +111,7 @@
 						<td>{{cliente.nombre_cliente}}</td>
 						<td>{{cliente.cedula_cliente}}</td>
 						<td>{{cliente.fecha_registro}}</td>
+						<td>{{cliente.cliente_calificacion}}</td>
 						<td ng-switch="cliente.estado_cliente"><span ng-switch-when="1">Activo</span><span ng-switch-when="0">Inactivo</span></td>
 						<td class="d-none d-md-table-cell">
 							<?php if(isset($permisos['cliente']['view'])){ ?>

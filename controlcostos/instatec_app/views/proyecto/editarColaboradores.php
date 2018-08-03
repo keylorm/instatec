@@ -95,7 +95,8 @@
                                     <th>Teléfono</th>
                                     <th>Correo</th>
                                 <?php } ?>						
-                                <th>Puesto</th>	
+                                <th>Puesto</th>
+                                <th>Estado en el proyecto</th>	
                                 <?php if($rol_id==1){ ?>	
                                     <th class="d-none d-md-table-cell">Acciones</th>
                                 <?php } ?>
@@ -107,7 +108,8 @@
                                 <?php if($rol_id==1){ ?>
                                     <td class="d-md-none">
                                         <div ng-if="colaborador.tipo_relacion!=1">
-                                            <a class="btn btn-sm mb-1 btn-danger" href="#" data-toggle="modal" data-target="#deleteModal1{{colaborador.colaborador_id}}"><i class="fa fa-fw fa-trash-o"></i></a>
+                                            <button ng-show="colaborador.estado_registro==0" class="btn btn-sm mb-1 btn-success" ng-click="addRow(colaborador.colaborador_id)"><i class="fa fa-fw fa-check"></i></button>
+                                            <a ng-show="colaborador.estado_registro==1" class="btn btn-sm mb-1 btn-danger" href="#" data-toggle="modal" data-target="#deleteModal1{{colaborador.colaborador_id}}"><i class="fa fa-fw fa-ban"></i></a>
                                             <!-- Modal -->
                                             <div class="modal fade" id="deleteModal1{{colaborador.colaborador_id}}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                             <div class="modal-dialog" role="document">
@@ -141,11 +143,12 @@
                                     <td>{{colaborador.correo_electronico}}</td>
                                 <?php } ?>
                                 <td>{{colaborador.puesto}}</td>
-                                
+                                <td>{{(colaborador.estado_registro==1)?'Activo':'Inactivo'}}</td>
                                 <?php if($rol_id==1){ ?>
                                     <td class="d-none d-md-table-cell"> 
                                         <div ng-if="colaborador.tipo_relacion!=1">
-                                            <a class="btn btn-sm mb-1 btn-danger" href="#" data-toggle="modal" data-target="#deleteModal2{{colaborador.colaborador_id}}"><i class="fa fa-fw fa-trash-o"></i></a>
+                                            <button ng-show="colaborador.estado_registro==0" class="btn btn-sm mb-1 btn-success" ng-click="addRow(colaborador.colaborador_id)">Activar</button>
+                                            <a ng-show="colaborador.estado_registro==1" class="btn btn-sm mb-1 btn-danger" href="#" data-toggle="modal" data-target="#deleteModal2{{colaborador.colaborador_id}}">Desact.</a>
                                             <!-- Modal -->
                                             <div class="modal fade" id="deleteModal2{{colaborador.colaborador_id}}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                             <div class="modal-dialog" role="document">

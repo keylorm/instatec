@@ -26,38 +26,52 @@
         <div class="card-header">
           	<i class="fa fa-handshake-o"></i> Información del cliente</div>
         <div class="card-body">
-          	<p><span class="font-weight-bold">Nombre de cliente:</span> 
-			<?=(isset($cliente->nombre_cliente))?$cliente->nombre_cliente:''?></p>
-			
-			<p><span class="font-weight-bold">Cédula del cliente:</span> 
-			<?=(isset($cliente->cedula_cliente))?$cliente->cedula_cliente:''?></p>
-			
-		    
-		    <?php if(isset($cliente_correo)){ ?> 
-		   		<p><span class="font-weight-bold">Correos de contacto:</span> <br />
-				<?php foreach($cliente_correo as $kcorreo => $vcorreo){ ?>
-					<a href="mailto:<?=$vcorreo->correo_cliente?>"><?=$vcorreo->correo_cliente?></a> <br />		       
-				<?php	
-				} ?>
-				</p>
-		    <?php } ?>
+        	<div class="row">
+	        	<div class="col-12 col-md-6">
+		          	<p><span class="font-weight-bold">Nombre de cliente:</span> 
+					<?=(isset($cliente->nombre_cliente))?$cliente->nombre_cliente:''?></p>
+					
+					<p><span class="font-weight-bold">Cédula del cliente:</span> 
+					<?=(isset($cliente->cedula_cliente))?$cliente->cedula_cliente:''?></p>
+					
+				    
+				    <?php if(isset($cliente_correo)){ ?> 
+				   		<p><span class="font-weight-bold">Correos de contacto:</span> <br />
+						<?php foreach($cliente_correo as $kcorreo => $vcorreo){ ?>
+							<a href="mailto:<?=$vcorreo->correo_cliente?>"><?=$vcorreo->correo_cliente?></a> <br />		       
+						<?php	
+						} ?>
+						</p>
+				    <?php } ?>
 
 
 
-		    <?php if(isset($cliente_telefono)){ ?>
-		    	<p><span class="font-weight-bold">Teléfonos de contacto:</span> <br />
-				<?php foreach($cliente_telefono as $ktelefono => $vtelefono){ ?>
-					<a href="mailto:<?=$vtelefono->telefono_cliente?>"><?=$vtelefono->telefono_cliente?></a> <br />
-				       
-				<?php	
-				} ?>
-				</p>
-		    <?php } ?>
+				    <?php if(isset($cliente_telefono)){ ?>
+				    	<p><span class="font-weight-bold">Teléfonos de contacto:</span> <br />
+						<?php foreach($cliente_telefono as $ktelefono => $vtelefono){ ?>
+							<a href="mailto:<?=$vtelefono->telefono_cliente?>"><?=$vtelefono->telefono_cliente?></a> <br />
+						       
+						<?php	
+						} ?>
+						</p>
+				    <?php } ?>
+	        		
+	        	</div>
+	        	<div class="col-12 col-md-6">	
+				    <p><span class="font-weight-bold">Estado del cliente:</span> 
+					<?=(isset($cliente->estado_cliente) && $cliente->estado_cliente==1)?'Activo':'Inactivo'?></p>
+
+					<p><span class="font-weight-bold">Calificación del cliente:</span> 
+					<?=(isset($cliente->cliente_calificacion))?$cliente->cliente_calificacion:''?></p>
+
+					<p><span class="font-weight-bold">Comentarios adicionales:</span> <br />
+					<?=(isset($cliente->comentario))?$cliente->comentario:''?></p>
+	        	</div>
+        		
+        	</div>
 
 
 
-		    <p><span class="font-weight-bold">Estado del cliente:</span> 
-			<?=(isset($cliente->estado_cliente) && $cliente->estado_cliente==1)?'Activo':'Inactivo'?></p>
         </div>
         
     </div>

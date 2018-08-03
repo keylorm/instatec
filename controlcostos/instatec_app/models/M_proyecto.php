@@ -1301,6 +1301,29 @@ class M_Proyecto extends CI_Model {
 			$this->db->join($this->t_colaborador, $this->t_colaborador.'.colaborador_id = '.$this->t_proyecto_colaborador.'.colaborador_id', 'LEFT');
 			$this->db->join($this->t_colaborador_puesto, $this->t_colaborador_puesto.'.colaborador_puesto_id = '.$this->t_colaborador.'.colaborador_puesto_id');
 			$this->db->where($this->t_proyecto_colaborador.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_colaborador.'.estado', 1);
+			$this->db->where($this->t_colaborador.'.estado_row', 1);
+			$result_colaboradores = $this->db->get($this->t_proyecto_colaborador);
+			$result_colaboradores_count = $result_colaboradores->num_rows();
+			if($result_colaboradores_count> 0){
+				$result = array(
+							'total_rows' => $result_colaboradores_count,
+							'datos' => $result_colaboradores->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultaColaboradoresActivosProyecto($proyecto_id){
+		if($proyecto_id!=null){
+			$this->db->join($this->t_colaborador, $this->t_colaborador.'.colaborador_id = '.$this->t_proyecto_colaborador.'.colaborador_id', 'LEFT');
+			$this->db->join($this->t_colaborador_puesto, $this->t_colaborador_puesto.'.colaborador_puesto_id = '.$this->t_colaborador.'.colaborador_puesto_id');
+			$this->db->where($this->t_proyecto_colaborador.'.proyecto_id', $proyecto_id);
 			$this->db->where($this->t_proyecto_colaborador.'.estado_registro', 1);
 			$this->db->where($this->t_colaborador.'.estado', 1);
 			$this->db->where($this->t_colaborador.'.estado_row', 1);
