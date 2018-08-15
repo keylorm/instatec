@@ -556,6 +556,21 @@ class Proyecto extends CI_Controller {
 						}
 					}
 				}
+
+				if ($this->input->get('resultado_insercion') != null) {
+					if ($this->input->get('resultado_insercion')) {
+						$this->data['msg'][] = array(
+							'tipo' => 'success', 
+							'texto' => 'Colaborador registrado y relacionado al proyecto con éxito.'
+						);
+
+					}else{
+						$this->data['msg'][] = array(
+							'tipo' => 'danger', 
+							'texto' => 'Hubo un error al relacionar al colaborador con el proyecto.'
+						);
+					}
+				}
 				$this->data['colaboradores'] = $result_colaboradores;			
 
 				$this->data['title'] = 'Proyectos - '.$this->data['proyecto']->nombre_proyecto.' - Editar colaboradores';
@@ -782,7 +797,7 @@ class Proyecto extends CI_Controller {
 		//$post_data = $this->input->post(NULL, TRUE);
 		$this->output->set_content_type('application/json');
 		$post_data = json_decode(file_get_contents("php://input"), true);
-    	if($post_data!=null){
+		if($post_data!=null){
 			$proyecto_id = $post_data['proyecto_id'];
 			$colaborador_id = $post_data['colaborador_id'];
 			$result = $this->m_proyecto->relacionarColaboradorProyecto($proyecto_id, $colaborador_id,2);

@@ -57,6 +57,13 @@ class Colaborador extends CI_Controller {
 		if($acceso){
 			$post_data = $this->input->post(NULL, TRUE);
 			if($post_data!=null){
+				// Esta variable es para validar si se esta ingresando un colaborador desde la parte de proyectos
+				$asociar_proyecto = false;
+				if ($this->input->get('proyecto_id') !== null) {
+					// Si por get viene el parametro del id de proyecto, entonces ese colaborador se va a ligar a ese proyecto
+					$asociar_proyecto = true;
+					$proyecto_id = $this->input->get('proyecto_id');
+				}
 				$datos_insert = array();				
 				$datos_insert = $post_data;
 				$datos_insert['moneda_id'] = 2;
@@ -64,6 +71,14 @@ class Colaborador extends CI_Controller {
 				if($colaborador_no_existente['tipo'] == 'success'){	
 					$respuesta = $this->m_colaborador->insertar($datos_insert);
 					$this->data['msg'][] = $respuesta;
+
+					//Aqui relaciona el colaborador al proyecto
+					if($asociar_proyecto && $respuesta['tipo'] == 'success' && isset($respuesta['colaborador_id'])){
+						$colaborador_id = $respuesta['colaborador_id'];
+						$this->load->model('m_proyecto');
+						$respuesta_relacion = $this->m_proyecto->relacionarColaboradorProyecto($proyecto_id, $colaborador_id,2);
+						redirect('/proyectos/colaboradores/'.$proyecto_id.'/editar-colaboradores?resultado_insercion='.$respuesta_relacion, 'refresh');
+					}
 				}else{
 					$this->data['post_data'] = $post_data;
 					$this->data['msg'][] = $colaborador_no_existente;

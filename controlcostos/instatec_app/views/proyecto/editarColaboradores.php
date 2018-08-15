@@ -59,6 +59,13 @@
                             <small id="colaboradorHelp" class="form-text text-muted">Busque el colaborador que desea agregar al proyecto.</small>
                         </div>
                     </div>
+                    <div class="col-12 col-md-6 col-lg-4"></div>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <label>¿Es un colaborador nuevo?:</label>
+                            <a class=" btn btn-success" href="<?=base_url()?>colaboradores/agregar-colaborador?proyecto_id=<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Registrar nuevo colaborador</a>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-12 col-md-6 col-lg-3">

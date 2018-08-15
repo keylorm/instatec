@@ -179,8 +179,9 @@ class M_Colaborador extends CI_Model {
 		}
 
 		return array('tipo' => 'success',
-							'texto' => 'Colaborador registrado con éxito',
-							);
+					'texto' => 'Colaborador registrado con éxito',
+					'colaborador_id' => $colaborador_id,
+					);
 		
 	}
 

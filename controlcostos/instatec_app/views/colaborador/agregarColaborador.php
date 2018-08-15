@@ -94,9 +94,16 @@
 						<select class="form-control select-required	" name="colaborador_puesto_id" id="colaborador_puesto_id" ng-model="colaborador_puesto_id" aria-describedby="puestoHelp"  required="required">
 							<?php 
 							foreach($puestos as $kpuesto => $vpuesto){ 
-							?>
+								$saltar =  false;
+								if($this->input->get('proyecto_id')!==null){
+									if($vpuesto->colaborador_puesto_id == 1){
+										$saltar = true;
+									}
+								}
+								if(!$saltar){ ?>
 								<option value="<?=$vpuesto->colaborador_puesto_id?>" ><?=$vpuesto->puesto?></option>
-							<?php } ?>
+							<?php }
+							} ?>
 						</select>	
 						<small id="puestoHelp" class="form-text text-muted">Ingrese el puesto de este usuario.</small>
 					</div>

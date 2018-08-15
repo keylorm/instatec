@@ -199,3 +199,223 @@ DEBUG - 2018-08-14 19:11:33 --> Form_validation class already loaded. Second att
 INFO - 2018-08-14 19:11:33 --> File loaded: D:\xampp\htdocs\instateccr\controlcostos\instatec_app\views\index.php
 INFO - 2018-08-14 19:11:33 --> Final output sent to browser
 DEBUG - 2018-08-14 19:11:33 --> Total execution time: 0.1071
+INFO - 2018-08-14 19:33:28 --> Config Class Initialized
+INFO - 2018-08-14 19:33:28 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:28 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:28 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:28 --> URI Class Initialized
+INFO - 2018-08-14 19:33:28 --> Router Class Initialized
+INFO - 2018-08-14 19:33:28 --> Output Class Initialized
+INFO - 2018-08-14 19:33:28 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:28 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:28 --> Input Class Initialized
+INFO - 2018-08-14 19:33:28 --> Language Class Initialized
+INFO - 2018-08-14 19:33:28 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:28 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:28 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:28 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:28 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:28 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:28 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:28 --> Model Class Initialized
+INFO - 2018-08-14 19:33:28 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:28 --> Model Class Initialized
+INFO - 2018-08-14 19:33:28 --> Model Class Initialized
+INFO - 2018-08-14 19:33:28 --> Model Class Initialized
+INFO - 2018-08-14 19:33:28 --> Model Class Initialized
+INFO - 2018-08-14 19:33:28 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:28 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:28 --> File loaded: D:\xampp\htdocs\instateccr\controlcostos\instatec_app\views\index.php
+INFO - 2018-08-14 19:33:28 --> Final output sent to browser
+DEBUG - 2018-08-14 19:33:28 --> Total execution time: 0.0683
+INFO - 2018-08-14 19:33:29 --> Config Class Initialized
+INFO - 2018-08-14 19:33:29 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:29 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:29 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:29 --> URI Class Initialized
+INFO - 2018-08-14 19:33:29 --> Router Class Initialized
+INFO - 2018-08-14 19:33:29 --> Output Class Initialized
+INFO - 2018-08-14 19:33:29 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:29 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:29 --> Input Class Initialized
+INFO - 2018-08-14 19:33:29 --> Language Class Initialized
+INFO - 2018-08-14 19:33:29 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:29 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:29 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:29 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:29 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:29 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:29 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:29 --> Model Class Initialized
+INFO - 2018-08-14 19:33:29 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:29 --> Model Class Initialized
+INFO - 2018-08-14 19:33:29 --> Model Class Initialized
+INFO - 2018-08-14 19:33:29 --> Model Class Initialized
+INFO - 2018-08-14 19:33:29 --> Model Class Initialized
+INFO - 2018-08-14 19:33:29 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:29 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:33 --> Config Class Initialized
+INFO - 2018-08-14 19:33:33 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:33 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:33 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:33 --> URI Class Initialized
+INFO - 2018-08-14 19:33:33 --> Router Class Initialized
+INFO - 2018-08-14 19:33:33 --> Output Class Initialized
+INFO - 2018-08-14 19:33:33 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:33 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:33 --> Input Class Initialized
+INFO - 2018-08-14 19:33:33 --> Language Class Initialized
+INFO - 2018-08-14 19:33:33 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:33 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:33 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:33 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:33 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:33 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:33 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:33 --> Model Class Initialized
+INFO - 2018-08-14 19:33:33 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:33 --> Model Class Initialized
+INFO - 2018-08-14 19:33:33 --> Model Class Initialized
+INFO - 2018-08-14 19:33:33 --> Model Class Initialized
+INFO - 2018-08-14 19:33:33 --> Model Class Initialized
+INFO - 2018-08-14 19:33:33 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:33 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:33 --> File loaded: D:\xampp\htdocs\instateccr\controlcostos\instatec_app\views\index.php
+INFO - 2018-08-14 19:33:33 --> Final output sent to browser
+DEBUG - 2018-08-14 19:33:33 --> Total execution time: 0.1641
+INFO - 2018-08-14 19:33:34 --> Config Class Initialized
+INFO - 2018-08-14 19:33:34 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:34 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:34 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:34 --> URI Class Initialized
+INFO - 2018-08-14 19:33:34 --> Router Class Initialized
+INFO - 2018-08-14 19:33:34 --> Output Class Initialized
+INFO - 2018-08-14 19:33:34 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:34 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:34 --> Input Class Initialized
+INFO - 2018-08-14 19:33:34 --> Language Class Initialized
+INFO - 2018-08-14 19:33:34 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:34 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:34 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:34 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:34 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:34 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:34 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:34 --> Model Class Initialized
+INFO - 2018-08-14 19:33:34 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:34 --> Model Class Initialized
+INFO - 2018-08-14 19:33:34 --> Model Class Initialized
+INFO - 2018-08-14 19:33:34 --> Model Class Initialized
+INFO - 2018-08-14 19:33:34 --> Model Class Initialized
+INFO - 2018-08-14 19:33:34 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:34 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:36 --> Config Class Initialized
+INFO - 2018-08-14 19:33:36 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:36 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:36 --> URI Class Initialized
+INFO - 2018-08-14 19:33:36 --> Router Class Initialized
+INFO - 2018-08-14 19:33:36 --> Output Class Initialized
+INFO - 2018-08-14 19:33:36 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:36 --> Input Class Initialized
+INFO - 2018-08-14 19:33:36 --> Language Class Initialized
+INFO - 2018-08-14 19:33:36 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:36 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:36 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:36 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:36 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:36 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:36 --> File loaded: D:\xampp\htdocs\instateccr\controlcostos\instatec_app\views\index.php
+INFO - 2018-08-14 19:33:36 --> Final output sent to browser
+DEBUG - 2018-08-14 19:33:36 --> Total execution time: 0.0963
+INFO - 2018-08-14 19:33:36 --> Config Class Initialized
+INFO - 2018-08-14 19:33:36 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:36 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:36 --> URI Class Initialized
+INFO - 2018-08-14 19:33:36 --> Router Class Initialized
+INFO - 2018-08-14 19:33:36 --> Output Class Initialized
+INFO - 2018-08-14 19:33:36 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:36 --> Input Class Initialized
+INFO - 2018-08-14 19:33:36 --> Language Class Initialized
+INFO - 2018-08-14 19:33:36 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:36 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:36 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:36 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:36 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:36 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+INFO - 2018-08-14 19:33:36 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:36 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:39 --> Config Class Initialized
+INFO - 2018-08-14 19:33:39 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:39 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:39 --> URI Class Initialized
+INFO - 2018-08-14 19:33:39 --> Router Class Initialized
+INFO - 2018-08-14 19:33:39 --> Output Class Initialized
+INFO - 2018-08-14 19:33:39 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:39 --> Input Class Initialized
+INFO - 2018-08-14 19:33:39 --> Language Class Initialized
+INFO - 2018-08-14 19:33:39 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:39 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:39 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:39 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:39 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:39 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> Form_validation class already loaded. Second attempt ignored.
+INFO - 2018-08-14 19:33:39 --> File loaded: D:\xampp\htdocs\instateccr\controlcostos\instatec_app\views\index.php
+INFO - 2018-08-14 19:33:39 --> Final output sent to browser
+DEBUG - 2018-08-14 19:33:39 --> Total execution time: 0.0597
+INFO - 2018-08-14 19:33:39 --> Config Class Initialized
+INFO - 2018-08-14 19:33:39 --> Hooks Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> UTF-8 Support Enabled
+INFO - 2018-08-14 19:33:39 --> Utf8 Class Initialized
+INFO - 2018-08-14 19:33:39 --> URI Class Initialized
+INFO - 2018-08-14 19:33:39 --> Router Class Initialized
+INFO - 2018-08-14 19:33:39 --> Output Class Initialized
+INFO - 2018-08-14 19:33:39 --> Security Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> Global POST, GET and COOKIE data sanitized
+INFO - 2018-08-14 19:33:39 --> Input Class Initialized
+INFO - 2018-08-14 19:33:39 --> Language Class Initialized
+INFO - 2018-08-14 19:33:39 --> Loader Class Initialized
+INFO - 2018-08-14 19:33:39 --> Helper loaded: url_helper
+INFO - 2018-08-14 19:33:39 --> Helper loaded: form_helper
+INFO - 2018-08-14 19:33:39 --> Database Driver Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> Session: "sess_save_path" is empty; using "session.save_path" value from php.ini.
+INFO - 2018-08-14 19:33:39 --> Session: Class initialized using 'files' driver.
+INFO - 2018-08-14 19:33:39 --> Form Validation Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Controller Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+INFO - 2018-08-14 19:33:39 --> Model Class Initialized
+DEBUG - 2018-08-14 19:33:39 --> Form_validation class already loaded. Second attempt ignored.
