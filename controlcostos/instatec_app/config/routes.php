@@ -84,6 +84,9 @@ $route['proyectos/remover-proyecto/(:num)'] = 'proyecto/removerProyecto/$1';
 $route['proyectos/extensiones/(:num)'] = 'proyecto/verExtensionesProyecto/$1';
 $route['proyectos/extensiones/(:num)/agregar-extension'] = 'proyecto/agregarExtensionProyecto/$1';
 $route['proyectos/extensiones/(:num)/editar-extension/(:num)'] = 'proyecto/editarExtensionProyecto/$1/$2';
+$route['proyectos/extensiones/tipos-orden-cambio'] = 'proyecto/verTiposOrdenCambio';
+$route['proyectos/extensiones/agregar-tipo-orden-cambio'] = 'proyecto/agregarTipoOrdenCambio';
+$route['proyectos/extensiones/editar-tipo-orden-cambio/(:num)'] = 'proyecto/editarTipoOrdenCambio/$1';
 $route['proyectos/gastos/(:num)'] = 'proyecto/verGastosProyecto/$1';
 $route['proyectos/gastos/(:num)/agregar-gasto'] = 'proyecto/agregarGastoProyecto/$1/';
 $route['proyectos/gastos/(:num)/editar-gasto/(:num)'] = 'proyecto/editarGastoProyecto/$1/$2';
@@ -118,6 +121,11 @@ $route['colaboradores/ver-colaborador/(:num)'] = 'colaborador/verColaborador/$1'
 $route['colaboradores/agregar-colaborador'] = 'colaborador/agregarColaborador';
 $route['colaboradores/editar-colaborador/(:num)'] = 'colaborador/editarColaborador/$1';
 $route['colaboradores/remover-colaborador/(:num)'] = 'colaborador/removerColaborador/$1';
+
+//Puestos de trabajo
+$route['colaboradores/puestos-trabajo'] = 'colaborador/verPuestos';
+$route['colaboradores/agregar-puesto-trabajo'] = 'colaborador/agregarPuestoTrabajo';
+$route['colaboradores/editar-puesto-trabajo/(:num)'] = 'colaborador/editarPuestoTrabajo/$1';
 
 
 //$route['registro-admin'] = 'usuario/registro_admin';

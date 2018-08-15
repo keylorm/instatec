@@ -18,10 +18,27 @@
 
 
 <div class="page-content" ng-controller="proyectoExtensionesController" ng-cloak ng-init="proyecto_id='<?=$proyecto->proyecto_id?>'; consultarExtensionesProyecto();">
-	
-	<div class="row">
+	<?php if(isset($permisos['proyecto_tipos_orden_cambio']['list'])){ ?>
+		<div class="row">
+			<div class="col-12 col-md-10"></div>
+			<div class="col-12 col-md-2 text-right dropdown  mb-3">
+				<button class="btn btn-sm btn-secondary dropdown-toggle float-md-right mb-3 mx-auto d-block d-md-inline-block" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i> Configuración </button>
+				<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+					<a class="dropdown-item" href="<?=base_url()?>proyectos/extensiones/tipos-orden-cambio">Tipos de orden de cambio</a>
+				</div>
+			</div>
+			
+		</div>
+			
+	<?php } ?>
+	<div class="row ">
 		<div class="col-12 col-md-6"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-table"></i> Lista de ordenes de cambio</h3></div>
-		<div class="col-12 col-md-6"><a class="btn btn-primary float-md-right mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/extensiones/<?=$proyecto->proyecto_id?>/agregar-extension" role="button"><i class="fa fa-fw fa-plus-circle"></i> Agregar orden de cambio</a> <a class="btn btn-primary float-md-right mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/ver-proyecto/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver al proyecto</a></div>
+		<div class="col-12 col-md-3">
+			<a class="btn btn-sm btn-secondary float-md-right mb-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/ver-proyecto/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver al proyecto</a>
+		</div>
+		<div class="col-12 col-md-3 text-right ">
+			<a class="btn btn-sm btn-primary float-md-right mb-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/extensiones/<?=$proyecto->proyecto_id?>/agregar-extension" role="button"><i class="fa fa-fw fa-plus-circle"></i> Agregar orden de cambio</a>
+		</div>
 	</div>
 
 	<?php 

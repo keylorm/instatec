@@ -13,9 +13,20 @@
 
 <div class="page-content" ng-controller="colaboradorController">
 	<div class="row">
-		<div class="col-12 col-md-10"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-table"></i> Lista de colaboradores</h3></div>
+		<div class="col-12 col-md-8"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-table"></i> Lista de colaboradores</h3></div>
 		<?php if(isset($permisos['colaborador']['create'])){ ?>
 			<div class="col-12 col-md-2"><a class="btn btn-primary float-md-right mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>colaboradores/agregar-colaborador" role="button"><i class="fa fa-fw fa-plus-circle"></i> Agregar colaborador</a></div>
+		<?php } ?>
+		<?php if(isset($permisos['colaborador_puestos']['list'])){ ?>
+			<div class="col-12 col-md-2">
+				<div class="dropdown">
+					<button class="btn btn-secondary dropdown-toggle text-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i> Configuración </button>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<a class="dropdown-item" href="<?=base_url()?>colaboradores/puestos-trabajo">Puestos de trabajo</a>
+					</div>
+				</div>
+				
+			</div>
 		<?php } ?>
 	</div>
 	<div class="card">
@@ -166,11 +177,11 @@
 								</div>
 							<?php } ?>
 						</td>
-						<td>{{colaborador.colaborador_id}}</td>
-						<td>{{colaborador.nombre}} {{colaborador.apellidos}} {{colaborador.alias !== ''? '('+colaborador.alias+')':''}}</td>
-						<td>{{colaborador.cedula}}</td>
-						<td>{{colaborador.identificador_interno}}</td>
-						<td>{{colaborador.puesto }}</td>
+						<td><a href="<?=base_url()?>colaboradores/editar-colaborador/{{colaborador.colaborador_id}}" class="">{{colaborador.colaborador_id}}</a></td>
+						<td><a href="<?=base_url()?>colaboradores/editar-colaborador/{{colaborador.colaborador_id}}" class="">{{colaborador.nombre}} {{colaborador.apellidos}} {{colaborador.alias !== ''? '('+colaborador.alias+')':''}}</a></td>
+						<td><a href="<?=base_url()?>colaboradores/editar-colaborador/{{colaborador.colaborador_id}}" class="">{{colaborador.cedula}}</a></td>
+						<td><a href="<?=base_url()?>colaboradores/editar-colaborador/{{colaborador.colaborador_id}}" class="">{{colaborador.identificador_interno}}</a></td>
+						<td><a href="<?=base_url()?>colaboradores/editar-colaborador/{{colaborador.colaborador_id}}" class="">{{colaborador.puesto }}</a></td>
 						<td ng-switch="colaborador.estado"><span ng-switch-when="1">Activo</span><span ng-switch-when="0">Inactivo</span></td>
 						<td class="d-none d-md-table-cell">
 							<?php if(isset($permisos['colaborador']['edit'])){ ?>

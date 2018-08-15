@@ -293,6 +293,74 @@ class Proyecto extends CI_Controller {
 		}
 	}
 
+
+	/* Para manejo de tipos de ordenes de cambio */
+	/* Para puestos de trabajo */
+
+	public function verTiposOrdenCambio(){
+		/* Esto se usa si la consulta se hace por post normal y no por angular 
+		$post_data = $this->input->post(NULL, TRUE);
+		if($post_data!=null){		
+			exit(var_export($post_data));
+		}*/
+		$acceso = $this->m_general->validarRol($this->router->class.'_tipos_orden_cambio', 'list');
+		if($acceso){
+			$this->data['title'] = 'Proyectos - Tipos de orden de cambio';
+			$this->load->view($this->vista_master, $this->data);
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function agregarTipoOrdenCambio(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_tipos_orden_cambio', 'create');
+		if($acceso){
+			$post_data = $this->input->post(NULL, TRUE);
+			if($post_data!=null){
+				$datos_insert = array();				
+				$datos_insert = $post_data;
+				$respuesta = $this->m_proyecto->insertarTipoOrdenCambio($datos_insert);
+				$this->data['msg'][] = $respuesta;
+
+			}
+
+			$this->data['title'] = 'Proyecto - Extensiones - Agregar tipo de orden de cambio';
+			$this->load->view($this->vista_master, $this->data);
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function editarTipoOrdenCambio($proyecto_valor_oferta_extension_tipo_id){
+		$acceso = $this->m_general->validarRol($this->router->class.'_tipos_orden_cambio', 'edit');
+		if($acceso){
+			if($proyecto_valor_oferta_extension_tipo_id!=null){
+				$post_data = $this->input->post(NULL, TRUE);
+				if($post_data!=null){
+					$datos_insert = array();				
+					$datos_insert = $post_data;
+					$respuesta = $this->m_proyecto->editarTipoOrdenCambio($proyecto_valor_oferta_extension_tipo_id,$datos_insert);
+
+					$this->data['msg'][] = $respuesta;
+					
+				}
+
+				$tipo_orden_cambio_result = $this->m_proyecto->consultarTipoOrdenCambio($proyecto_valor_oferta_extension_tipo_id);
+				
+				if($tipo_orden_cambio_result!==false){
+					$this->data['tipo_orden_cambio'] = $tipo_orden_cambio_result;
+				}
+
+				$this->data['title'] = 'Proyecto - Extensiones - Editar tipo de orden de cambio';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/proyectos/extensiones/tipos-orden-cambio', 'refresh');
+			}
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
 	/* Para manejo de Gastos */
 
 	public function verGastosProyecto($proyecto_id){
@@ -451,7 +519,7 @@ class Proyecto extends CI_Controller {
 		}
 	}
 
-	/* Para colaboradores */
+	/* Para proyectos */
 	public function verColaboradores($proyecto_id){
 		$acceso = $this->m_general->validarRol($this->router->class.'_colaboradores', 'view');
 		if($acceso){
@@ -770,5 +838,35 @@ class Proyecto extends CI_Controller {
     		$result = $this->m_general->consultaDistritosCantones($post_data);
 			die(json_encode($result));
     	}
+	}
+
+
+	/* Típos de Orden de Cambio */
+
+	public function consultaTiposOrdenCambioAjax(){
+		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		
+		//$post_data = $this->input->post(NULL, TRUE);
+		$this->output->set_content_type('application/json');
+		$post_data = json_decode(file_get_contents("php://input"), true);
+    	if($post_data!=null){
+    		$result = $this->m_proyecto->consultarTiposOrdenCambio($post_data);
+			die(json_encode($result));
+    	}
+	}
+
+	public function eliminarTiposOrdenCambioAjax(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_tipos_orden_cambio', 'delete');
+		if($acceso){
+			$this->output->set_content_type('application/json');
+			$post_data = json_decode(file_get_contents("php://input"), true);
+	    	if($post_data!=null){
+	    		$result_eliminar = $this->m_proyecto->eliminarTipoOrdenCambio($post_data['proyecto_valor_oferta_extension_tipo_id']);
+	    		$result = $result_eliminar;
+				die(json_encode($result));
+	    	}
+    	}else{
+    		$result=false;
+			die(json_encode($result));
+		}
 	}
 }

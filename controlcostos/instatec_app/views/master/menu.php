@@ -28,37 +28,53 @@
 			        <span class="nav-link-text">Clientes</span>
 			      </a>
 			    </li>
-				<?php } ?>
-				<?php if(isset($permisos['proveedor']['list'])){ ?>
+			<?php } ?>
+			<?php if(isset($permisos['proveedor']['list'])){ ?>
 			    <li class="nav-item" >
 			      <a class="nav-link" href="<?=base_url()?>proveedores">
 			        <i class="fa fa-fw fa-shopping-bag"></i>
 			        <span class="nav-link-text">Proveedores</span>
 			      </a>
 			    </li>
-				<?php } ?>
-				<?php if(isset($permisos['reporte']['list'])){ ?>				
+			<?php } ?>
+			<?php if(isset($permisos['reporte']['list'])){ ?>				
 			    <li class="nav-item" >
 			      <a class="nav-link" href="<?=base_url()?>reportes">
 			        <i class="fa fa-fw fa-table"></i>
 			        <span class="nav-link-text">Reportes</span>
 			      </a>
 			    </li>
-				<?php } ?>
-				<?php if(isset($permisos['colaborador']['list'])){ ?>
-					<li class="nav-item" >
+			<?php } ?>
+			<?php if(isset($permisos['colaborador']['list'])){ ?>
+				<li class="nav-item" >
 			      <a class="nav-link" href="<?=base_url()?>colaboradores">
 			        <i class="fa fa-fw fa-sitemap"></i>
 			        <span class="nav-link-text">Colaboradores</span>
 			      </a>
 			    </li>
 		    <?php } ?>
-				<?php if(isset($permisos['usuario']['list'])){ ?>
-					<li class="nav-item" >
+			<?php if(isset($permisos['usuario']['list'])){ ?>
+				<li class="nav-item" >
 			      <a class="nav-link" href="<?=base_url()?>usuarios">
 			        <i class="fa fa-fw fa-users"></i>
 			        <span class="nav-link-text">Usuarios</span>
 			      </a>
+			    </li>
+		    <?php } ?>
+		    <?php if(isset($permisos['configuracion']['list'])){ ?>
+				<li class="nav-item" >
+					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseComponents" data-parent="#exampleAccordion">
+						<i class="fa fa-fw fa-cog"></i>
+						<span class="nav-link-text">Configuración</span>
+					</a>
+					<ul class="sidenav-second-level collapse" id="collapseComponents">
+						<li>
+							<a href="<?=base_url()?>colaboradores/puestos-trabajo">Puestos de trabajo</a>
+						</li>
+						<li>
+							<a href="<?=base_url()?>proyectos/extensiones/tipos-orden-cambio">Tipos de orden de cambio</a>
+						</li>
+					</ul>
 			    </li>
 		    <?php } ?>
 

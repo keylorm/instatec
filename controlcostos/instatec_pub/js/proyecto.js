@@ -1153,3 +1153,108 @@ myApp.controller('registrarTiempoColaboradoresDashboardController', ['$scope', '
 
 
 }]);
+
+
+/* Para agregar mantenimiento de Tipos de orden de cambio */
+myApp.controller('proyectoVerTiposOrdenCambio', ['$scope', '$log', '$http', '$filter', '$window', function ($scope, $log, $http, $filter, $window) {
+    $scope.proyecto_valor_oferta_extension_tipo = '';
+    $scope.cantidad_mostrar = 20;
+    $scope.total_rows = 0;
+    $scope.pages = 1;
+    $scope.q = '';
+
+    $scope.currentPage = 0;
+
+
+
+    $scope.filtrarTipos = function () {
+        $scope.consultarTipos();
+    };
+
+    $scope.consultarTipos = function () {
+        $http({
+            url: '../../../proyecto/consultaTiposOrdenCambioAjax/',
+            method: "POST",
+            data: {
+                filtros: {
+                    proyecto_valor_oferta_extension_tipo: $scope.proyecto_valor_oferta_extension_tipo,
+                },
+                cantidad_mostrar: $scope.cantidad_mostrar,
+            },
+        })
+            .then(function (result) {
+                //$log.log(result);
+                $scope.proyecto_valor_oferta_extension_tipos = result.data.datos;
+                $scope.total_rows = result.data.total_rows;
+                $scope.calcularPaginas();
+            }, function (result) {
+                $log.error(result);
+            });
+    }
+
+    $scope.validarPrev = function () {
+        if ($scope.currentPage > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    $scope.validarNext = function () {
+        if ($scope.currentPage >= ($scope.pages - 1)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    $scope.pagePrev = function () {
+        $scope.currentPage = $scope.currentPage - 1;
+    }
+
+    $scope.pageNext = function () {
+        $scope.currentPage = $scope.currentPage + 1;
+    }
+
+    $scope.calcularPaginas = function () {
+        if ($scope.total_rows > $scope.cantidad_mostrar) {
+            $scope.pages = Math.ceil($scope.total_rows / $scope.cantidad_mostrar);
+        }
+    }
+
+    $scope.consultarTipos();
+
+    $scope.borrarRow = function (row_id) {
+        $scope.error = false;
+        $scope.error_message ='';
+        $http({
+            url: '../../../proyecto/eliminarTiposOrdenCambioAjax/',
+            method: "POST",
+            data: { proyecto_valor_oferta_extension_tipo_id: row_id },
+        })
+            .then(function (result) {
+                if (result.data !== "false") {
+                    $window.location.href = '/controlcostos/proyectos/extensiones/tipos-orden-cambio';
+                   return true;
+
+                } else {
+                    $scope.error = true;
+                    $scope.error_message = 'No se puede eliminar el tipo de orden de cambio';
+                    return false;
+                }
+            }, function (result) {
+                $log.error(result);
+            });
+    }
+
+   
+}]);
+
+
+myApp.controller('agregarTipoOrdenCambioController', ['$scope', '$log', '$http', '$filter', '$timeout', function ($scope, $log, $http, $filter, $timeout) {
+
+}]);
+
+myApp.controller('editarTipoOrdenCambioController', ['$scope', '$log', '$http', '$filter', '$timeout', function ($scope, $log, $http, $filter, $timeout) {
+
+}]);

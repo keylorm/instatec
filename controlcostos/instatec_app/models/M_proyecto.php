@@ -2139,4 +2139,165 @@ class M_Proyecto extends CI_Model {
 			}
 		}
 	}
+
+
+	/* Tipos de Orden de Cambio */
+
+	function consultarTiposOrdenCambio($data = null){
+		if(isset($data['filtros'])){
+			foreach ($data['filtros'] as $key => $value) {
+				if($value!=='' && $value!=='undefined' && $value!==null  &&  $value!=='all'){
+					if($key=='proyecto_valor_oferta_extension_tipo'){
+						$this->db->like($this->t_proyecto_valor_oferta_extension_tipo.'.'.$key, $value);
+					}else{
+						$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.'.$key, $value);
+					}
+				}
+			}
+		}
+		$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.estado_registro', 1);
+
+		/*$offset = 0;
+		$cantidad_mostrar = 2;
+		if(isset($data['cantidad_mostrar'])){
+			$cantidad_mostrar = (int)$data['cantidad_mostrar'];
+		}
+		if(isset($data['pagina'])){
+			$pagina = (int)$data['pagina'];
+			if($pagina>1){
+				$offset=$pagina*$cantidad_mostrar;
+			}
+		}
+
+		$this->db->limit($cantidad_mostrar, $offset);*/
+		$result_proyecto_valor_oferta_extension_tipos = $this->db->get($this->t_proyecto_valor_oferta_extension_tipo);
+
+		//vuelve a hacer la consulta para obtener el total de rows 
+		/*if(isset($data['filtros'])){
+			foreach ($data['filtros'] as $key => $value) {
+				if($value!=='' && $value!=='undefined' && $value!==null  &&  $value!=='all'){
+					if($key=='puesto'){
+						$this->db->like($this->t_proyecto_valor_oferta_extension_tipo.'.'.$key, $value);
+					}else{
+						$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.'.$key, $value);
+					}
+				}
+			}
+		}
+		$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.estado_registro', 1);
+
+		$total_rows = $this->db->count_all_results($this->t_proyecto_valor_oferta_extension_tipo, FALSE);*/
+
+		if($result_proyecto_valor_oferta_extension_tipos->num_rows()>0){
+			$result = array(
+							'total_rows' => $result_proyecto_valor_oferta_extension_tipos->num_rows(),
+							'datos' => $result_proyecto_valor_oferta_extension_tipos->result(),
+							);
+
+			return $result;
+
+		}else{
+			return false;
+		}
+	}
+
+
+	function insertarTipoOrdenCambio($data){
+		$this->db->where('proyecto_valor_oferta_extension_tipo', $data['proyecto_valor_oferta_extension_tipo']);
+		$result_consulta_tipo_orden_cambio = $this->db->get($this->t_proyecto_valor_oferta_extension_tipo);
+		$result_consulta_tipo_orden_cambio_count = $result_consulta_tipo_orden_cambio->num_rows();
+		if($result_consulta_tipo_orden_cambio_count > 0){
+			$result_consulta_tipo_orden_cambio_row = $result_consulta_tipo_orden_cambio->row();
+			if($result_consulta_tipo_orden_cambio_row->estado_registro == 1){
+				return array('tipo' => 'danger',
+							'texto' => 'No se pudo guardar el tipo de orden de cambio. Ya existe uno con este nombre en la Base de Datos',
+							);
+			}else{
+				$this->db->set('estado_registro', 1);
+				$this->db->where('proyecto_valor_oferta_extension_tipo', $data['proyecto_valor_oferta_extension_tipo']);
+				$this->db->update($this->t_proyecto_valor_oferta_extension_tipo);
+				return array('tipo' => 'success',
+							'texto' => 'Tipo de orden de cambio registrado con éxito',
+							);
+			}
+		}else{
+			foreach ($data as $kfield => $vfield) {
+				$this->db->set($kfield, $vfield);
+			}
+			$this->db->set('estado_registro', 1);
+			$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+			
+			$this->db->insert($this->t_proyecto_valor_oferta_extension_tipo);
+
+			return array('tipo' => 'success',
+								'texto' => 'Tipo de orden de cambio registrado con éxito',
+								);
+		}
+		
+		
+	}
+
+	function editarTipoOrdenCambio($proyecto_valor_oferta_extension_tipo_id, $data){
+		$this->db->where('proyecto_valor_oferta_extension_tipo', $data['proyecto_valor_oferta_extension_tipo']);
+		$this->db->where('proyecto_valor_oferta_extension_tipo_id != '.$proyecto_valor_oferta_extension_tipo_id);
+		$result_consulta_tipo_orden_cambio = $this->db->get($this->t_proyecto_valor_oferta_extension_tipo);
+		$result_consulta_tipo_orden_cambio_count = $result_consulta_tipo_orden_cambio->num_rows();
+		if($result_consulta_tipo_orden_cambio_count > 0){
+			$result_consulta_tipo_orden_cambio_row = $result_consulta_tipo_orden_cambio->row();
+			if($result_consulta_tipo_orden_cambio_row->estado_registro == 1){
+				return array('tipo' => 'danger',
+							'texto' => 'No se pudo guardar el tipo de orden de cambio. Ya existe uno con este nombre en la Base de Datos',
+							);
+			}else{
+				return array('tipo' => 'danger',
+							'texto' => 'No se pudo guardar el tipo de orden de cambio. Previamente existió un tipo de orden de cambio con ese nombre que fue desactivado pero no eliminado porque contenia registros relacionados. Para volver a utilizar este tipo de orden de cambio, intente crearlo nuevamente. Esto lo reactivará y le permitirá crear nuevas ordenes de cambio de ese tipo.',
+							);
+			}
+		}else{
+			$this->db->set('proyecto_valor_oferta_extension_tipo', $data['proyecto_valor_oferta_extension_tipo']);
+			$this->db->where('proyecto_valor_oferta_extension_tipo_id', $proyecto_valor_oferta_extension_tipo_id);
+			$this->db->update($this->t_proyecto_valor_oferta_extension_tipo);
+
+			return array('tipo' => 'success',
+								'texto' => 'Tipo de orden de cambio actualizado con éxito',
+								);
+			$this->m_bitacora->registrarEdicionBicatora('proyecto_valor_oferta_extension_tipo', $proyecto_valor_oferta_extension_tipo_id);
+		}		
+	}
+
+
+	function consultarTipoOrdenCambio($proyecto_valor_oferta_extension_tipo_id){
+		if($proyecto_valor_oferta_extension_tipo_id!=null){
+			
+			$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo_id', $proyecto_valor_oferta_extension_tipo_id);
+			$result_puesto = $this->db->get($this->t_proyecto_valor_oferta_extension_tipo);
+			if($result_puesto->num_rows()> 0){
+				$result = $result_puesto->row();
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+
+	function eliminarTipoOrdenCambio($proyecto_valor_oferta_extension_tipo_id){
+		// Desactiva el usuario. No lo borra para guardar un historial.
+		$this->db->where($this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_extension_tipo_id', $proyecto_valor_oferta_extension_tipo_id);
+		$result_extensiones_detalle = $this->db->get($this->t_proyecto_valor_oferta_extension_detalle);
+		$result_extensiones_detalle_count = $result_extensiones_detalle->num_rows();
+		if($result_extensiones_detalle_count > 0){
+			$this->db->set($this->t_proyecto_valor_oferta_extension_tipo.'.estado_registro', 0);
+			$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo_id', $proyecto_valor_oferta_extension_tipo_id);
+			$this->db->update($this->t_proyecto_valor_oferta_extension_tipo);
+		}else{
+			$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo_id', $proyecto_valor_oferta_extension_tipo_id);
+			$this->db->delete($this->t_proyecto_valor_oferta_extension_tipo);
+
+		}
+		
+		return true;
+	}
 }

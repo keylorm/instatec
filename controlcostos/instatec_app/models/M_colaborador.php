@@ -311,6 +311,122 @@ class M_Colaborador extends CI_Model {
 		}
 	}
 
+	function consultaPuestos($data = null){
+		if(isset($data['filtros'])){
+			foreach ($data['filtros'] as $key => $value) {
+				if($value!=='' && $value!=='undefined' && $value!==null  &&  $value!=='all'){
+					if($key=='puesto'){
+						$this->db->like($this->t_colaborador_puesto.'.'.$key, $value);
+					}else{
+						$this->db->where($this->t_colaborador_puesto.'.'.$key, $value);
+					}
+				}
+			}
+		}
+		/*$offset = 0;
+		$cantidad_mostrar = 2;
+		if(isset($data['cantidad_mostrar'])){
+			$cantidad_mostrar = (int)$data['cantidad_mostrar'];
+		}
+		if(isset($data['pagina'])){
+			$pagina = (int)$data['pagina'];
+			if($pagina>1){
+				$offset=$pagina*$cantidad_mostrar;
+			}
+		}
+
+		$this->db->limit($cantidad_mostrar, $offset);*/
+		$result_colaborador_puestos = $this->db->get($this->t_colaborador_puesto);
+
+		//vuelve a hacer la consulta para obtener el total de rows 
+		/*if(isset($data['filtros'])){
+			foreach ($data['filtros'] as $key => $value) {
+				if($value!=='' && $value!=='undefined' && $value!==null  &&  $value!=='all'){
+					if($key=='puesto'){
+						$this->db->like($this->t_colaborador_puesto.'.'.$key, $value);
+					}else{
+						$this->db->where($this->t_colaborador_puesto.'.'.$key, $value);
+					}
+				}
+			}
+		}
+		$total_rows = $this->db->count_all_results($this->t_colaborador_puesto, FALSE);*/
+
+		if($result_colaborador_puestos->num_rows()>0){
+			$result = array(
+							'total_rows' => $result_colaborador_puestos->num_rows(),
+							'datos' => $result_colaborador_puestos->result(),
+							);
+
+			return $result;
+
+		}else{
+			return false;
+		}
+	}
+
+
+	function insertarPuesto($data){
+		foreach ($data as $kfield => $vfield) {
+			$this->db->set($kfield, $vfield);
+		}
+		$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+		
+		$this->db->insert($this->t_colaborador_puesto);
+
+		return array('tipo' => 'success',
+							'texto' => 'Puesto de trabajo registrado con éxito',
+							);
+		
+	}
+
+	function actualizarPuesto($colaborador_puesto_id, $data){
+		
+		foreach ($data as $kfield => $vfield) {
+			$this->db->set($kfield, $vfield);
+		}
+		$this->db->where('colaborador_puesto_id', $colaborador_puesto_id);
+		$this->db->update($this->t_colaborador_puesto);
+
+		$this->m_bitacora->registrarEdicionBicatora('colaborador_puesto', $colaborador_puesto_id);
+	}
+
+
+	function consultarPuesto($colaborador_puesto_id){
+		if($colaborador_puesto_id!=null){
+			
+			$this->db->where($this->t_colaborador_puesto.'.colaborador_puesto_id', $colaborador_puesto_id);
+			$result_puesto = $this->db->get($this->t_colaborador_puesto);
+			if($result_puesto->num_rows()> 0){
+				$result = $result_puesto->row();
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+
+	function eliminarColaboradorPuesto($colaborador_puesto_id){
+		$this->db->where('colaborador_puesto_id', $colaborador_puesto_id);
+		$result_colaborador = $this->db->get($this->t_colaborador);
+		$result_colaborador_count = $result_colaborador->num_rows();
+		if($result_colaborador_count==0){
+			$this->db->where($this->t_colaborador_puesto.'.colaborador_puesto_id', $colaborador_puesto_id);
+			$this->db->delete($this->t_colaborador_puesto);
+
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+
+
+
+
 	function getAllActiveJefesProyectos(){
 		$this->db->where('colaborador_puesto_id', 1);
 		$this->db->where('estado', 1);
@@ -379,6 +495,38 @@ class M_Colaborador extends CI_Model {
 			}else{
 				$response['tipo'] = 'warning';
 				$response['texto'] = 'No se introdujeron todos los campos requeridos para este colaborador';
+			}
+		}
+		return $response;
+	}
+
+
+
+	function validarExistenciaPuesto($data, $colaborador_puesto_id = null){
+		$response = array();
+		//se valida que los campos requeridos vengan
+		if(isset($data['puesto'])){
+			if($data['puesto']!=''){
+				//primero validamos la cedula
+				$this->db->like('puesto', $data['puesto']);
+				// validamos que no sea la cedula del mismo colaborador que se esta consultando para cuando se esta editando un colaborador
+				if($colaborador_puesto_id!=null){
+					$this->db->where('colaborador_puesto_id !=', $colaborador_puesto_id);
+				}
+				$result_consulta = $this->db->get($this->t_colaborador_puesto);
+				$result_consulta_num_rows = $result_consulta->num_rows();
+				if ($result_consulta_num_rows > 0) {
+					//si hay resultados es porque ya existe la cedula
+					$result_consulta_info = $result_consulta->row();
+					$response['tipo'] = 'danger';
+					$response['texto'] = 'Ya existe un puesto de trabajo con ese nombre.';
+				}else{
+					// si llego aqui es porque paso todas las validaciones
+					$response['tipo'] = 'success';
+				}
+			}else{
+				$response['tipo'] = 'warning';
+				$response['texto'] = 'No se introdujo el puesto del trabajo';
 			}
 		}
 		return $response;

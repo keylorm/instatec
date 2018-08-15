@@ -130,6 +130,83 @@ class Colaborador extends CI_Controller {
 		}
 	}
 
+	/* Para puestos de trabajo */
+
+	public function verPuestos(){
+		/* Esto se usa si la consulta se hace por post normal y no por angular 
+		$post_data = $this->input->post(NULL, TRUE);
+		if($post_data!=null){		
+			exit(var_export($post_data));
+		}*/
+		$acceso = $this->m_general->validarRol($this->router->class.'_puestos', 'list');
+		if($acceso){
+			$this->data['title'] = 'Colaboradores - Puestos';
+			$this->load->view($this->vista_master, $this->data);
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function agregarPuestoTrabajo(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_puestos', 'create');
+		if($acceso){
+			$post_data = $this->input->post(NULL, TRUE);
+			if($post_data!=null){
+				$datos_insert = array();				
+				$datos_insert = $post_data;
+				$puesto_no_existe = $this->m_colaborador->validarExistenciaPuesto($datos_insert);
+				if($puesto_no_existe['tipo'] == 'success'){	
+					$respuesta = $this->m_colaborador->insertarPuesto($datos_insert);
+					$this->data['msg'][] = $respuesta;
+				}else{
+					$this->data['post_data'] = $post_data;
+					$this->data['msg'][] = $puesto_no_existe;
+				}
+
+			}
+
+			$this->data['title'] = 'Colaboradores - Agregar puesto de trabajo';
+			$this->load->view($this->vista_master, $this->data);
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function editarPuestoTrabajo($colaborador_puesto_id){
+		$acceso = $this->m_general->validarRol($this->router->class.'_puestos', 'edit');
+		if($acceso){
+			if($colaborador_puesto_id!=null){
+				$post_data = $this->input->post(NULL, TRUE);
+				if($post_data!=null){
+					$datos_insert = array();				
+					$datos_insert = $post_data;
+					$puesto_no_existe = $this->m_colaborador->validarExistenciaPuesto($datos_insert, $colaborador_puesto_id);
+					if($puesto_no_existe['tipo'] == 'success'){	
+						$respuesta = $this->m_colaborador->actualizarPuesto($colaborador_puesto_id,$datos_insert);
+						$this->data['msg'][] = array('tipo' => 'success', 'texto' => 'Puesto actualizado correctamente.');
+					}else{
+						$this->data['post_data'] = $post_data;
+						$this->data['msg'][] = $puesto_no_existe;
+					}
+				}
+
+				$colaborador_puesto_result = $this->m_colaborador->consultarPuesto($colaborador_puesto_id);
+				
+				if($colaborador_puesto_result!==false){
+					$this->data['colaborador_puesto'] = $colaborador_puesto_result;
+				}
+
+				$this->data['title'] = 'Colaboradores - Editar puesto de trabajo';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/colaboradores', 'refresh');
+			}
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+
 
 	/* Consultas AJAX */
 
@@ -151,6 +228,50 @@ class Colaborador extends CI_Controller {
 			$post_data = json_decode(file_get_contents("php://input"), true);
 	    	if($post_data!=null){
 	    		$result_eliminar = $this->m_colaborador->eliminarColaborador($post_data['colaborador_id']);
+	    		$result = $result_eliminar;
+				die(json_encode($result));
+	    	}
+    	}else{
+    		$result=false;
+			die(json_encode($result));
+		}
+	}
+
+	public function eliminarColaboradorPuestoAjax(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_puestos', 'delete');
+		if($acceso){
+			$this->output->set_content_type('application/json');
+			$post_data = json_decode(file_get_contents("php://input"), true);
+	    	if($post_data!=null){
+    			$result_eliminar = $this->m_colaborador->eliminarColaboradorPuesto($post_data['colaborador_puesto_id']);
+    			$result = $result_eliminar;
+    			die(json_encode($result));
+	    	}
+    	}else{
+    		$result=false;
+			die(json_encode($result));
+		}
+	}
+
+
+	public function consultaColaboradoresPuestosAjax(){
+		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		
+		//$post_data = $this->input->post(NULL, TRUE);
+		$this->output->set_content_type('application/json');
+		$post_data = json_decode(file_get_contents("php://input"), true);
+    	if($post_data!=null){
+    		$result = $this->m_colaborador->consultaPuestos($post_data);
+			die(json_encode($result));
+    	}
+	}
+
+	public function eliminarColaboradorPuestosAjax(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_puestos', 'delete');
+		if($acceso){
+			$this->output->set_content_type('application/json');
+			$post_data = json_decode(file_get_contents("php://input"), true);
+	    	if($post_data!=null){
+	    		$result_eliminar = $this->m_colaborador->eliminarColaboradorPuesto($post_data['colaborador_puesto_id']);
 	    		$result = $result_eliminar;
 				die(json_encode($result));
 	    	}

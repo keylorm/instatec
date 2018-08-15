@@ -13,9 +13,20 @@
 
 <div class="page-content" ng-controller="proyectoController" ng-init="base_url='<?=base_url()?>'">
 	<div class="row">
-		<div class="col-12 col-md-10"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-table"></i> Lista de proyectos</h3></div>
+		<div class="col-12 col-md-8"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-table"></i> Lista de proyectos</h3></div>
 		<?php if(isset($permisos['proyecto']['create'])){ ?>
 			<div class="col-12 col-md-2"><a class="btn btn-primary float-md-right mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/agregar-proyecto" role="button"><i class="fa fa-fw fa-plus-circle"></i> Agregar proyecto</a></div>
+		<?php } ?>
+		<?php if(isset($permisos['proyecto_tipos_orden_cambio']['list'])){ ?>
+			<div class="col-12 col-md-2">
+				<div class="dropdown">
+					<button class="btn btn-secondary dropdown-toggle text-right" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-cog"></i> Configuración </button>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<a class="dropdown-item" href="<?=base_url()?>proyectos/extensiones/tipos-orden-cambio">Tipos de orden de cambio</a>
+					</div>
+				</div>
+				
+			</div>
 		<?php } ?>
 	</div>
 	<div class="card">

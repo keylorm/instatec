@@ -3,8 +3,6 @@
 class M_Bitacora extends CI_Model {
 	
 	private $t_bitacora = 'usuario_bitacora_cambios',
-			$t_cliente =  'cliente',
-			$t_proveedor = 'proveedor',
 			$rol_id,
 			$usuario_id;
 
@@ -23,20 +21,12 @@ class M_Bitacora extends CI_Model {
 		}
 	}
 
-	function registrarEdicionBicatora($tipo_entidad, $row){
+	function registrarEdicionBicatora($tabla, $row){
 		$this->db->set('usuario_id', $this->usuario_id);
 		$this->db->set('fecha_cambio', date('Y-m-d H:i:s'));
 		$this->db->set('tipo', 'edicion');
 		$this->db->set('id_fila', $row);
-		switch ($tipo_entidad) {
-			case 'cliente':
-				$this->db->set('tabla',$this->t_cliente);
-				break;
-			
-			case 'proveedor':
-				$this->db->set('tabla',$this->t_proveedor);
-				break;
-		}
+		$this->db->set('tabla',$tabla);
 		$this->db->insert($this->t_bitacora);
 	}
 }
