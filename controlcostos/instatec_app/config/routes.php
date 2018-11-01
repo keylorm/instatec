@@ -93,6 +93,19 @@ $route['proyectos/gastos/(:num)/editar-gasto/(:num)'] = 'proyecto/editarGastoPro
 $route['proyectos/colaboradores/(:num)'] = 'proyecto/verColaboradores/$1';
 $route['proyectos/colaboradores/(:num)/editar-colaboradores'] = 'proyecto/editarColaboradores/$1/';
 $route['proyectos/colaboradores/(:num)/registrar-tiempo-colaboradores'] = 'proyecto/registrarTiemposColaboradores/$1';
+$route['proyectos/materiales/(:num)'] = 'proyecto/verMateriales/$1';
+$route['proyectos/materiales/(:num)/editar-lista-materiales'] = 'proyecto/editarListaMateriales/$1';
+$route['proyectos/materiales/(:num)/solicitudes-cotizacion-materiales'] = 'proyecto/verSolicitudesCotizacionMateriales/$1';
+$route['proyectos/materiales/(:num)/solicitudes-cotizacion-materiales/generar'] = 'proyecto/generarSolicitudCotizacionMateriales/$1';
+$route['proyectos/materiales/(:num)/proveedores-materiales'] = 'proyecto/editarProveedoresMateriales/$1';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales'] = 'proyecto/verSolicitudesCompraMateriales/$1';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/agregar'] = 'proyecto/agregarSolicitudCompraMateriales/$1';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/editar'] = 'proyecto/editarSolicitudCompraMateriales/$1/$2';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/ver'] = 'proyecto/verSolicitudCompraMateriales/$1/$2';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/proformas'] = 'proyecto/verSolicitudCompraMaterialesProformas/$1/$2';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/proformas/generar'] = 'proyecto/generarSolicitudCompraMaterialesProforma/$1/$2';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/ordenes-compra'] = 'proyecto/verSolicitudCompraMaterialesOrdenesCompra/$1/$2';
+$route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/ordenes-compra/generar'] = 'proyecto/generarSolicitudCompraMaterialesOrdenCompra/$1/$2';
 
 
 //Reportes
@@ -127,6 +140,13 @@ $route['colaboradores/puestos-trabajo'] = 'colaborador/verPuestos';
 $route['colaboradores/agregar-puesto-trabajo'] = 'colaborador/agregarPuestoTrabajo';
 $route['colaboradores/editar-puesto-trabajo/(:num)'] = 'colaborador/editarPuestoTrabajo/$1';
 
+/*Materiales*/
+$route['materiales'] = 'material/index';
+$route['materiales/agregar-material'] = 'material/agregarMaterial';
+$route['materiales/editar-material/(:num)'] = 'material/editarMaterial/$1';
+$route['materiales/unidades'] = 'material/verUnidades';
+$route['materiales/unidades/agregar-unidad'] = 'material/agregarUnidad';
+$route['materiales/unidades/editar-unidad/(:num)'] = 'material/editarUnidad/$1';
 
 //$route['registro-admin'] = 'usuario/registro_admin';
 

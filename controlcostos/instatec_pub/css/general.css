@@ -67,3 +67,6 @@ table.table a:not(.btn):hover{
     text-decoration: none;
 }
 
+.chosen-container.chosen-with-drop .chosen-drop{
+    position: relative;
+}

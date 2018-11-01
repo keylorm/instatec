@@ -89,7 +89,7 @@ var myApp = angular.module('myApp', ['chart.js', 'angular.chosen']);
 	function formValidation(){
 		$('form.form-validation .form-submit').click(function(e){
 			e.preventDefault();
-			if(formValidationCustom('form.form-validation')){
+			if(formValidationCustom($(this).parents('form.form-validation'))){
 				$('form.form-validation').submit();
 			}else{
 				$('html, body').animate({scrollTop : 0},800);
@@ -102,27 +102,33 @@ var myApp = angular.module('myApp', ['chart.js', 'angular.chosen']);
 		$('.alert-form-validation').remove();
 		$('input, textarea').css('border', '1px solid #ced4da');
 		var msj_error = '';
-		$(form + ' .input-required').each(function(){	
+		$(form).find('.input-required').each(function(){	
 			$(this).css('border', '1px solid #ced4da');		
 			if($(this).val()==''){
-				$(this).css('border', '1px solid #ff0000');
-				msj_error = 'Los campos enmarcados en rojo son obligatorios';
+				if (!$(this).hasClass('skip-validation')){
+					$(this).css('border', '1px solid #ff0000');
+					msj_error = 'Los campos enmarcados en rojo son obligatorios';
+				}
 			}
 		});
-		$(form + ' .select-required').each(function(){		
+		$(form).find('.select-required').each(function(){		
 			$(this).css('border', '1px solid #ced4da');
 			if($(this).val()=='' || $(this).val()=='none' || $(this).val()=='? undefined:undefined ?'){
-				$(this).css('border', '1px solid #ff0000');
-				msj_error = 'Los campos enmarcados en rojo son obligatorios';
+				if (!$(this).hasClass('skip-validation')){
+					$(this).css('border', '1px solid #ff0000');
+					msj_error = 'Los campos enmarcados en rojo son obligatorios';
+				}
 			}
 		});
 
-		$(form + ' .select-required.chosen-select').each(function(){					
+		$(form).find('.select-required.chosen-select').each(function(){					
 			var nameFieldChosen = '#'+$(this).attr('name')+'_chosen .chosen-single';
 			$(nameFieldChosen).css('border', '1px solid #ced4da');				
-			if($(this).val()=='' || $(this).val()=='none' || $(this).val()=='? undefined:undefined ?'){				
-				$(nameFieldChosen).css('border', '1px solid #ff0000');				
-				msj_error = 'Los campos enmarcados en rojo son obligatorios';
+			if($(this).val()=='' || $(this).val()=='none' || $(this).val()=='? undefined:undefined ?'){		
+				if (!$(this).hasClass('skip-validation')){		
+					$(nameFieldChosen).css('border', '1px solid #ff0000');				
+					msj_error = 'Los campos enmarcados en rojo son obligatorios';
+				}
 			}
 		});
 		if(msj_error!=''){

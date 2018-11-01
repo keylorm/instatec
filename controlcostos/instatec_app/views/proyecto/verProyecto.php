@@ -16,16 +16,7 @@
 	<div class="page-content" ng-controller="proyectoDashboard" ng-init="proyecto_id='<?=$proyecto->proyecto_id?>'; consultarInfoProyecto();">
 		<div class="row">
 			<div class="col-12"><h3 class=" text-center text-md-left"><i class="fa fa-fw fa-eye"></i> Ver proyecto: <?=$proyecto->nombre_proyecto?></h3></div>
-			<div class="col-12">
-				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Gastos</a>
-				<?php } ?>
-				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/extensiones/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
-				<?php } ?>
-				<?php if(isset($permisos['proyecto_colaboradores']['view'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Colaboradores</a> 
-				<?php } ?>
+			<div class="col-12 text-right"> 
 				<?php if(isset($permisos['reporte_proyecto_especifico']['view'])){ ?>
 					<a class="btn btn-sm btn-secondary mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>reporte/generarReporteProyectoEspecifico/<?=$proyecto->proyecto_id?>" role="button" target="_blank"><i class="fa fa-download"></i> Generar reporte</a> 
 				<?php } ?>
@@ -59,6 +50,20 @@
 					</div>
 				<?php } ?>
 				
+			</div>
+			<div class="col-12">
+				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/extensiones/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_colaboradores']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-users"></i> Colaboradores</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_materiales']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/materiales/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-wrench"></i> Materiales</a> 
+				<?php } ?>
 			</div>
 		</div>
 
@@ -345,16 +350,8 @@
 
 
 		<div class="row">
-			<div class="col-12">
-				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Gastos</a>
-				<?php } ?>
-				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/extensiones/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
-				<?php } ?>
-				<?php if(isset($permisos['proyecto_colaboradores']['view'])){ ?>
-					<a class="btn btn-sm btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Colaboradores</a> 
-				<?php } ?>
+			
+			<div class="col-12 text-right">
 				<?php if(isset($permisos['reporte_proyecto_especifico']['view'])){ ?>
 					<a class="btn btn-sm btn-secondary mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>reporte/generarReporteProyectoEspecifico/<?=$proyecto->proyecto_id?>" role="button" target="_blank"><i class="fa fa-download"></i> Generar reporte</a> 
 				<?php } ?>
@@ -389,6 +386,20 @@
 				<?php } ?>
 				
 			</div>
+			<div class="col-12">
+				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/extensiones/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_colaboradores']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-users"></i> Colaboradores</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_materiales']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/materiales/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-wrench"></i> Materiales</a> 
+				<?php } ?>
+			</div>
 		</div>
 
 	</div>
@@ -401,9 +412,17 @@
 	if($proyecto->proyecto_estado_id==1 || $proyecto->proyecto_estado_id==2){ ?>
 	<div class="page-content" ng-controller="registrarTiempoColaboradoresDashboardController" ng-cloak ng-init="proyecto_id='<?=$proyecto->proyecto_id?>'; <?=(isset($fecha_gasto))?'fecha_gasto=\''.$fecha_gasto.'\';':''?> consultarTiempos();">
 		<div class="row">
+			
+			<div class="col-12">
+				<?php if(isset($permisos['proyecto_materiales']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/materiales/<?=$proyecto->proyecto_id?>" role="button"><i class="fa fa-fw fa-wrench"></i> Materiales</a> 
+				<?php } ?>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col-12 col-md-10"><h3 class="text-center text-md-left"><i class="fa fa-fw fa-eye"></i> Registrar tiempos de proyecto: <?=$proyecto->nombre_proyecto?></h3></div>
 			<div class="col-12 col-md-2">
-				<a class="float-right btn btn-primary" href="<?=base_url()?>proyectos/" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver a proyectos</a>
+				<a class="float-right btn-sm btn btn-secondary" href="<?=base_url()?>proyectos/" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver a proyectos</a>
 			</div>
 		</div>
 		<?php 

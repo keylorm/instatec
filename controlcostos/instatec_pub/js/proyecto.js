@@ -1258,3 +1258,1012 @@ myApp.controller('agregarTipoOrdenCambioController', ['$scope', '$log', '$http',
 myApp.controller('editarTipoOrdenCambioController', ['$scope', '$log', '$http', '$filter', '$timeout', function ($scope, $log, $http, $filter, $timeout) {
 
 }]);
+
+
+
+/* Para manejo de materiales */
+
+myApp.controller('proyectoMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materialesCurrent = {};
+	$scope.materiales_iniciales_proyecto = [];
+	$scope.materiales_extensiones_proyecto = [];
+	$scope.materiales = {};
+	$scope.editar_cantidad = {};
+	$scope.guardando = {};
+	$scope.proyecto_material_cantidad = {};
+	$scope.proyecto_material_unidad = {};
+	$scope.proyecto_material_comentario = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$http({
+			url: '../../../proyecto/consultarMaterialesActivosProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.materiales_proyecto_activos !== false) {
+				if (result.data.materiales_proyecto_activos.datos !== undefined){
+					for (material_index in  result.data.materiales_proyecto_activos.datos){
+						if (result.data.materiales_proyecto_activos.datos[material_index].proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+						}
+					}
+				} else {
+					for (material_index in  result.data.materiales_proyecto_activos){
+						if (result.data.materiales_proyecto_activos[material_index].proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(result.data.materiales_proyecto_activos[material_index]);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(result.data.materiales_proyecto_activos[material_index]);
+						}
+					}
+				}
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);
+
+myApp.controller('editarMaterialesProyectoController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materialesCurrent = {};
+	$scope.materiales_iniciales_proyecto = {};
+	$scope.materiales_extensiones_proyecto = {};
+	$scope.materiales = {};
+	$scope.editar_cantidad = {};
+	$scope.guardando = {};
+	$scope.proyecto_material_cantidad = {};
+	$scope.proyecto_material_unidad = {};
+	$scope.proyecto_material_comentario = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	$scope.habilitarFormMaterialExistente = function() {
+		$scope.agregar_material = false;
+	}
+	
+	$scope.habilitarFormMaterialNuevo = function() {
+		$scope.agregar_material = true;
+	}
+
+	$scope.habilitarEdicionMaterial = function(proyecto_material_id){
+		$scope.editar_cantidad[proyecto_material_id] = true;
+		$scope.guardando[proyecto_material_id] = false;
+	}
+
+	$scope.cancelarEdicionMaterial = function(proyecto_material_id){
+		$scope.editar_cantidad[proyecto_material_id] = false;
+		$scope.guardando[proyecto_material_id] = false;
+	}
+
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$http({
+			url: '../../../../proyecto/consultarMaterialesProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.materiales_iniciales_proyecto !== false) {
+				if (result.data.materiales_iniciales_proyecto.datos !== undefined){
+					$scope.materiales_iniciales_proyecto = result.data.materiales_iniciales_proyecto.datos;
+				} else {
+					$scope.materiales_iniciales_proyecto = result.data.materiales_iniciales_proyecto;
+				}
+				$scope.materiales_iniciales_proyecto.map(function(value, index){
+					$scope.editar_cantidad[value.proyecto_material_id] = false;
+					$scope.proyecto_material_cantidad[value.proyecto_material_id] = Number(value.cantidad);
+					$scope.proyecto_material_unidad[value.proyecto_material_id] = Number(value.material_unidad_id);
+					$scope.proyecto_material_comentario[value.proyecto_material_id] = value.comentario;
+				});
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+			}
+
+			if (result.data.materiales_extensiones_proyecto !== false) {
+				if (result.data.materiales_extensiones_proyecto.datos !== undefined){
+					$scope.materiales_extensiones_proyecto = result.data.materiales_extensiones_proyecto.datos;
+				} else {
+					$scope.materiales_extensiones_proyecto = result.data.materiales_extensiones_proyecto;
+				}
+				$scope.materiales_extensiones_proyecto.map(function(value2, index2){
+					$scope.editar_cantidad[value2.proyecto_material_id] = false;
+					$scope.proyecto_material_cantidad[value2.proyecto_material_id] = Number(value2.cantidad);
+					$scope.proyecto_material_unidad[value2.proyecto_material_id] = Number(value2.material_unidad_id);
+					$scope.proyecto_material_comentario[value2.proyecto_material_id] = value2.comentario;
+				});
+			} else {
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	$scope.actualizarMaterial = function(proyecto_material_id) {
+		$scope.guardando[proyecto_material_id] = true;
+		$http({
+			url: '../../../../proyecto/actualizarInformacionMaterialProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_material_id: proyecto_material_id,
+				cantidad: $scope.proyecto_material_cantidad[proyecto_material_id],
+				material_unidad_id: $scope.proyecto_material_unidad[proyecto_material_id],
+				comentario: $scope.proyecto_material_comentario[proyecto_material_id],
+			},
+		})
+		.then(function (result) {
+			if (result.data.datos.resultado == true) {
+				$scope.editar_cantidad[proyecto_material_id] = false;
+				$scope.guardando[proyecto_material_id] = false;
+				$scope.consultarMaterialesProyecto();
+			} else {
+
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+
+	$scope.addRow = function (row_id) {
+		$http({
+			url: '../../../../proyecto/toggleEstadoMaterialProyectoAjax/',
+			method: "POST",
+			data: { proyecto_material_id: row_id },
+		})
+		.then(function (result) {
+			if (result.data !== "false") {
+				$scope.consultarMaterialesProyecto();
+				return true;
+			} else {
+				$scope.consultarMaterialesProyecto(); 
+				return false;
+			}
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	$scope.borrarRow = function (row_id) {
+		$http({
+			url: '../../../../proyecto/toggleEstadoMaterialProyectoAjax/',
+			method: "POST",
+			data: { proyecto_material_id: row_id },
+		})
+		.then(function (result) {
+			if (result.data !== "false") {
+				$window.location.reload();
+				return true;
+
+			} else {
+				$window.location.reload();
+				return false;
+			}
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);
+
+myApp.controller('proyectoSolicitudesCotizacionMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.solicitudes_cotizacion_materiales = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarSolicitudes = function(){
+		$scope.consultarSolicitudesCotizacion();
+	}
+	
+
+	$scope.consultarSolicitudesCotizacion = function () {
+		$http({
+			url: '../../../../proyecto/consultarSolicitudesCotizacionMaterialesProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.solicitudes_cotizacion_materiales !== false) {
+				if (result.data.solicitudes_cotizacion_materiales.datos !== undefined){
+					$scope.solicitudes_cotizacion_materiales = result.data.solicitudes_cotizacion_materiales.datos;
+				} else {
+					$scope.solicitudes_cotizacion_materiales = result.data.solicitudes_cotizacion_materiales;
+				}
+			} else {
+				$scope.solicitudes_cotizacion_materiales = false;
+			}
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);
+
+myApp.controller('proyectoCotizacionMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materialesCurrent = {};
+	$scope.materiales_iniciales_proyecto = [];
+	$scope.materiales_extensiones_proyecto = [];
+	$scope.materiales = {};
+	$scope.material_inicial_check = {};
+	$scope.material_extension_check = {};
+	$scope.guardando = {};
+	$scope.proyecto_material_cantidad = {};
+	$scope.proyecto_material_unidad = {};
+	$scope.proyecto_material_comentario = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$http({
+			url: '../../../../../proyecto/consultarMaterialesActivosProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.materiales_proyecto_activos !== false) {
+				if (result.data.materiales_proyecto_activos.datos !== undefined){
+					for (material_index in  result.data.materiales_proyecto_activos.datos){
+						if (result.data.materiales_proyecto_activos.datos[material_index].proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+							$scope.material_inicial_check[result.data.materiales_proyecto_activos.datos[material_index].proyecto_material_id] = false;
+						} else {
+							$scope.materiales_extensiones_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+							$scope.material_extension_check[result.data.materiales_proyecto_activos.datos[material_index].proyecto_material_id] = false;
+						}
+					}
+				} else {
+					for (material_index in  result.data.materiales_proyecto_activos){
+						if (result.data.materiales_proyecto_activos[material_index].proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(result.data.materiales_proyecto_activos[material_index]);
+							$scope.material_inicial_check[result.data.materiales_proyecto_activos[material_index].proyecto_material_id] = false;
+						} else {
+							$scope.materiales_extensiones_proyecto.push(result.data.materiales_proyecto_activos[material_index]);
+							$scope.material_extension_check[result.data.materiales_proyecto_activos[material_index].proyecto_material_id] = false;
+						}
+					}
+				}
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);
+
+myApp.controller('editarProveedoresMaterialesProyectoController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materiales_iniciales_proyecto = [];
+	$scope.materiales_extensiones_proyecto = [];
+	$scope.editar_proveedor = {};
+	$scope.guardando = {};
+	$scope.proveedor_id = {};
+	$scope.moneda_id = {};
+	$scope.precio = {};
+	$scope.tiene_impuesto = {};
+	$scope.impuesto = {};
+	$scope.mensaje_error = {};
+
+
+	$scope.habilitarEdicionMaterial = function(proyecto_material_id){
+		$scope.editar_proveedor[proyecto_material_id] = true;
+		$scope.guardando[proyecto_material_id] = false;
+		$scope.inputMask();
+	}
+
+	$scope.cancelarEdicionMaterial = function(proyecto_material_id){
+		$scope.editar_proveedor[proyecto_material_id] = false;
+		$scope.guardando[proyecto_material_id] = false;
+	}
+
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$scope.materiales_iniciales_proyecto = [];
+		$scope.materiales_extensiones_proyecto = [];
+		$http({
+			url: '../../../../proyecto/consultarMaterialesProveedoresActivosProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.materiales_proyecto_activos !== false) {
+				if (result.data.materiales_proyecto_activos.datos !== undefined){
+					for (material_index in  result.data.materiales_proyecto_activos.datos){
+						if (result.data.materiales_proyecto_activos.datos[material_index].proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+						}
+					}
+					result.data.materiales_proyecto_activos.datos.map(function(value, index){
+						$scope.editar_proveedor[value.proyecto_material_id] = false;
+						$scope.mensaje_error[value.proyecto_material_id] = {};
+						if(value.proveedor_id !== null){
+							$scope.proveedor_id[value.proyecto_material_id] = Number(value.proveedor_id);
+						} else {
+							$scope.proveedor_id[value.proyecto_material_id] = '';
+						}
+						if(value.moneda_id !== null){
+							$scope.moneda_id[value.proyecto_material_id] = Number(value.moneda_id);
+						} else {
+							$scope.moneda_id[value.proyecto_material_id] = 1;
+						}
+						if(value.precio !== null){
+							$scope.precio[value.proyecto_material_id] = Number(value.precio);
+						} else {
+							$scope.precio[value.proyecto_material_id] = '';
+						}
+						if(value.tiene_impuesto !== null){
+							$scope.tiene_impuesto[value.proyecto_material_id] = Number(value.tiene_impuesto);
+							if (value.tiene_impuesto == 1) {
+								if(value.impuesto !== null){
+									$scope.impuesto[value.proyecto_material_id] = Number(value.impuesto);
+								} else {
+									$scope.impuesto[value.proyecto_material_id] = 13;
+								}
+							} else {
+								$scope.impuesto[value.proyecto_material_id] = 13;
+							}
+						} else {
+							$scope.tiene_impuesto[value.proyecto_material_id] = 0;
+							$scope.impuesto[value.proyecto_material_id] = 13;
+						}
+					});
+				} else {
+					for (material_index in  result.data.materiales_proyecto_activos){
+						if (result.data.materiales_proyecto_activos[material_index].proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(result.data.materiales_proyecto_activos.datos[material_index]);
+						}
+					}
+					result.data.materiales_proyecto_activos.map(function(value, index){
+						$scope.editar_proveedor[value.proyecto_material_id] = false;
+						$scope.mensaje_error[value.proyecto_material_id] = {};
+						if(value.proveedor_id !== null){
+							$scope.proveedor_id[value.proyecto_material_id] = Number(value.proveedor_id);
+						} else {
+							$scope.proveedor_id[value.proyecto_material_id] = '';
+						}
+						if(value.moneda_id !== null){
+							$scope.moneda_id[value.proyecto_material_id] = Number(value.moneda_id);
+						} else {
+							$scope.moneda_id[value.proyecto_material_id] = 1;
+						}
+						if(value.precio !== null){
+							$scope.precio[value.proyecto_material_id] = Number(value.precio);
+						} else {
+							$scope.precio[value.proyecto_material_id] = '';
+						}
+						if(value.tiene_impuesto !== null){
+							$scope.tiene_impuesto[value.proyecto_material_id] = Number(value.tiene_impuesto);
+							if (value.tiene_impuesto == 1) {
+								if(value.impuesto !== null){
+									$scope.impuesto[value.proyecto_material_id] = Number(value.impuesto);
+								} else {
+									$scope.impuesto[value.proyecto_material_id] = 13;
+								}
+							} else {
+								$scope.impuesto[value.proyecto_material_id] = 13;
+							}
+						} else {
+							$scope.tiene_impuesto[value.proyecto_material_id] = 0;
+							$scope.impuesto[value.proyecto_material_id] = 13;
+						}
+					});
+				}
+				$log.log($scope.moneda_id);
+
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	$scope.actualizarMaterial = function(proyecto_material_id) {
+		$scope.mensaje_error[proyecto_material_id] = {};
+		$scope.guardando[proyecto_material_id] = true;
+		$log.log($scope.moneda_id[proyecto_material_id]);
+		if($scope.proveedor_id[proyecto_material_id] !== null) {
+			if(($scope.precio[proyecto_material_id] !== null && $scope.precio[proyecto_material_id] !== '') && $scope.moneda_id[proyecto_material_id] !== null) {
+				if(($scope.tiene_impuesto[proyecto_material_id] == 1 && $scope.impuesto[proyecto_material_id] !== null) || $scope.tiene_impuesto[proyecto_material_id] == 0) {
+					$http({ 
+						url: '../../../../proyecto/actualizarProveedorMaterialProjectoAjax/',
+						method: "POST",
+						data: {
+							proyecto_material_id: proyecto_material_id,
+							proveedor_id: $scope.proveedor_id[proyecto_material_id],
+							moneda_id: $scope.moneda_id[proyecto_material_id],
+							precio: $scope.precio[proyecto_material_id],
+							tiene_impuesto: $scope.tiene_impuesto[proyecto_material_id],
+							impuesto: $scope.impuesto[proyecto_material_id],
+						},
+					})
+					.then(function (result) {
+						if (result.data.datos.resultado == true) {
+							$scope.editar_proveedor[proyecto_material_id] = false;
+							$scope.guardando[proyecto_material_id] = false;
+							$scope.consultarMaterialesProyecto();
+						} else {
+							$log.error(result.data);
+						}
+						
+					}, function (result) {
+						$log.error(result);
+					});
+				} else {
+					$scope.mensaje_error[proyecto_material_id].error_impuesto = 'Debe ingresar el impuesto';
+				}
+			} else {
+				$scope.mensaje_error[proyecto_material_id].error_precio = 'Debe ingresar la moneda y el precio';
+			}
+		} else {
+			$scope.mensaje_error[proyecto_material_id].error_proveedor = 'Debe ingresar seleccionar un proveedor';
+		}
+		$scope.guardando[proyecto_material_id] = false;
+	}
+	
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+	$scope.inputMask = function(){
+		$timeout(function(){
+			jQuery(".input-money-mask").maskMoney({prefix:'$ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-money-mask-colones").maskMoney({prefix:'₡ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-number").maskMoney({allowNegative: false, thousands:' ', decimal:'.'});
+			
+		},1);
+	}
+
+}]);
+
+myApp.controller('proyectoVerSolicitudesCompraMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.solicitudes_compra_materiales = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarSolicitudes = function(){
+		$scope.consultarSolicitudesCompra();
+	}
+	
+
+	$scope.consultarSolicitudesCompra = function () {
+		$http({
+			url: '../../../../proyecto/consultarSolicitudesCompraMaterialesProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.solicitudes_compra_materiales !== false) {
+				if (result.data.solicitudes_compra_materiales.datos !== undefined){
+					$scope.solicitudes_compra_materiales = result.data.solicitudes_compra_materiales.datos;
+				} else {
+					$scope.solicitudes_compra_materiales = result.data.solicitudes_compra_materiales;
+				}
+			} else {
+				$scope.solicitudes_compra_materiales = false;
+			}
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);
+
+
+myApp.controller('proyectoAgregarSolicitudCompraMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materiales_iniciales_proyecto = [];
+	$scope.materiales_extensiones_proyecto = [];
+	$scope.material_check = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$http({
+			url: '../../../../../proyecto/consultarMaterialesRestantesActivosProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+			},
+		})
+		.then(function (result) {
+			$log.log(result.data.materiales_proyecto_activos);
+			if (result.data.materiales_proyecto_activos !== false) {
+				if (result.data.materiales_proyecto_activos.datos !== undefined){
+					result.data.materiales_proyecto_activos.datos.map(function(value, index){
+						if (value.proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(value);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(value);
+						}
+						$scope.material_check[value.proyecto_material_id] = false;
+					});
+				} else {
+					result.data.materiales_proyecto_activos.map(function(value, index){
+						if (value.proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(value);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(value);
+						}
+						$scope.material_check[value.proyecto_material_id] = false;
+					});
+				}
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	$scope.buscar_material = function(lista) {
+		$log.log($scope.buscar_inicial);
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+	$scope.inputMask = function(){
+		$timeout(function(){
+			jQuery(".input-money-mask").maskMoney({prefix:'$ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-money-mask-colones").maskMoney({prefix:'₡ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-number").maskMoney({allowNegative: false, thousands:' ', decimal:'.'});
+			
+		},1);
+	}
+
+}]);
+
+myApp.controller('proyectoEditarSolicitudCompraMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materiales_iniciales_proyecto = [];
+	$scope.materiales_extensiones_proyecto = [];
+	$scope.material_check = {};
+	$scope.material_cantidad = {};
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$http({
+			url: '../../../../../../proyecto/consultarMaterialesRestantesActivosProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_id: $scope.proyecto_id,
+				proyecto_material_solicitud_compra_id: $scope.proyecto_material_solicitud_compra_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.materiales_proyecto_activos !== false) {
+				if (result.data.materiales_proyecto_activos.datos !== undefined){
+					result.data.materiales_proyecto_activos.datos.map(function(value, index){
+						if (value.proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(value);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(value);
+						}
+						$scope.material_check[value.proyecto_material_id] = false;
+					});
+				} else {
+					result.data.materiales_proyecto_activos.map(function(value, index){
+						if (value.proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(value);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(value);
+						}
+						$scope.material_check[value.proyecto_material_id] = false;
+					});
+				}
+
+				if (result.data.materiales_solicitud_compra.datos !== undefined) {
+					result.data.materiales_solicitud_compra.datos.map(function(material, index_material){
+						$scope.material_check[material.proyecto_material_id] = true;
+						$scope.material_cantidad[material.proyecto_material_id] = material.cantidad_compra;
+					});
+				}
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+	$scope.inputMask = function(){
+		$timeout(function(){
+			jQuery(".input-money-mask").maskMoney({prefix:'$ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-money-mask-colones").maskMoney({prefix:'₡ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-number").maskMoney({allowNegative: false, thousands:' ', decimal:'.'});
+			
+		},1);
+	}
+
+}]);
+
+myApp.controller('proyectoVerSolicitudCompraMaterialesController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.materiales_iniciales_proyecto = [];
+	$scope.materiales_extensiones_proyecto = [];
+	$scope.resultado_insert = '';
+	$scope.material_nuevo_id = '';
+	$scope.agregar_material = false;
+
+	
+	$scope.consultarMateriales = function(){
+		$scope.consultarMaterialesProyecto();
+	}
+	
+
+	$scope.consultarMaterialesProyecto = function () {
+		$http({
+			url: '../../../../../../proyecto/consultarMaterialesSolicitudCompraProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_material_solicitud_compra_id: $scope.proyecto_material_solicitud_compra_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.materiales_solicitud_compra !== false) {
+				if (result.data.materiales_solicitud_compra.datos !== undefined){
+					result.data.materiales_solicitud_compra.datos.map(function(value, index){
+						if (value.proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(value);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(value);
+						}
+					});
+				} else {
+					result.data.materiales_solicitud_compra.map(function(value, index){
+						if (value.proyecto_material_tipo == 1) {
+							$scope.materiales_iniciales_proyecto.push(value);
+						} else {
+							$scope.materiales_extensiones_proyecto.push(value);
+						}
+					});
+				}
+			} else {
+				$scope.materiales_iniciales_proyecto = false;
+				$scope.materiales_extensiones_proyecto = false;
+			}
+			
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+	$scope.inputMask = function(){
+		$timeout(function(){
+			jQuery(".input-money-mask").maskMoney({prefix:'$ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-money-mask-colones").maskMoney({prefix:'₡ ', allowNegative: true, thousands:' ', decimal:'.', affixesStay: false});
+			jQuery(".input-number").maskMoney({allowNegative: false, thousands:' ', decimal:'.'});
+			
+		},1);
+	}
+
+}]);
+
+myApp.controller('proyectoVerProformasController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.proveedores = {};
+	$scope.editar_proforma = {};
+	$scope.mensaje_error = {};
+	$scope.guardando = {};
+	$scope.proyecto_material_solicitud_compra_proforma_estado_id = {};
+	$scope.bloqueo_edicion = {};
+
+	$scope.habilitarEdicionProforma = function(proyecto_material_solicitud_compra_proforma_id){
+		$scope.editar_proforma[proyecto_material_solicitud_compra_proforma_id] = true;
+		$scope.guardando[proyecto_material_solicitud_compra_proforma_id] = false;
+	}
+
+	$scope.cancelarEdicionProforma = function(proyecto_material_solicitud_compra_proforma_id){
+		$scope.editar_proforma[proyecto_material_solicitud_compra_proforma_id] = false;
+		$scope.guardando[proyecto_material_solicitud_compra_proforma_id] = false;
+	}
+	
+	$scope.consultarProformas = function(){
+		$scope.consultarProformasCompra();
+	}
+	
+
+	$scope.consultarProformasCompra = function () {
+		$http({
+			url: '../../../../../../proyecto/consultarProformasSolicitudCompraMaterialesProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_material_solicitud_compra_id: $scope.proyecto_material_solicitud_compra_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.proformas !== false) {
+				if (result.data.proformas.datos !== undefined){
+					$scope.proveedores = result.data.proformas.datos;
+				} else {
+					$scope.proveedores = result.data.proformas;
+				}
+				Object.keys($scope.proveedores).map(function(value) {
+					var contador = 1;
+					Object.keys($scope.proveedores[value].proformas).map(function(value2){
+						var cant_ordenes = $scope.proveedores[value].proformas.length;
+						$scope.editar_proforma[$scope.proveedores[value].proformas[value2].proyecto_material_solicitud_compra_proforma_id] = false;
+						$scope.mensaje_error[$scope.proveedores[value].proformas[value2].proyecto_material_solicitud_compra_proforma_id] = {};
+						$scope.proyecto_material_solicitud_compra_proforma_estado_id[$scope.proveedores[value].proformas[value2].proyecto_material_solicitud_compra_proforma_id] = $scope.proveedores[value].proformas[value2].proyecto_material_solicitud_compra_proforma_estado_id;
+						if (cant_ordenes == contador) {
+							$scope.bloqueo_edicion[value] = $scope.proveedores[value].proformas[value2].proyecto_material_solicitud_compra_proforma_id;
+						}
+						contador++;
+					});
+				});
+			} else {
+				$scope.proformas = false;
+			}
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	$scope.cambiarEstado = function(proyecto_material_solicitud_compra_proforma_id) {
+		$scope.mensaje_error[proyecto_material_solicitud_compra_proforma_id] = {};
+		$scope.guardando[proyecto_material_solicitud_compra_proforma_id] = true;
+		if($scope.proyecto_material_solicitud_compra_proforma_estado_id[proyecto_material_solicitud_compra_proforma_id] !== null) {
+			$http({ 
+				url: '../../../../../../proyecto/actualizarEstadoProformaAjax/',
+				method: "POST",
+				data: {
+					proyecto_material_solicitud_compra_proforma_id: proyecto_material_solicitud_compra_proforma_id,
+					proyecto_material_solicitud_compra_proforma_estado_id: $scope.proyecto_material_solicitud_compra_proforma_estado_id[proyecto_material_solicitud_compra_proforma_id],
+				},
+			})
+			.then(function (result) {
+				if (result.data.datos.resultado == true) {
+					$scope.editar_proforma[proyecto_material_solicitud_compra_proforma_id] = false;
+					$scope.guardando[proyecto_material_solicitud_compra_proforma_id] = false;
+					$scope.consultarProformasCompra();
+				} else {
+					$log.error(result.data);
+				}
+				
+			}, function (result) {
+				$log.error(result);
+			});
+				
+		} else {
+			$scope.mensaje_error[proyecto_material_solicitud_compra_proforma_id].error_estado = 'Debe ingresar seleccionar un estado';
+		}
+		$scope.guardando[proyecto_material_solicitud_compra_proforma_id] = false;
+	}
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);
+
+
+myApp.controller('proyectoVerOrdenesCompraController', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.proveedores = {};
+	$scope.editar_orden = {};
+	$scope.mensaje_error = {};
+	$scope.guardando = {};
+	$scope.proyecto_material_solicitud_compra_orden_compra_estado_id = {};
+	$scope.bloqueo_edicion = {};
+
+	$scope.habilitarEdicionOrdenCompra = function(proyecto_material_solicitud_compra_orden_compra_id){
+		$scope.editar_orden[proyecto_material_solicitud_compra_orden_compra_id] = true;
+		$scope.guardando[proyecto_material_solicitud_compra_orden_compra_id] = false;
+	}
+
+	$scope.cancelarEdicionOrdenCompra = function(proyecto_material_solicitud_compra_orden_compra_id){
+		$scope.editar_orden[proyecto_material_solicitud_compra_orden_compra_id] = false;
+		$scope.guardando[proyecto_material_solicitud_compra_orden_compra_id] = false;
+	}
+	
+	$scope.consultarOrdenesCompra = function(){
+		$scope.consultarOrdenesCompraCompra();
+	}
+	
+
+	$scope.consultarOrdenesCompraCompra = function () {
+		$http({
+			url: '../../../../../../proyecto/consultarOrdenesCompraSolicitudCompraMaterialesProyectoAjax/',
+			method: "POST",
+			data: {
+				proyecto_material_solicitud_compra_id: $scope.proyecto_material_solicitud_compra_id,
+			},
+		})
+		.then(function (result) {
+			if (result.data.ordenes_compra !== false) {
+				if (result.data.ordenes_compra.datos !== undefined){
+					$scope.proveedores = result.data.ordenes_compra.datos;
+				} else {
+					$scope.proveedores = result.data.ordenes_compra;
+				}
+				Object.keys($scope.proveedores).map(function(value) {
+					var contador = 1;
+					Object.keys($scope.proveedores[value].ordenes_compra).map(function(value2){
+						var cant_ordenes = $scope.proveedores[value].ordenes_compra.length;
+						$scope.editar_orden[$scope.proveedores[value].ordenes_compra[value2].proyecto_material_solicitud_compra_orden_compra_id] = false;
+						$scope.mensaje_error[$scope.proveedores[value].ordenes_compra[value2].proyecto_material_solicitud_compra_orden_compra_id] = {};
+						$scope.proyecto_material_solicitud_compra_orden_compra_estado_id[$scope.proveedores[value].ordenes_compra[value2].proyecto_material_solicitud_compra_orden_compra_id] = $scope.proveedores[value].ordenes_compra[value2].proyecto_material_solicitud_compra_orden_compra_estado_id;
+						if (cant_ordenes == contador) {
+							$scope.bloqueo_edicion[value] = $scope.proveedores[value].ordenes_compra[value2].proyecto_material_solicitud_compra_orden_compra_id;
+						}
+						contador++;
+					});
+				});
+			} else {
+				$scope.proveedores = false;
+			}
+		}, function (result) {
+			$log.error(result);
+		});
+	}
+
+	$scope.cambiarEstado = function(proyecto_material_solicitud_compra_orden_compra_id) {
+		$scope.mensaje_error[proyecto_material_solicitud_compra_orden_compra_id] = {};
+		$scope.guardando[proyecto_material_solicitud_compra_orden_compra_id] = true;
+		if($scope.proyecto_material_solicitud_compra_orden_compra_estado_id[proyecto_material_solicitud_compra_orden_compra_id] !== null) {
+			$http({ 
+				url: '../../../../../../proyecto/actualizarEstadoOrdenCompraAjax/',
+				method: "POST",
+				data: {
+					proyecto_id: $scope.proyecto_id,
+					proyecto_material_solicitud_compra_orden_compra_id: proyecto_material_solicitud_compra_orden_compra_id,
+					proyecto_material_solicitud_compra_orden_compra_estado_id: $scope.proyecto_material_solicitud_compra_orden_compra_estado_id[proyecto_material_solicitud_compra_orden_compra_id],
+				},
+			})
+			.then(function (result) {
+				if (result.data.datos.resultado == true) {
+					$scope.editar_orden[proyecto_material_solicitud_compra_orden_compra_id] = false;
+					$scope.guardando[proyecto_material_solicitud_compra_orden_compra_id] = false;
+					$scope.consultarOrdenesCompraCompra();
+				} else {
+					$log.error(result.data);
+				}
+				
+			}, function (result) {
+				$log.error(result);
+			});
+				
+		} else {
+			$scope.mensaje_error[proyecto_material_solicitud_compra_orden_compra_id].error_estado = 'Debe ingresar seleccionar un estado';
+		}
+		$scope.guardando[proyecto_material_solicitud_compra_orden_compra_id] = false;
+	}
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+
+}]);

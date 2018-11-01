@@ -39,7 +39,7 @@ ALTER TABLE `cliente_calificacion`
 
 
 ALTER TABLE `cliente` ADD `cliente_calificacion_id` INT(1) NOT NULL AFTER `cedula_cliente`;
-ALTER TABLE `cliente` ADD `comentario` TEXT CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL AFTER `clasificación_cliente`;
+ALTER TABLE `cliente` ADD `comentario` TEXT CHARACTER SET utf8 COLLATE utf8_spanish_ci NOT NULL AFTER `cliente_calificacion_id`;
 
 
 

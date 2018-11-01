@@ -509,7 +509,7 @@ class M_Colaborador extends CI_Model {
 		if(isset($data['puesto'])){
 			if($data['puesto']!=''){
 				//primero validamos la cedula
-				$this->db->like('puesto', $data['puesto']);
+				$this->db->where('puesto', $data['puesto']);
 				// validamos que no sea la cedula del mismo colaborador que se esta consultando para cuando se esta editando un colaborador
 				if($colaborador_puesto_id!=null){
 					$this->db->where('colaborador_puesto_id !=', $colaborador_puesto_id);

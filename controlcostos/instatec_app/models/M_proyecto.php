@@ -15,9 +15,15 @@ class M_Proyecto extends CI_Model {
 			$t_proyecto_gasto_monto = 'proyecto_gasto_monto',
 			$t_proyecto_gasto_detalle = 'proyecto_gasto_detalle',
 			$t_proyecto_gasto_mano_obra = 'proyecto_gasto_mano_obra',
+			$t_proyecto_gasto_material = 'proyecto_gasto_material',
 			$t_proyecto_colaborador = 'proyecto_colaborador',
+			$t_usuario_detalle = 'usuario_detalle',
+			$t_usuario = 'usuario',
+			$t_usuario_colaborador = 'usuario_colaborador',
 			$t_cliente = 'cliente',
 			$t_proveedor = 'proveedor',
+			$t_proveedor_correo = 'proveedor_correo',
+			$t_proveedor_telefono = 'proveedor_telefono',
 			$t_distrito = 'distrito',
 			$t_canton = 'canton',
 			$t_provincia = 'provincia',
@@ -25,6 +31,19 @@ class M_Proyecto extends CI_Model {
 			$t_colaborador = 'colaborador',
 			$t_colaborador_puesto = 'colaborador_puesto',
 			$t_colaborador_costo_hora = 'colaborador_costo_hora',
+			$t_material = 'material',
+			$t_material_unidad = 'material_unidad',
+			$t_proyecto_material = 'proyecto_material',
+			$t_proyecto_material_detalle = 'proyecto_material_detalle',
+			$t_proyecto_material_estado = 'proyecto_material_estado',
+			$t_proyecto_material_solicitud_cotizacion = 'proyecto_material_solicitud_cotizacion',
+			$t_proyecto_material_solicitud_compra = 'proyecto_material_solicitud_compra',
+			$t_proyecto_material_solicitud_compra_estado = 'proyecto_material_solicitud_compra_estado',
+			$t_proyecto_material_solicitud_compra_detalle = 'proyecto_material_solicitud_compra_detalle',
+			$t_proyecto_material_solicitud_compra_proforma = 'proyecto_material_solicitud_compra_proforma',
+			$t_proyecto_material_solicitud_compra_proforma_estado ='proyecto_material_solicitud_compra_proforma_estado',
+			$t_proyecto_material_solicitud_compra_orden_compra = 'proyecto_material_solicitud_compra_orden_compra',
+			$t_proyecto_material_solicitud_compra_orden_compra_estado ='proyecto_material_solicitud_compra_orden_compra_estado',
 			$rol_id,
 			$usuario_id;
 
@@ -170,10 +189,11 @@ class M_Proyecto extends CI_Model {
 		$this->db->join($this->t_distrito, $this->t_distrito.'.distrito_id = '.$this->t_proyecto.'.distrito_id', 'LEFT');
 		$this->db->join($this->t_canton, $this->t_canton.'.canton_id = '.$this->t_distrito.'.canton_id', 'LEFT');
 		$this->db->join($this->t_provincia, $this->t_provincia.'.provincia_id = '.$this->t_canton.'.provincia_id', 'LEFT');
+		$this->db->join($this->t_usuario_colaborador, $this->t_usuario_colaborador.'.colaborador_id = '.$this->t_proyecto.'.jefe_proyecto_id', 'LEFT');
 		$where = '';
 		if(!empty($filtros)){
 			if(isset($filtros['jefe_proyecto_id'])){
-				$where  = '('.$this->t_proyecto.'.jefe_proyecto_id = '.$filtros['jefe_proyecto_id'].') AND ';
+				$where  = '('.$this->t_usuario_colaborador.'.usuario_id = '.$filtros['jefe_proyecto_id'].') AND ';
 			}
 		}
 		$where .= '('.$this->t_proyecto.'.proyecto_estado_id = 1 OR '.$this->t_proyecto.'.proyecto_estado_id = 2 )';
@@ -695,7 +715,11 @@ class M_Proyecto extends CI_Model {
 
 					//Elimina los detalles
 					$this->db->where('proyecto_gasto_id', $vgasto->proyecto_gasto_id);
-					$this->db->delete($this->t_proyecto_gasto_mano_obra);					
+					$this->db->delete($this->t_proyecto_gasto_mano_obra);
+
+					//Elimina las relaciones con materiales
+					$this->db->where('proyecto_gasto_id', $vgasto->proyecto_gasto_id);
+					$this->db->delete($this->t_proyecto_gasto_material);					
 				}
 
 
@@ -725,6 +749,52 @@ class M_Proyecto extends CI_Model {
 			// Borra el tipo de cambio
 			$this->db->where($this->t_proyecto_tipo_cambio.'.proyecto_id', $proyecto_id);
 			$this->db->delete($this->t_proyecto_tipo_cambio);
+
+			//Elimina los materiales
+			$this->db->where('proyecto_id', $proyecto_id);
+			$materiales = $this->db->get($this->t_proyecto_material);
+			$materiales_num_rows = $materiales->num_rows();
+			if($materiales_num_rows > 0){
+				$materiales_result = $materiales->result();
+				foreach ($materiales_result as $kmaterial => $vmaterial) {
+					// Borra los detalles de materiales
+					$this->db->where($this->t_proyecto_material_detalle.'.proyecto_material_id', $vmaterial->proyecto_material_id);
+					$this->db->delete($this->t_proyecto_material_detalle);
+				}
+				//Borra los materiales
+				$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+				$this->db->delete($this->t_proyecto_material);
+			}
+
+			$this->db->where('proyecto_id', $proyecto_id);
+			$solicitudes_cotizacion = $this->db->get($this->t_proyecto_material_solicitud_cotizacion);
+			$solicitudes_cotizacion_num_rows = $solicitudes_cotizacion->num_rows();
+			if($solicitudes_cotizacion_num_rows > 0){
+				//Borra las cotizaciones
+				$this->db->where($this->t_proyecto_material_solicitud_cotizacion.'.proyecto_id', $proyecto_id);
+				$this->db->delete($this->t_proyecto_material_solicitud_cotizacion);
+			}
+
+			// Borra informacion de proformas y ordenes de materiales
+			$this->db->where($this->t_proyecto_material_solicitud_compra.'.proyecto_id', $proyecto_id);
+			$solicitud_compra = $this->db->get($this->t_proyecto_material_solicitud_compra);
+			$solicitud_compra_count = $solicitud_compra->num_rows();
+			if($solicitud_compra_count > 0){
+				$solicitud_compra_rows = $solicitud_compra->result();
+				foreach ($solicitud_compra_rows as $ksolicitud => $vsolicitud) {
+					$this->db->where('proyecto_material_solicitud_compra_id', $vsolicitud->proyecto_material_solicitud_compra_id);
+					$this->db->delete($this->t_proyecto_material_solicitud_compra_proforma);
+
+					$this->db->where('proyecto_material_solicitud_compra_id', $vsolicitud->proyecto_material_solicitud_compra_id);
+					$this->db->delete($this->t_proyecto_material_solicitud_compra_orden_compra);
+
+					$this->db->where('proyecto_material_solicitud_compra_id', $vsolicitud->proyecto_material_solicitud_compra_id);
+					$this->db->delete($this->t_proyecto_material_solicitud_compra_detalle);
+				}
+				//Borra las solicitudes de compra
+				$this->db->where($this->t_proyecto_material_solicitud_compra.'.proyecto_id', $proyecto_id);
+				$this->db->delete($this->t_proyecto_material_solicitud_compra);
+			}
 
 			// Borra el proyecto
 			$this->db->where($this->t_proyecto.'.proyecto_id', $proyecto_id);
@@ -987,7 +1057,9 @@ class M_Proyecto extends CI_Model {
 		$this->db->join($this->t_proyecto_gasto_estado, $this->t_proyecto_gasto_estado.'.proyecto_gasto_estado_id = '.$this->t_proyecto_gasto_detalle.'.proyecto_gasto_estado_id', 'LEFT');
 		$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_gasto_detalle.'.proveedor_id', 'LEFT');
 		$this->db->join($this->t_moneda, $this->t_moneda.'.moneda_id = '.$this->t_proyecto_gasto_monto.'.moneda_id', 'LEFT');
-		$this->db->select($this->t_proyecto_gasto.'.*, '.$this->t_proyecto_gasto_monto.'.proyecto_gasto_monto, '.$this->t_proyecto_gasto_monto.'.moneda_id, '.$this->t_proyecto_gasto_detalle.'.proveedor_id, '.$this->t_proyecto_gasto_detalle.'.numero_factura, '.$this->t_proyecto_gasto_estado.'.proyecto_gasto_estado, '.$this->t_proveedor.'.nombre_proveedor, '.$this->t_proyecto_gasto_tipo.'.proyecto_gasto_tipo, '.$this->t_moneda.'.*');
+		$this->db->join($this->t_proyecto_gasto_material, $this->t_proyecto_gasto_material.'.proyecto_gasto_id = '.$this->t_proyecto_gasto.'.proyecto_gasto_id', 'LEFT');
+		$this->db->join($this->t_proyecto_material_solicitud_compra_orden_compra, $this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_id = '.$this->t_proyecto_gasto_material.'.proyecto_material_solicitud_compra_orden_compra_id', 'LEFT');
+		$this->db->select($this->t_proyecto_gasto.'.*, '.$this->t_proyecto_gasto_monto.'.proyecto_gasto_monto, '.$this->t_proyecto_gasto_monto.'.moneda_id, '.$this->t_proyecto_gasto_detalle.'.proveedor_id, '.$this->t_proyecto_gasto_detalle.'.numero_factura, '.$this->t_proyecto_gasto_estado.'.proyecto_gasto_estado, '.$this->t_proveedor.'.nombre_proveedor, '.$this->t_proyecto_gasto_tipo.'.proyecto_gasto_tipo, '.$this->t_moneda.'.*,'.$this->t_proyecto_gasto_material.'.proyecto_material_solicitud_compra_orden_compra_id, '.$this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_id');
 
 		if(isset($data['filtros'])){			
 			foreach ($data['filtros'] as $key => $value) {
@@ -2299,5 +2371,1438 @@ class M_Proyecto extends CI_Model {
 		}
 		
 		return true;
+	}
+
+
+	/* Para manejo de materiales */
+
+	function consultarMaterialesInicialesProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.proyecto_material_tipo', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarMaterialesExtensionesProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.proyecto_material_tipo', 2);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarMaterialesActivosProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado, '.$this->t_proveedor.'.*');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1', 'LEFT');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id AND '.$this->t_proveedor.'.estado_proveedor = 1', 'LEFT');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarMaterialesInicialesActivosProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.proyecto_material_tipo', 1);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarMaterialesExtensionesActivosProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.proyecto_material_tipo', 2);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarProveedoresMaterialesActivosProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_proyecto_material_detalle.'.proveedor_id, '.$this->t_proyecto_material_detalle.'.moneda_id, '.$this->t_proyecto_material_detalle.'.precio, '.$this->t_proyecto_material_detalle.'.tiene_impuesto, '.$this->t_proyecto_material_detalle.'.impuesto, '.$this->t_proveedor.'.nombre_proveedor, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado, '.$this->t_moneda.'.simbolo');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1', 'LEFT');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id', 'LEFT');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_moneda, $this->t_moneda.'.moneda_id = '.$this->t_proyecto_material_detalle.'.moneda_id', 'LEFT');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarProveedoresMaterialesInicialesActivosProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_proyecto_material_detalle.'.proveedor_id, '.$this->t_proyecto_material_detalle.'.moneda_id, '.$this->t_proyecto_material_detalle.'.precio, '.$this->t_proyecto_material_detalle.'.tiene_impuesto, '.$this->t_proyecto_material_detalle.'.impuesto, '.$this->t_proveedor.'.nombre_proveedor, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado, '.$this->t_moneda.'.simbolo');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1', 'LEFT');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id', 'LEFT');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_moneda, $this->t_moneda.'.moneda_id = '.$this->t_proyecto_material_detalle.'.moneda_id', 'LEFT');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.proyecto_material_tipo', 1);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function consultarProveedoresMaterialesExtensionesActivosProyecto($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_proyecto_material_detalle.'.proveedor_id, '.$this->t_proyecto_material_detalle.'.moneda_id, '.$this->t_proyecto_material_detalle.'.precio, '.$this->t_proyecto_material_detalle.'.tiene_impuesto, '.$this->t_proyecto_material_detalle.'.impuesto, '.$this->t_proveedor.'.nombre_proveedor, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado, '.$this->t_moneda.'.simbolo');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1', 'LEFT');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id', 'LEFT');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_moneda, $this->t_moneda.'.moneda_id = '.$this->t_proyecto_material_detalle.'.moneda_id', 'LEFT');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.proyecto_material_tipo', 2);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+
+	function relacionarMaterialProyecto($proyecto_id, $material_id, $tipo_relacion,  $datos_relacion) {
+		if ($proyecto_id!=null && $material_id!=null) {
+			// Pregunta si el material ya esta ligado al proyecto
+			if ($tipo_relacion == 1){
+				$this->db->where('proyecto_id', $proyecto_id);
+				$this->db->where('material_id', $material_id);
+				$this->db->where('proyecto_material_tipo', 1);
+				$result_proyecto_material = $this->db->get($this->t_proyecto_material);
+				$result_proyecto_material_count = $result_proyecto_material->num_rows();
+				if ($result_proyecto_material_count > 0) {
+					// Si el material que se esta agregando es de la lista inicial retorna error porque ya existe uno registrado previamente (ya arriba se agrego la condicion si es un material de la lista inicial)
+					$result = array('tipo' => 'danger',
+						'texto' => 'Ya este material se encuentra relacionado. Si desea modificar su cantidad, búsquelo en el listado inferior y modifique su información. Si es una extensión de la lista inicial, vaya a la sección de extension de materiales y agreguelo ahí'
+					);
+				} else {
+					//Si entra aqui es que es un material que se agrega como extension de la lista inicial
+					$this->db->set('proyecto_id', $proyecto_id);
+					$this->db->set('material_id', $material_id);
+					$this->db->set('usuario_id', $this->usuario_id);
+					$this->db->set('proyecto_material_tipo', $tipo_relacion);
+					foreach ($datos_relacion as $key => $value) {
+						$this->db->set($key, $value);
+					}
+					$this->db->set('proyecto_material_estado_id', 1);
+					$this->db->set('fecha_registro',  date('Y-m-d H:i:s'));
+					$this->db->set('estado_registro', 1);
+					$this->db->insert($this->t_proyecto_material);
+
+					$proyecto_material_id = $this->db->insert_id();
+					$this->db->set('proyecto_material_id', $proyecto_material_id );
+					$this->db->set('fecha_registro',  date('Y-m-d H:i:s'));
+					$this->db->set('estado_registro', 1);
+					$this->db->insert($this->t_proyecto_material_detalle);
+
+					$result = array('tipo' => 'success',
+						'texto' => 'Material agregado con éxito al proyecto'
+					);
+				}
+			} else {
+				//Si entra aqui es que es un material que se agrega como extension de la lista inicial
+				$this->db->set('proyecto_id', $proyecto_id);
+				$this->db->set('material_id', $material_id);
+				$this->db->set('usuario_id', $this->usuario_id);
+				$this->db->set('proyecto_material_tipo', $tipo_relacion);
+				foreach ($datos_relacion as $key => $value) {
+					$this->db->set($key, $value);
+				}
+				$this->db->set('proyecto_material_estado_id', 1);
+				$this->db->set('fecha_registro',  date('Y-m-d H:i:s'));
+				$this->db->set('estado_registro', 1);
+				$this->db->insert($this->t_proyecto_material);
+
+				$proyecto_material_id = $this->db->insert_id();
+				$this->db->set('proyecto_material_id', $proyecto_material_id );
+				$this->db->set('fecha_registro',  date('Y-m-d H:i:s'));
+				$this->db->set('estado_registro', 1);
+				$this->db->insert($this->t_proyecto_material_detalle);
+
+				$result = array('tipo' => 'success',
+						'texto' => 'Material agregado con éxito al proyecto'
+					);
+			}
+		}else{
+			$result = array('tipo' => 'danger',
+					'texto' => 'Hubo un error al relacionar el material al proyecto.'
+				);
+		}
+		return $result;
+	}
+
+	function actualizarMaterialProyecto($proyecto_material_id, $datos) {
+		if (isset($proyecto_material_id) && $proyecto_material_id !== null) {
+			if (isset($datos) && !empty($datos)) {
+				foreach ($datos as $key => $value) {
+					$this->db->set($key, $value);
+				}
+				$this->db->where('proyecto_material_id', $proyecto_material_id);
+				$this->db->update($this->t_proyecto_material);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	function actualizarProveedorMaterialProyecto($proyecto_material_id, $datos) {
+		if (isset($proyecto_material_id) && $proyecto_material_id !== null) {
+			if (isset($datos) && !empty($datos)) {
+				$datos['precio'] = str_replace(' ', '', $datos['precio']);
+				$datos['impuesto'] = str_replace(' ', '', $datos['impuesto']);
+				$this->db->where('proyecto_material_id', $proyecto_material_id);
+				$this->db->where('estado_registro', 1);
+				$result_proyecto = $this->db->get($this->t_proyecto_material_detalle);
+				$result_proyecto_count = $result_proyecto->num_rows();
+				if ($result_proyecto_count > 0) {
+					$this->db->set('estado_registro', 0);
+					$this->db->where('estado_registro', 1);
+					$this->db->where('proyecto_material_id', $proyecto_material_id);
+					$this->db->update($this->t_proyecto_material_detalle);
+				} 
+
+				$this->db->where('proyecto_material_id', $proyecto_material_id);
+				$this->db->where('estado_registro', 1);
+				$result_material_proyecto = $this->db->get($this->t_proyecto_material);
+				$result_material_proyecto_count = $result_material_proyecto->num_rows();
+				if ($result_material_proyecto_count > 0) {
+					$result_material_proyecto_row = $result_material_proyecto->row();
+					if ($result_material_proyecto_row->proyecto_material_estado_id == 1) {
+						// Cambia el estado del material la primera vez que se registra el proveedor
+						$this->db->set('proyecto_material_estado_id', 2);
+						$this->db->where('proyecto_material_id', $proyecto_material_id);
+						$this->db->where('estado_registro', 1);
+						$this->db->update($this->t_proyecto_material);
+					}
+				} 
+				
+
+				$this->db->set('usuario_id', $this->usuario_id);
+				$this->db->set('estado_registro', 1);
+				$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+				foreach ($datos as $key => $value) {
+					$this->db->set($key, $value);
+				}
+				$this->db->where('proyecto_material_id', $proyecto_material_id);
+				$this->db->insert($this->t_proyecto_material_detalle);
+
+				$this->actualizarValorOfertaMaterialesProyecto($proyecto_material_id);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	function actualizarValorOfertaMaterialesProyecto($proyecto_material_id) {
+		if($proyecto_material_id!==null) {
+			$this->db->where('proyecto_material_id', $proyecto_material_id);
+			$this->db->where('estado_registro', 1);
+			$result_material_proyecto = $this->db->get($this->t_proyecto_material);
+			$result_material_proyecto_count = $result_material_proyecto->num_rows();
+			if ($result_material_proyecto_count > 0) {
+				$result_material_proyecto_row = $result_material_proyecto->row();
+				
+				//Cargamos el proyecto
+				$proyecto_id = $result_material_proyecto_row->proyecto_id;
+				$this->db->where($this->t_proyecto.'.proyecto_id', $proyecto_id);
+				$this->db->join($this->t_proyecto_tipo_cambio, $this->t_proyecto_tipo_cambio.'.proyecto_id = '.$this->t_proyecto.'.proyecto_id');
+				$proyecto_result = $this->db->get($this->t_proyecto);
+				$proyecto = $proyecto_result->row();
+
+				//Obtiene todos de materiales de este proyecto
+				$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+				$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+				$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+				$result_todos_materiales_proyecto = $this->db->get($this->t_proyecto_material);
+				$result_todos_materiales_proyecto_count = $result_todos_materiales_proyecto->num_rows();
+
+				// Valor acumulado de oferta de materiales
+				$total_valor_oferta_materiales = 0;
+				if ($result_todos_materiales_proyecto_count > 0) {
+					$result_todos_materiales_proyecto_rows = $result_todos_materiales_proyecto->result();
+					foreach ($result_todos_materiales_proyecto_rows as $kmaterial => $vmaterial) {
+						$monto_gasto = $vmaterial->precio;
+						if($vmaterial->moneda_id==2){
+							$proyecto_tipo_cambio_venta = $proyecto->valor_venta;							
+							$monto_gasto = $monto_gasto / $proyecto_tipo_cambio_venta;
+						}
+						if ($vmaterial->tiene_impuesto == 1){
+							$monto_gasto = $monto_gasto + (($monto_gasto / 100) * str_replace(' ', '',$vmaterial->impuesto));
+						}
+						$array[$vmaterial->proyecto_material_id]['impuesto'] = $vmaterial->impuesto;
+						$array[$vmaterial->proyecto_material_id]['monto_con_impuesto'] = $monto_gasto;
+						$total_valor_oferta_materiales += $monto_gasto;
+					}
+				}
+				
+				$this->db->where('proyecto_id', $proyecto_id);
+				$this->db->where('proyecto_valor_oferta_tipo_id', 1);
+				$result_valor = $this->db->get($this->t_proyecto_valor_oferta);
+				$result_valor_count = $result_valor->num_rows();
+
+				$this->db->set('valor_oferta', str_replace(' ', '',$total_valor_oferta_materiales));
+				if ($result_valor_count > 0) {
+					$this->db->where('proyecto_id', $proyecto_id);
+					$this->db->where('proyecto_valor_oferta_tipo_id', 1);
+					$this->db->update($this->t_proyecto_valor_oferta);
+				} else {
+					$this->db->set('proyecto_valor_oferta_tipo_id', 1);
+					$this->db->set('proyecto_id', $proyecto_id);
+					$this->db->set('moneda_id', 1);
+					$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+					$this->db->set('estado_registro', 1);
+					$this->db->insert($this->t_proyecto_valor_oferta);
+				}
+			}
+		}
+	}
+
+	function validarExistenciaMaterialCotizadoProyecto($proyecto_id) {
+		$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+		$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+		$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+		$result_todos_materiales_proyecto = $this->db->get($this->t_proyecto_material);
+		$result_todos_materiales_proyecto_count = $result_todos_materiales_proyecto->num_rows();
+
+		if ($result_todos_materiales_proyecto_count > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function toggleEstadoMaterialProyecto($proyecto_material_id) {
+		if (isset($proyecto_material_id) && $proyecto_material_id !== null) {
+			$this->db->where('proyecto_material_id', $proyecto_material_id);
+			$result_material =  $this->db->get($this->t_proyecto_material);
+			$result_material_count = $result_material->num_rows();
+			if ($result_material_count > 0){
+				$result_material_result = $result_material->row();
+				if ($result_material_result->estado_registro == 0) {
+					$this->db->set('estado_registro', 1);
+				} else {
+					$this->db->set('estado_registro', 0);
+				}
+				$this->db->where('proyecto_material_id', $proyecto_material_id);
+				$this->db->update($this->t_proyecto_material);
+				return true;
+			}else {
+				return false;
+			}			
+		} else {
+			return false;
+		}
+	}
+
+
+	function insertarSolicitudCotizacionMateriales($proyecto_id) {
+		$this->db->set('proyecto_id', $proyecto_id);
+		$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+		$this->db->insert($this->t_proyecto_material_solicitud_cotizacion);
+		return $this->db->insert_id();
+	}
+
+	function actualizarSolicitudCotizacionMateriales($proyecto_material_solicitud_cotizacion_id, $datos) {
+		foreach ($datos as $key => $value) {
+			$this->db->set($key, $value);
+		}
+		$this->db->where('proyecto_material_solicitud_cotizacion_id', $proyecto_material_solicitud_cotizacion_id);
+		$this->db->update($this->t_proyecto_material_solicitud_cotizacion);
+	}
+
+	function consultarSolicitudesCotizacionMaterialesProyecto($proyecto_id) {
+		if ($proyecto_id !== null) {
+			$this->db->where('proyecto_id', $proyecto_id);
+			$result_solicitudes = $this->db->get($this->t_proyecto_material_solicitud_cotizacion);
+
+			$result_solicitudes_count = $result_solicitudes->num_rows();
+			if($result_solicitudes_count> 0){
+				$result = array(
+							'total_rows' => $result_solicitudes_count,
+							'datos' => $result_solicitudes->result(),
+							);
+				return $result;
+			}else{
+				return false;
+			}
+			
+		} else {
+			return false;
+		}
+	}
+
+	function consultarSolicitudesCompraMaterialesProyecto ($proyecto_id) {
+		if ($proyecto_id !== null) {
+			$this->db->where($this->t_proyecto.'.proyecto_id', $proyecto_id);
+			$this->db->join($this->t_proyecto_tipo_cambio, $this->t_proyecto_tipo_cambio.'.proyecto_id = '.$this->t_proyecto.'.proyecto_id');
+			$proyecto_result = $this->db->get($this->t_proyecto);
+			$proyecto = $proyecto_result->row();
+
+			$this->db->where($this->t_proyecto_material_solicitud_compra.'.proyecto_id', $proyecto_id);
+			$this->db->join($this->t_usuario_detalle, $this->t_usuario_detalle.'.usuario_id = '.$this->t_proyecto_material_solicitud_compra.'.usuario_id');
+			$this->db->join($this->t_proyecto_material_solicitud_compra_estado, $this->t_proyecto_material_solicitud_compra_estado.'.proyecto_material_solicitud_compra_estado_id = '.$this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_estado_id');
+			$result_solicitudes = $this->db->get($this->t_proyecto_material_solicitud_compra);
+
+			$result_solicitudes_count = $result_solicitudes->num_rows();
+			if($result_solicitudes_count> 0){
+				$result_solicitudes_rows = $result_solicitudes->result();
+				foreach ($result_solicitudes_rows as $ksolicitud => $vsolicitud) {
+					$this->db->select($this->t_proyecto_material_solicitud_compra_detalle.'.cantidad as cantidad_compra, '.$this->t_proyecto_material_detalle.'.precio, '.$this->t_proyecto_material_detalle.'.moneda_id, '.$this->t_proyecto_material.'.cantidad, '.$this->t_proyecto_material_detalle.'.tiene_impuesto, '.$this->t_proyecto_material_detalle.'.impuesto');
+					$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id', $vsolicitud->proyecto_material_solicitud_compra_id);
+					$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro', 1);
+					$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id');
+					$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+					$result_solicitudes_detalle = $this->db->get($this->t_proyecto_material_solicitud_compra_detalle);
+					$result_solicitudes_detalle_count = $result_solicitudes_detalle->num_rows();
+					$total_solicitud_compra = 0;
+					if ($result_solicitudes_detalle_count > 0) {
+						$result_solicitudes_detalle_rows = $result_solicitudes_detalle->result();
+						foreach ($result_solicitudes_detalle_rows as $ksolicitud_detalle => $vsolicitud_detalle) {
+							$monto_gasto_individual = $vsolicitud_detalle->precio / $vsolicitud_detalle->cantidad;
+							if($vsolicitud_detalle->moneda_id==2){
+								$proyecto_tipo_cambio_venta = $proyecto->valor_venta;							
+								$monto_gasto_individual = $monto_gasto_individual / $proyecto_tipo_cambio_venta;
+							}
+							if ($vsolicitud_detalle->tiene_impuesto == 1){
+								$monto_gasto_individual = $monto_gasto_individual + (($monto_gasto_individual / 100) * str_replace(' ', '',$vsolicitud_detalle->impuesto));
+							}
+
+							$total_solicitud_compra += $monto_gasto_individual * $vsolicitud_detalle->cantidad_compra;
+						}
+					}
+
+					$result_solicitudes_rows[$ksolicitud]->costo_solicitud = $total_solicitud_compra;
+
+				}
+				$result = array(
+							'total_rows' => $result_solicitudes_count,
+							'datos' => $result_solicitudes_rows,
+							);
+				return $result;
+			}else{
+				return false;
+			}
+			
+		} else {
+			return false;
+		}
+	}
+
+
+	function consultarMaterialesRestantesActivosProyecto ($proyecto_id, $proyecto_materiales_id = null) {
+		if($proyecto_id!=null){
+			$this->db->select($this->t_proyecto_material.'.*, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material_estado.'.proyecto_material_estado');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_estado, $this->t_proyecto_material_estado.'.proyecto_material_estado_id = '.$this->t_proyecto_material.'.proyecto_material_estado_id');
+			$this->db->where($this->t_proyecto_material.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material.'.estado_registro', 1);
+
+			// Si hay Ids de materiales ligados al proyecto
+			if ($proyecto_materiales_id !== null) {
+				$this->db->where($this->t_proyecto_material.'.proyecto_material_id IN ('.implode(',', $proyecto_materiales_id).')');
+			}
+
+			$this->db->order_by($this->t_proyecto_material.'.proyecto_material_id', 'ASC');
+			$result_materiales = $this->db->get($this->t_proyecto_material);
+			$result_materiales_count = $result_materiales->num_rows();
+
+			// Busca los materiales comprados
+			$this->db->select(
+				$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id, '.
+				$this->t_proyecto_material_solicitud_compra_detalle.'.cantidad'
+			);
+			$this->db->join($this->t_proyecto_material_solicitud_compra, $this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_id = '.$this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_id');
+			$this->db->join($this->t_proyecto_material_solicitud_compra_detalle, $this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id = '.$this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_id AND '.$this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro = 1');
+			$this->db->join($this->t_proyecto_material,  $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id AND '.$this->t_proyecto_material.'.estado_registro = 1');
+			$this->db->join($this->t_proyecto_material_detalle,  $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.proveedor_id = '.$this->t_proyecto_material_solicitud_compra_orden_compra.'.proveedor_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+			$this->db->join($this->t_material,  $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id');
+			$this->db->where($this->t_proyecto_material_solicitud_compra.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_estado_id', 3);
+			$this->db->order_by($this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id', 'ASC');
+			$materiales_comprados = $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra);
+			$materiales_comprados_count = $materiales_comprados->num_rows();
+			//exit(json_encode($materiales_comprados->result()));
+			//Valida si hay materiales asignados al proyecto
+			if($result_materiales_count> 0){
+				$result_materiales_rows = $result_materiales->result();
+				//recorre todos los materiales para ver si han comprado alguno
+				foreach ($result_materiales_rows as $kmaterial => $vmaterial) {
+					$materiales_comprados_total_cantidad = 0;
+					// Si hay materiales comprados entonces los recorre y suma las cantidades
+					if ($materiales_comprados_count > 0) {
+						$materiales_comprados_rows = $materiales_comprados->result();
+						foreach ($materiales_comprados_rows as $kmaterial_comprado => $vmaterial_comprado) {
+							if ($vmaterial_comprado->proyecto_material_id == $vmaterial->proyecto_material_id) {
+								$materiales_comprados_total_cantidad += $vmaterial_comprado->cantidad;
+							}
+						}
+					}
+					$result_materiales_rows[$kmaterial]->cantidad_restante = (double)$vmaterial->cantidad - (double)$materiales_comprados_total_cantidad;
+				}
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales_rows,
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+
+	function consultarMaterialesSolicitudCompra ($proyecto_material_solicitud_compra_id) {
+		if($proyecto_material_solicitud_compra_id!=null){
+			$this->db->select($this->t_proyecto_material_solicitud_compra_detalle.'.cantidad as cantidad_compra, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material.'.*, '.$this->t_proveedor.'.proveedor_id, '.$this->t_proveedor.'.nombre_proveedor');
+			$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id');
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro', 1);
+
+			$result_materiales = $this->db->get($this->t_proyecto_material_solicitud_compra_detalle);
+			$result_materiales_count = $result_materiales->num_rows();
+
+			//Valida si hay materiales asignados al proyecto
+			if($result_materiales_count > 0){
+				$result_materiales_rows = $result_materiales->result();
+				$result = array(
+							'total_rows' => $result_materiales_count,
+							'datos' => $result_materiales_rows,
+							);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+
+	function agregarSolicitudCompraMateriales ($proyecto_id, $data) {
+		if ($proyecto_id !== null) {
+			if ($data !== null) {
+				if (isset($data['material_check']) && !empty($data['material_check'])) {
+					$validacion = false;
+					foreach ($data['material_check'] as $kmaterial => $vmaterial) {
+						foreach ($data['cantidad'] as $kcantidad => $vcantidad) {
+							if($kcantidad == $kmaterial) {
+								if ($vcantidad > 0){
+									$validacion = true;
+								}
+							}
+						}
+					}
+
+					if ($validacion) {
+						$this->db->set('proyecto_id', $proyecto_id);
+						$this->db->set('usuario_id', $this->usuario_id);
+						if ($this->rol_id == 3) {
+							$this->db->set('proyecto_material_solicitud_compra_estado_id', 1);
+						} else {
+							$this->db->set('proyecto_material_solicitud_compra_estado_id', 2);
+						}
+						$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+						$this->db->insert($this->t_proyecto_material_solicitud_compra);
+						$proyecto_material_solicitud_compra_id = $this->db->insert_id();
+
+						foreach ($data['material_check'] as $kmaterial => $vmaterial) {
+							if ($data['cantidad'][$kmaterial] > 0) {
+								$this->db->set('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+								$this->db->set('proyecto_material_id', $kmaterial);
+								$this->db->set('cantidad', $data['cantidad'][$kmaterial]);
+								$this->db->set('estado_registro', 1);
+								$this->db->insert($this->t_proyecto_material_solicitud_compra_detalle);
+							}
+						}
+
+						return array(
+							'tipo' => 'success',
+							'texto' => 'Se creó la solicitud de compra exitosamente',
+						);
+
+					} else {
+						return array(
+							'tipo' => 'danger',
+							'texto' => 'No se ingresó la cantidad para ningún material seleccionado',
+						);
+					}
+				} else {
+					return array(
+						'tipo' => 'danger',
+						'texto' => 'No se seleccionó ningún material para hacer la solicitud',
+					);
+				}
+			} else {
+				return array(
+					'tipo' => 'danger',
+					'texto' => 'No se ingresaron datos para registrar',
+				);
+			}
+		} else {
+			return array(
+				'tipo' => 'danger',
+				'texto' => 'Hubo un error en la operación. Proyecto no definido',
+			);
+		}
+	}
+
+	function editarSolicitudCompraMateriales ($proyecto_id, $proyecto_material_solicitud_compra_id, $data) {
+		if ($proyecto_id !== null && $proyecto_material_solicitud_compra_id !== null) {
+			if ($data !== null) {
+				if (isset($data['material_check']) && !empty($data['material_check'])) {
+					$validacion = false;
+					foreach ($data['material_check'] as $kmaterial => $vmaterial) {
+						foreach ($data['cantidad'] as $kcantidad => $vcantidad) {
+							if($kcantidad == $kmaterial) {
+								if ($vcantidad > 0 && $vcantidad !== ''){
+									$validacion = true;
+								}
+							}
+						}
+					}
+
+					$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+					$result_materiales_solicitud = $this->db->get($this->t_proyecto_material_solicitud_compra_detalle);
+					$result_materiales_solicitud_count = $result_materiales_solicitud->num_rows();
+
+
+					if ($validacion) {
+						// Se verifica primero la lista almacenada para editarla
+						if ($result_materiales_solicitud_count > 0){
+							$result_materiales_solicitud_rows = $result_materiales_solicitud->result();
+							foreach ($result_materiales_solicitud_rows as $kmatsolicitud => $vmatsolicitud) {
+								if (isset($data['material_check'][$vmatsolicitud->proyecto_material_id])) {
+									$this->db->set('cantidad', $data['cantidad'][$vmatsolicitud->proyecto_material_id]);
+									$this->db->set('estado_registro', 1);
+									$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+									$this->db->where('proyecto_material_id', $vmatsolicitud->proyecto_material_id);
+									$this->db->update($this->t_proyecto_material_solicitud_compra_detalle);
+									unset($data['material_check'][$vmatsolicitud->proyecto_material_id]);
+									unset($data['cantidad'][$vmatsolicitud->proyecto_material_id]);
+									unset($result_materiales_solicitud_rows[$kmatsolicitud]);
+								} else {
+									$this->db->set('estado_registro', 0);
+									$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+									$this->db->where('proyecto_material_id', $vmatsolicitud->proyecto_material_id);
+									$this->db->update($this->t_proyecto_material_solicitud_compra_detalle);
+								}
+							}
+						}
+						
+						foreach ($data['material_check'] as $kmaterial => $vmaterial) {
+							if ($data['cantidad'][$kmaterial] > 0) {
+								$this->db->set('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+								$this->db->set('proyecto_material_id', $kmaterial);
+								$this->db->set('cantidad', $data['cantidad'][$kmaterial]);
+								$this->db->set('estado_registro', 1);
+								$this->db->insert($this->t_proyecto_material_solicitud_compra_detalle);
+							}
+						}
+
+						return array(
+							'tipo' => 'success',
+							'texto' => 'Se creó la solicitud de compra exitosamente',
+						);
+
+					} else {
+						return array(
+							'tipo' => 'danger',
+							'texto' => 'No se ingresó la cantidad para ningún material seleccionado',
+						);
+					}
+				} else {
+					return array(
+						'tipo' => 'danger',
+						'texto' => 'No se seleccionó ningún material para hacer la solicitud',
+					);
+				}
+			} else {
+				return array(
+					'tipo' => 'danger',
+					'texto' => 'No se ingresaron datos para registrar',
+				);
+			}
+		} else {
+			return array(
+				'tipo' => 'danger',
+				'texto' => 'Hubo un error en la operación. Proyecto no definido',
+			);
+		}
+	}
+
+	function consultarEstadosSolicitudCompra() {
+		$result_estados = $this->db->get($this->t_proyecto_material_solicitud_compra_estado);
+		$result_estados_count = $result_estados->num_rows();
+		if ($result_estados_count > 0) {
+			return $result_estados->result();
+		} else {
+			return false;
+		}
+	}
+
+	function consultarSolicitudCompra ($proyecto_material_solicitud_compra_id) {
+		$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+		$result_solicitud = $this->db->get($this->t_proyecto_material_solicitud_compra);
+		$result_solicitud_count = $result_solicitud->num_rows();
+		if ($result_solicitud_count > 0) {
+			return $result_solicitud->row();
+		} else {
+			return false;
+		}
+	}
+
+	function cambiarEstadoSolicitudCompra ($proyecto_id, $proyecto_material_solicitud_compra_id, $data) {
+
+		$this->db->set('proyecto_material_solicitud_compra_estado_id', $data['proyecto_material_solicitud_compra_estado_id']);
+		$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+		$this->db->update($this->t_proyecto_material_solicitud_compra);
+		return array(
+			'tipo' => 'success',
+			'texto' => 'Se actualizó el estado de la solicitud correctamente',
+		);
+	}
+
+	
+
+	/* Para manejo de proformas */
+
+	function consultarProformasSolicitudMaterialesProyecto($proyecto_material_solicitud_compra_id) {
+		if ($proyecto_material_solicitud_compra_id !== null) {
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_solicitud_compra_proforma.'.proveedor_id');
+			$this->db->join($this->t_proyecto_material_solicitud_compra_proforma_estado, $this->t_proyecto_material_solicitud_compra_proforma_estado.'.proyecto_material_solicitud_compra_proforma_estado_id = '.$this->t_proyecto_material_solicitud_compra_proforma.'.proyecto_material_solicitud_compra_proforma_estado_id');
+			$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+			$this->db->order_by($this->t_proyecto_material_solicitud_compra_proforma.'.proyecto_material_solicitud_compra_proforma_id', 'ASC');
+			$result_proformas = $this->db->get($this->t_proyecto_material_solicitud_compra_proforma);
+
+			$result_proformas_count = $result_proformas->num_rows();
+			if($result_proformas_count> 0){
+				$proveedores = array();
+				$result_proformas_rows = $result_proformas->result();
+				foreach ($result_proformas_rows as $korden => $vorden) {
+					$proveedores[$vorden->proveedor_id]['proveedor_id'] = $vorden->proveedor_id;
+					$proveedores[$vorden->proveedor_id]['nombre_proveedor'] = $vorden->nombre_proveedor;
+					$proveedores[$vorden->proveedor_id]['proformas'][] = $vorden;
+				}
+				$result = array(
+							'total_rows' => $result_proformas_count,
+							'datos' => $proveedores,
+							);
+				return $result;
+			}else{
+				return false;
+			}
+			
+		} else {
+			return false;
+		}
+	}
+
+	function consultarProformasAprobadas($proyecto_material_solicitud_compra_id){
+		$this->db->select('proveedor_id');
+		$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+		//ordenes de compra aprobadas
+		$this->db->where('proyecto_material_solicitud_compra_proforma_estado_id', 3);
+		$proformas_aprobadas = $this->db->get($this->t_proyecto_material_solicitud_compra_proforma);
+		$proformas_aprobadas_count = $proformas_aprobadas->num_rows();
+		if ($proformas_aprobadas_count > 0) {
+			$proformas_aprobadas_rows = $proformas_aprobadas->result();
+			return $proformas_aprobadas_rows;
+		} else {
+			return false;
+		}
+	}
+
+	function consultarMaterialesAgrupadoPorProveedor ($proyecto_material_solicitud_compra_id) {
+		if ($proyecto_material_solicitud_compra_id !== null) {
+			$this->db->select($this->t_proyecto_material_solicitud_compra_detalle.'.cantidad as cantidad_compra, '.$this->t_material.'.material, '.$this->t_material.'.material_codigo, '.$this->t_material_unidad.'.material_unidad, '.$this->t_proyecto_material.'.*, '.$this->t_proveedor.'.proveedor_id, '.$this->t_proveedor.'.nombre_proveedor');
+			$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id', 'LEFT');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id', 'LEFT');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1', 'LEFT');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id', 'LEFT');
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro', 1);
+			$result_materiales = $this->db->get($this->t_proyecto_material_solicitud_compra_detalle);
+
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result_materiales_rows = $result_materiales->result();
+				$materiales_x_proveedor = array();
+				foreach ($result_materiales_rows as $kmaterial => $vmaterial) {
+					$materiales_x_proveedor[$vmaterial->proveedor_id]['nombre_proveedor'] = $vmaterial->nombre_proveedor;
+					$materiales_x_proveedor[$vmaterial->proveedor_id]['materiales'][] = $vmaterial;
+				}
+				return $materiales_x_proveedor;
+			}else{
+				return false;
+			}
+			
+		} else {
+			return false;
+		}
+	}
+
+	function consultarMaterialesSolicitudCompraPorProveedor ($proyecto_id, $proyecto_material_solicitud_compra_id, $proveedor_id) {
+		if ($proyecto_material_solicitud_compra_id !== null) {
+			$this->db->where($this->t_proyecto.'.proyecto_id', $proyecto_id);
+			$this->db->join($this->t_proyecto_tipo_cambio, $this->t_proyecto_tipo_cambio.'.proyecto_id = '.$this->t_proyecto.'.proyecto_id');
+			$proyecto_result = $this->db->get($this->t_proyecto);
+			$proyecto = $proyecto_result->row();
+
+			$this->db->select(
+				$this->t_proyecto_material_solicitud_compra_detalle.'.cantidad as cantidad_compra, '.
+				$this->t_proyecto_material_detalle.'.precio, '.
+				$this->t_proyecto_material_detalle.'.moneda_id, '.
+				$this->t_proyecto_material.'.cantidad, '.
+				$this->t_proyecto_material_detalle.'.tiene_impuesto, '.
+				$this->t_proyecto_material_detalle.'.impuesto, '.
+				$this->t_material.'.material, '.
+				$this->t_material.'.material_codigo, '.
+				$this->t_material_unidad.'.material_unidad, '.
+				$this->t_proyecto_material.'.*, '.
+				$this->t_proveedor.'.proveedor_id, '.
+				$this->t_proveedor.'.nombre_proveedor, '.
+				$this->t_moneda.'.moneda, '.
+				$this->t_moneda.'.simbolo');
+			$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id', 'LEFT');
+			$this->db->join($this->t_material, $this->t_material.'.material_id = '.$this->t_proyecto_material.'.material_id', 'LEFT');
+			$this->db->join($this->t_material_unidad, $this->t_material_unidad.'.material_unidad_id = '.$this->t_proyecto_material.'.material_unidad_id', 'LEFT');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1', 'LEFT');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_detalle.'.proveedor_id', 'LEFT');
+			$this->db->join($this->t_moneda, $this->t_moneda.'.moneda_id = '.$this->t_proyecto_material_detalle.'.moneda_id', 'LEFT');
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro', 1);
+			$this->db->where($this->t_proyecto_material_detalle.'.proveedor_id', $proveedor_id);
+			$result_materiales = $this->db->get($this->t_proyecto_material_solicitud_compra_detalle);
+			$result_materiales_count = $result_materiales->num_rows();
+			if($result_materiales_count> 0){
+				$result_materiales_rows = $result_materiales->result();
+				foreach ($result_materiales_rows as $ksolicitud_detalle => $vsolicitud_detalle) {
+					$monto_gasto_individual = $vsolicitud_detalle->precio / $vsolicitud_detalle->cantidad;
+					$monto_impuesto = 0;
+					/*if($vsolicitud_detalle->moneda_id==2){
+						$proyecto_tipo_cambio_venta = $proyecto->valor_venta;							
+						$monto_gasto_individual = $monto_gasto_individual / $proyecto_tipo_cambio_venta;
+					}*/
+					if ($vsolicitud_detalle->tiene_impuesto == 1){
+						$monto_impuesto = (($monto_gasto_individual / 100) * str_replace(' ', '',$vsolicitud_detalle->impuesto)) * $vsolicitud_detalle->cantidad_compra;
+					}
+					$result_materiales_rows[$ksolicitud_detalle]->precio_individual = $monto_gasto_individual;
+					$result_materiales_rows[$ksolicitud_detalle]->precio_impuesto = $monto_impuesto;
+					$result_materiales_rows[$ksolicitud_detalle]->precio_total_linea = $monto_gasto_individual * $vsolicitud_detalle->cantidad_compra;
+
+					$this->db->where('proveedor_id', $proveedor_id);
+					$result_correo = $this->db->get($this->t_proveedor_correo);
+					$result_correo_count = $result_correo->num_rows();
+					if ($result_correo_count > 0) {
+						$result_correo_row = $result_correo->row();
+						$result_materiales_rows[$ksolicitud_detalle]->correo_proveedor = $result_correo_row->correo_proveedor;
+					} else {
+						$result_materiales_rows[$ksolicitud_detalle]->correo_proveedor = '';
+					}
+
+					$this->db->where('proveedor_id', $proveedor_id);
+					$result_telefono = $this->db->get($this->t_proveedor_telefono);
+					$result_telefono_count = $result_telefono->num_rows();
+					if ($result_telefono_count > 0 ) {
+						$result_telefono_row = $result_telefono->row();
+						$result_materiales_rows[$ksolicitud_detalle]->telefono_proveedor = $result_telefono_row->telefono_proveedor;
+					} else {
+						$result_materiales_rows[$ksolicitud_detalle]->telefono_proveedor = '';
+					}
+
+				}
+
+				$result = array(
+					'total_rows' => $result_materiales_count,
+					'datos' => $result_materiales_rows,
+				);
+				return $result;
+			}else{
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	function insertarProformaMateriales($proyecto_id, $proyecto_material_solicitud_compra_id, $proveedor_id) {
+		$this->db->set('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+		$this->db->set('proyecto_material_solicitud_compra_proforma_estado_id', 1);
+		$this->db->set('usuario_id', $this->usuario_id);
+		$this->db->set('proveedor_id', $proveedor_id);
+		$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+		$this->db->insert($this->t_proyecto_material_solicitud_compra_proforma);
+		return $this->db->insert_id();
+	}
+
+	function actualizarProformaMateriales($proyecto_material_solicitud_compra_proforma_id, $datos) {
+		foreach ($datos as $key => $value) {
+			$this->db->set($key, $value);
+		}
+		$this->db->where('proyecto_material_solicitud_compra_proforma_id', $proyecto_material_solicitud_compra_proforma_id);
+		$this->db->update($this->t_proyecto_material_solicitud_compra_proforma);
+	}
+
+	function consultarProformasEstados(){
+		$result_estados = $this->db->get($this->t_proyecto_material_solicitud_compra_proforma_estado);
+		$result_estados_count = $result_estados->num_rows();
+		if ($result_estados_count > 0){
+			return $result_estados->result();
+		} else {
+			return false;
+		}
+	}
+
+	function actualizarEstadoProforma($proyecto_material_solicitud_compra_proforma_id, $proyecto_material_solicitud_compra_proforma_estado_id) {
+		$this->db->set('proyecto_material_solicitud_compra_proforma_estado_id', $proyecto_material_solicitud_compra_proforma_estado_id);
+		$this->db->where('proyecto_material_solicitud_compra_proforma_id', $proyecto_material_solicitud_compra_proforma_id);
+		$this->db->update($this->t_proyecto_material_solicitud_compra_proforma);
+		return array(
+			'tipo' => 'success',
+			'texto' => 'Se actualizó el estado de la proforma correctamente',
+		);
+
+	}
+
+
+	/* Para manejo de ordenes de compra */
+
+	function consultarOrdenesCompraSolicitudMaterialesProyecto($proyecto_material_solicitud_compra_id) {
+		if ($proyecto_material_solicitud_compra_id !== null) {
+			$this->db->select($this->t_proyecto_material_solicitud_compra_orden_compra.'.*, '.$this->t_proveedor.'.nombre_proveedor, '.$this->t_proyecto_material_solicitud_compra_orden_compra_estado.'.proyecto_material_solicitud_compra_orden_compra_estado');
+			$this->db->join($this->t_proveedor, $this->t_proveedor.'.proveedor_id = '.$this->t_proyecto_material_solicitud_compra_orden_compra.'.proveedor_id');
+			$this->db->join($this->t_proyecto_material_solicitud_compra_orden_compra_estado, $this->t_proyecto_material_solicitud_compra_orden_compra_estado.'.proyecto_material_solicitud_compra_orden_compra_estado_id = '.$this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_estado_id');
+			$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+			$this->db->order_by($this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_id', 'ASC');
+			$result_ordenes_compra = $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra);
+
+			$result_ordenes_compra_count = $result_ordenes_compra->num_rows();
+			if($result_ordenes_compra_count> 0){
+				$proveedores = array();
+				$result_ordenes_compra_rows = $result_ordenes_compra->result();
+				foreach ($result_ordenes_compra_rows as $korden => $vorden) {
+					$proveedores[$vorden->proveedor_id]['proveedor_id'] = $vorden->proveedor_id;
+					$proveedores[$vorden->proveedor_id]['nombre_proveedor'] = $vorden->nombre_proveedor;
+					$proveedores[$vorden->proveedor_id]['ordenes_compra'][] = $vorden;
+				}
+				$result = array(
+							'total_rows' => $result_ordenes_compra_count,
+							'datos' => $proveedores,
+							);
+				return $result;
+			}else{
+				return false;
+			}
+			
+		} else {
+			return false;
+		}
+	}
+
+	function consultarOrdenesCompraAprobadas($proyecto_material_solicitud_compra_id){
+		$this->db->select('proveedor_id');
+		$this->db->where('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+		//ordenes de compra aprobadas
+		$this->db->where('proyecto_material_solicitud_compra_orden_compra_estado_id', 3);
+		$ordenes_aprobadas = $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra);
+		$ordenes_aprobadas_count = $ordenes_aprobadas->num_rows();
+		if ($ordenes_aprobadas_count > 0) {
+			$ordenes_aprobadas_rows = $ordenes_aprobadas->result();
+			return $ordenes_aprobadas_rows;
+		} else {
+			return false;
+		}
+	}
+
+	function insertarOrdenCompraMateriales($proyecto_id, $proyecto_material_solicitud_compra_id, $proveedor_id) {
+		$this->db->set('proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+		$this->db->set('proyecto_material_solicitud_compra_orden_compra_estado_id', 1);
+		$this->db->set('usuario_id', $this->usuario_id);
+		$this->db->set('proveedor_id', $proveedor_id);
+		$this->db->set('fecha_registro', date('Y-m-d H:i:s'));
+		$this->db->insert($this->t_proyecto_material_solicitud_compra_orden_compra);
+		return $this->db->insert_id();
+	}
+
+	function actualizarOrdenCompraMateriales($proyecto_material_solicitud_compra_orden_compra_id, $datos) {
+		foreach ($datos as $key => $value) {
+			$this->db->set($key, $value);
+		}
+		$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+		$this->db->update($this->t_proyecto_material_solicitud_compra_orden_compra);
+	}
+
+	function consultarOrdenesCompraEstados(){
+		$result_estados = $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra_estado);
+		$result_estados_count = $result_estados->num_rows();
+		if ($result_estados_count > 0){
+			return $result_estados->result();
+		} else {
+			return false;
+		}
+	}
+
+	function actualizarEstadoOrdenCompra($proyecto_id, $proyecto_material_solicitud_compra_orden_compra_id, $proyecto_material_solicitud_compra_orden_compra_estado_id) {
+		// Consulta el estado previo de la orden de compra
+		$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+		$estado_previo = $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra);
+		$estado_previo_count = $estado_previo->num_rows();
+		$stado_previo_row = null;
+		if ($estado_previo_count > 0) {
+			$estado_previo_row = $estado_previo->row();
+		}
+
+		// Actualiza el estado
+		$this->db->set('proyecto_material_solicitud_compra_orden_compra_estado_id', $proyecto_material_solicitud_compra_orden_compra_estado_id);
+		$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+		$this->db->update($this->t_proyecto_material_solicitud_compra_orden_compra);
+		// Cambia el estado de los materiales
+		$this->cambiarEstadoMaterialesPorOrdenDespuesCompra($proyecto_id);
+
+		// Si la orden antes no estaba aprobada y ahora si
+		if($estado_previo_row->proyecto_material_solicitud_compra_orden_compra_estado_id != 3 && $proyecto_material_solicitud_compra_orden_compra_estado_id == 3){
+			$this->registrarGastoMaterialOrdenCompra($proyecto_id, $proyecto_material_solicitud_compra_orden_compra_id);
+		} else if ($estado_previo_row->proyecto_material_solicitud_compra_orden_compra_estado_id == 3 && $proyecto_material_solicitud_compra_orden_compra_estado_id != 3){
+			$this->eliminarGastoMaterialOrdenCompra($proyecto_material_solicitud_compra_orden_compra_id);
+		}
+		return array(
+			'tipo' => 'success',
+			'texto' => 'Se actualizó el estado de la orden de compra correctamente',
+		);
+
+	}
+
+	function cambiarEstadoMaterialesPorOrdenDespuesCompra ($proyecto_id) {
+		// Buscamos materiales de esta solicitud
+		$this->db->select(
+			$this->t_proyecto_material.'.proyecto_material_id, '.
+			$this->t_proyecto_material.'.proyecto_material_estado_id, '.
+			$this->t_proyecto_material.'.material_id, '.
+			$this->t_proyecto_material.'.proyecto_id, '.
+			$this->t_proyecto_material.'.proyecto_material_tipo, '.
+			$this->t_proyecto_material.'.cantidad as cantidad_inicial, '.
+			$this->t_proyecto_material_detalle.'.proveedor_id, '.
+			$this->t_proyecto_material_detalle.'.precio, '.
+			$this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_id, '.
+			$this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_estado_id, '.
+			$this->t_proyecto_material_solicitud_compra_detalle.'.cantidad as cantidad_comprada, '.
+			$this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_id, '.
+			$this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_estado_id'
+		);
+		$this->db->join($this->t_proyecto_material_solicitud_compra_orden_compra, $this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_id = '.$this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_id');
+		$this->db->join($this->t_proyecto_material_solicitud_compra_detalle, $this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id = '.$this->t_proyecto_material_solicitud_compra.'.proyecto_material_solicitud_compra_id AND '.$this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro = 1');
+		$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id AND '.$this->t_proyecto_material.'.estado_registro = 1');
+		$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.proveedor_id = '.$this->t_proyecto_material_solicitud_compra_orden_compra.'.proveedor_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+		$this->db->where($this->t_proyecto_material_solicitud_compra.'.proyecto_id', $proyecto_id);
+		$this->db->where($this->t_proyecto_material_solicitud_compra_orden_compra.'.proyecto_material_solicitud_compra_orden_compra_estado_id', 3);
+		$result_materiales = $this->db->get($this->t_proyecto_material_solicitud_compra);
+		$result_materiales_count = $result_materiales->num_rows();
+
+		//recorre todos los materiales para ver si han comprado alguno
+		$materiales_agotados = array();
+		$materiales_consumidos_parcialmente = array();
+			
+			//Valida si hay materiales asignados al proyecto
+		if($result_materiales_count> 0){
+			$result_materiales_rows = $result_materiales->result();
+			$materiales_comprados_total_cantidad = array();
+			$materiales_restantes = array();
+			$materiales_comprados_ids = array();
+			// Carga la cantidad de materiales iniciales
+			foreach ($result_materiales_rows as $kmaterial => $vmaterial) {
+				$materiales_restantes[$vmaterial->proyecto_material_id] = (double)$vmaterial->cantidad_inicial;
+				$materiales_comprados_total_cantidad[$vmaterial->proyecto_material_id] = 0;
+				$materiales_comprados_ids[] = $vmaterial->proyecto_material_id;
+			}
+
+			// Suma las compras
+			foreach ($result_materiales_rows as $kmaterial => $vmaterial) {
+				$materiales_comprados_total_cantidad[$vmaterial->proyecto_material_id] += (double)$vmaterial->cantidad_comprada;
+			}
+
+			//resta los materiales comprados a la cantidad inicial
+			foreach ($materiales_restantes as $kmaterial => $vmaterial) {
+				$cantidad_restante = $vmaterial - $materiales_comprados_total_cantidad[$kmaterial];
+
+				if ($cantidad_restante > 0){
+					$materiales_consumidos_parcialmente[] = $kmaterial;
+				} else {
+					$materiales_agotados[] = $kmaterial;
+				}
+			}
+			
+			// Actualiza los materiales parcialmente consumidos
+			if (!empty($materiales_consumidos_parcialmente)) {
+				// Cambia el estado del material la primera vez que se registra el proveedor
+				$this->db->set('proyecto_material_estado_id', 3);
+				$this->db->where_in('proyecto_material_id', $materiales_consumidos_parcialmente);
+				$this->db->where('estado_registro', 1);
+				$this->db->update($this->t_proyecto_material);
+			}
+
+			// Actualiza los materiales consumidos
+			if (!empty($materiales_agotados)) {
+				// Cambia el estado del material la primera vez que se registra el proveedor
+				$this->db->set('proyecto_material_estado_id', 4);
+				$this->db->where_in('proyecto_material_id', $materiales_agotados);
+				$this->db->where('estado_registro', 1);
+				$this->db->update($this->t_proyecto_material);
+			}
+
+			// Actualiza los materiales que no han sido consumidos del todo (en caso de una reversion)
+			$this->db->select($this->t_proyecto_material_detalle.'.proyecto_material_id');
+			$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_detalle.'.proyecto_material_id AND '.$this->t_proyecto_material.'.estado_registro = 1');
+			$this->db->where($this->t_proyecto_material_detalle.'.estado_registro', 1);
+			$this->db->where('proyecto_id', $proyecto_id);
+			$this->db->where_not_in($this->t_proyecto_material_detalle.'.proyecto_material_id', $materiales_comprados_ids);
+			$result_materiales_cotizados_no_consumidos = $this->db->get($this->t_proyecto_material_detalle);
+			$result_materiales_cotizados_no_consumidos_count = $result_materiales_cotizados_no_consumidos->num_rows();
+			if ($result_materiales_cotizados_no_consumidos_count > 0) {
+				$result_materiales_cotizados_no_consumidos_rows = $result_materiales_cotizados_no_consumidos->result();
+				$result_materiales_cotizados_no_consumidos_ids = array();
+				foreach ($result_materiales_cotizados_no_consumidos_rows as $key => $value) {
+					$result_materiales_cotizados_no_consumidos_ids[] = $value->proyecto_material_id;
+				}
+				
+				$this->db->set('proyecto_material_estado_id', 2);
+				$this->db->where_in('proyecto_material_id', $result_materiales_cotizados_no_consumidos_ids);
+				$this->db->where('estado_registro', 1);
+				$this->db->update($this->t_proyecto_material);
+			}
+		}
+	}
+
+
+	function registrarGastoMaterialOrdenCompra($proyecto_id, $proyecto_material_solicitud_compra_orden_compra_id) { //TODO
+		if($proyecto_material_solicitud_compra_orden_compra_id !== null) {
+			$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+			$ordenes_compra =  $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra);
+			$ordenes_compra_row =  $ordenes_compra->row();
+			$proveedor_id = $ordenes_compra_row->proveedor_id;
+			$url_archivo = $ordenes_compra_row->url_archivo;
+			$proyecto_material_solicitud_compra_id = $ordenes_compra_row->proyecto_material_solicitud_compra_id;
+
+			$this->db->select(
+				$this->t_proyecto_material.'.proyecto_material_id, '.
+				$this->t_proyecto_material.'.proyecto_material_estado_id, '.
+				$this->t_proyecto_material.'.material_id, '.
+				$this->t_proyecto_material.'.proyecto_id, '.
+				$this->t_proyecto_material.'.proyecto_material_tipo, '.
+				$this->t_proyecto_material.'.cantidad as cantidad_inicial, '.
+				$this->t_proyecto_material_detalle.'.proveedor_id, '.
+				$this->t_proyecto_material_detalle.'.precio, '.
+				$this->t_proyecto_material_detalle.'.tiene_impuesto, '.
+				$this->t_proyecto_material_detalle.'.impuesto, '.
+				$this->t_proyecto_material_detalle.'.moneda_id, '.
+				$this->t_proyecto_material_solicitud_compra_detalle.'.cantidad as cantidad_comprada'
+			);
+			$this->db->join($this->t_proyecto_material, $this->t_proyecto_material.'.proyecto_material_id = '.$this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_id AND '.$this->t_proyecto_material.'.estado_registro = 1');
+			$this->db->join($this->t_proyecto_material_detalle, $this->t_proyecto_material_detalle.'.proyecto_material_id = '.$this->t_proyecto_material.'.proyecto_material_id AND '.$this->t_proyecto_material_detalle.'.estado_registro = 1');
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.proyecto_material_solicitud_compra_id', $proyecto_material_solicitud_compra_id);
+			$this->db->where($this->t_proyecto_material_solicitud_compra_detalle.'.estado_registro', 1);
+			$this->db->where($this->t_proyecto_material_detalle.'.proveedor_id', $proveedor_id);
+			$result_materiales_proveedor = $this->db->get($this->t_proyecto_material_solicitud_compra_detalle);
+			$result_materiales_proveedor_count = $result_materiales_proveedor->num_rows();
+			$total_orden_compra = 0;
+			$moneda_id = 1;
+			if ($result_materiales_proveedor_count > 0) {
+				$result_materiales_proveedor_rows = $result_materiales_proveedor->result();
+				foreach ($result_materiales_proveedor_rows as $korden => $vorden) {
+					$monto_gasto_individual = $vorden->precio / $vorden->cantidad_inicial;
+					if ($vorden->tiene_impuesto == 1){
+						$monto_gasto_individual = $monto_gasto_individual + (($monto_gasto_individual / 100) * str_replace(' ', '',$vorden->impuesto));
+					}
+					if ($vorden->moneda_id != 1){
+						$moneda_id = $vorden->moneda_id;
+					}
+
+					$total_orden_compra += $monto_gasto_individual * $vorden->cantidad_comprada;
+				}
+				
+
+			}
+
+			$proyecto_gasto_id = null;
+			$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+			$result_relacion_material_gasto = $this->db->get($this->t_proyecto_gasto_material);
+			$result_relacion_material_gasto_count = $result_relacion_material_gasto->num_rows();
+
+			$gasto_nuevo = true;
+			if ($result_relacion_material_gasto_count) {
+				// Si entra aqui ya hay un gasto relacionado
+				$result_relacion_material_gasto_row = $result_relacion_material_gasto->row();
+				$proyecto_gasto_id = $result_relacion_material_gasto_row->proyecto_gasto_id;
+				$gasto_nuevo = false;
+			} else {
+				// Si entra aqui no hay gasto registrado, Entonces lo registra
+				$datos_gasto = array();		
+				$datos_gasto['usuario_id'] = $this->usuario_id;
+				$datos_gasto['proyecto_id'] = $proyecto_id;
+				$datos_gasto['fecha_registro'] = date('Y-m-d H:i:s');
+				$datos_gasto['fecha_gasto'] = date('Y-m-d');
+				$datos_gasto['proyecto_gasto_tipo_id'] = 1;
+				$datos_gasto['tiene_desgloce'] = 1;
+				
+				$this->db->insert($this->t_proyecto_gasto, $datos_gasto);
+				$proyecto_gasto_id = $this->db->insert_id();
+
+				$this->db->set('proyecto_gasto_id', $proyecto_gasto_id);
+				$this->db->set('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+				$this->db->insert($this->t_proyecto_gasto_material);
+			}
+
+			if($proyecto_gasto_id!=null){
+				if (!$gasto_nuevo){
+					//Actualiza el monto anterior a 0
+					$this->db->where('proyecto_gasto_id', $proyecto_gasto_id);
+					$this->db->where('estado_registro', 1);
+					$result_gasto_monto = $this->db->get($this->t_proyecto_gasto_monto);
+					$result_gasto_monto_count = $result_gasto_monto->num_rows();
+					if ($result_gasto_monto_count > 0) {
+						$result_gasto_monto_row = $result_gasto_monto->row();
+						$proyecto_gasto_monto_id = $result_gasto_monto_row->proyecto_gasto_monto_id;
+						$this->db->set('estado_registro', 0);
+						$this->db->where('proyecto_gasto_monto_id', $proyecto_gasto_monto_id);
+						$this->db->update($this->t_proyecto_gasto_monto);
+					}					
+				}
+
+				//Registra el monto
+				$datos['proyecto_gasto_id'] = $proyecto_gasto_id;
+				$datos['estado_registro'] = 1;
+				$datos['moneda_id'] = $moneda_id;
+				$datos['fecha_registro'] = date('Y-m-d H:i:s');
+				$datos['proyecto_gasto_monto'] = str_replace(' ', '', $total_orden_compra);
+				$this->db->insert($this->t_proyecto_gasto_monto, $datos);
+
+				//Registra el detalle del gasto
+				$datos2['proyecto_gasto_id'] = $proyecto_gasto_id;
+				$datos2['proveedor_id'] = $proveedor_id;
+				$datos2['proyecto_gasto_estado_id'] = 2;
+				$datos2['numero_factura'] = '';
+				$datos2['gasto_detalle'] = 'Gasto registrado por orden de compra de materiales # '.$proyecto_material_solicitud_compra_orden_compra_id.'. El link para descargar el archivo es '.base_url().$url_archivo;
+				$this->db->insert($this->t_proyecto_gasto_detalle, $datos2);
+			}
+		} else {
+			return false;
+		}
+
+	}
+
+	function eliminarGastoMaterialOrdenCompra($proyecto_material_solicitud_compra_orden_compra_id) {
+		$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $proyecto_material_solicitud_compra_orden_compra_id);
+		$result_relacion_gasto_orden_compra = $this->db->get($this->t_proyecto_gasto_material);
+		$result_relacion_gasto_orden_compra_count = $result_relacion_gasto_orden_compra->num_rows();
+
+		if ($result_relacion_gasto_orden_compra_count > 0) {
+			$result_relacion_gasto_orden_compra_rows = $result_relacion_gasto_orden_compra->row();
+
+			$proyecto_gasto_id = $result_relacion_gasto_orden_compra_rows->proyecto_gasto_id;
+
+			$this->db->where('proyecto_gasto_id', $proyecto_gasto_id);
+			$this->db->delete($this->t_proyecto_gasto_detalle);
+
+			$this->db->where('proyecto_gasto_id', $proyecto_gasto_id);
+			$this->db->delete($this->t_proyecto_gasto_monto);
+
+			$this->db->where('proyecto_gasto_id', $proyecto_gasto_id);
+			$this->db->delete($this->t_proyecto_gasto_material);
+
+			$this->db->where('proyecto_gasto_id', $proyecto_gasto_id);
+			$this->db->delete($this->t_proyecto_gasto);
+		}
 	}
 }

@@ -49,7 +49,7 @@
 					</div>
 					<div class="form-group col-12 col-md-4">
 						<label for="alias">Alias del colaborador</label>
-						<input type="text" name="alias" class="form-control input-required" id="alias" aria-describedby="aliasHelp" value="<?=(isset($colaborador->alias))?$colaborador->alias:''?>">
+						<input type="text" name="alias" class="form-control" id="alias" aria-describedby="aliasHelp" value="<?=(isset($colaborador->alias))?$colaborador->alias:''?>">
 						<small id="aliasHelp" class="form-text text-muted">Ingrese el alias o apodo del colaborador.</small>
 					</div>
 					<div class="form-group col-12 col-md-4">

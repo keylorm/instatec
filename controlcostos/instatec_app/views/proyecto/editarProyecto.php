@@ -221,8 +221,11 @@
 							<div class="form-group col-12 col-lg-6">
 								<label for="valor_materiales">Valor de materiales ($):</label>
 								
-								<input type="text" name="valor_oferta[1]" class="form-control input-money-mask " id="valor_materiales" ng-model="valor_materiales" aria-describedby="valormaterialesHelp" ng-init="valor_materiales=<?=(isset($valor_oferta[1][0]->valor_oferta))?$valor_oferta[1][0]->valor_oferta:''?>" >
+								<input type="text" name="valor_oferta[1]" class="form-control input-money-mask " id="valor_materiales" ng-model="valor_materiales" aria-describedby="valormaterialesHelp" ng-init="valor_materiales=<?=(isset($valor_oferta[1][0]->valor_oferta))?$valor_oferta[1][0]->valor_oferta:''?>" <?=($bloqueo_valor_materiales)?'disabled="disabled"':''?>>
 								<small id="valormaterialesHelp" class="form-text text-muted">Ingrese el valor de los materiales del proyecto.<br/>
+								<?php if($bloqueo_valor_materiales) { ?>
+									<span class="text-danger">Este proyecto posee materiales y este valor fue calculado con base en la cotización ingresada de los mismos. No se puede cambiar a menos que modifique el costo de los materiales o los elimine.</span>
+								<?php } ?>
 								</small>
 							</div>
 							

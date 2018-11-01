@@ -1,7 +1,7 @@
 <?php if($loggedin){ ?>
 <!-- Navigation-->
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
-		<a class="navbar-brand" href="<?=base_url()?>">Instatec CR</a>
+		<a class="navbar-brand" href="<?=base_url()?>"><img src="<?=base_url()?>instatec_pub/images/logo.jpg" width="105" /></a>
 		<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 		  <span class="navbar-toggler-icon"></span>
 		</button>
@@ -34,6 +34,14 @@
 			      <a class="nav-link" href="<?=base_url()?>proveedores">
 			        <i class="fa fa-fw fa-shopping-bag"></i>
 			        <span class="nav-link-text">Proveedores</span>
+			      </a>
+			    </li>
+			<?php } ?>
+			<?php if(isset($permisos['material']['list'])){ ?>
+			    <li class="nav-item" >
+			      <a class="nav-link" href="<?=base_url()?>materiales">
+			        <i class="fa fa-fw fa-wrench"></i>
+			        <span class="nav-link-text">Materiales</span>
 			      </a>
 			    </li>
 			<?php } ?>
@@ -73,6 +81,9 @@
 						</li>
 						<li>
 							<a href="<?=base_url()?>proyectos/extensiones/tipos-orden-cambio">Tipos de orden de cambio</a>
+						</li>
+						<li>
+							<a href="<?=base_url()?>materiales/unidades">Unidades para materiales</a>
 						</li>
 					</ul>
 			    </li>
