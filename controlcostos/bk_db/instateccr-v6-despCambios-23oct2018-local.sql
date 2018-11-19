@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-11-2018 a las 05:09:49
+-- Tiempo de generación: 19-11-2018 a las 01:08:47
 -- Versión del servidor: 10.1.21-MariaDB
 -- Versión de PHP: 5.6.30
 
@@ -936,7 +936,7 @@ CREATE TABLE `material` (
 --
 
 INSERT INTO `material` (`material_id`, `usuario_id`, `material`, `material_codigo`, `fecha_registro`, `estado_registro`) VALUES
-(1, 1, 'Cemento', 'M001', '2018-08-21 00:01:17', 1),
+(1, 1, 'Cemento 2', 'M001', '2018-08-21 00:01:17', 1),
 (2, 1, 'Arena', 'M002', '2018-08-21 00:02:45', 1),
 (3, 1, 'Block', 'M003', '2018-08-21 00:02:52', 1),
 (4, 1, 'Zinc', 'M004', '2018-08-21 00:03:01', 1),
@@ -1285,7 +1285,7 @@ INSERT INTO `proyecto_gasto` (`proyecto_gasto_id`, `proyecto_id`, `usuario_id`, 
 (103, 20, 1, 1, '2018-10-23 01:34:10', '2018-10-23', 1),
 (104, 21, 1, 1, '2018-10-23 19:43:53', '2018-10-23', 1),
 (105, 21, 1, 1, '2018-10-23 19:44:02', '2018-10-23', 1),
-(106, 21, 1, 1, '2018-10-23 19:44:30', '2018-10-23', 1);
+(107, 21, 1, 1, '2018-11-16 11:57:43', '2018-11-16', 1);
 
 -- --------------------------------------------------------
 
@@ -1334,7 +1334,7 @@ INSERT INTO `proyecto_gasto_detalle` (`proyecto_gasto_detalle_id`, `proyecto_gas
 (43, 103, 4, 2, 0, 'Gasto registrado por orden de compra de materiales # 14. El link para descargar el archivo es http://instatec.net/controlcostos/instatec_pub/files/proyectos/20/ordenes_compra/Orden_Compra_14_Ferreteria_4_2018_10_23.pdf'),
 (44, 104, 4, 2, 0, 'Gasto registrado por orden de compra de materiales # 4. El link para descargar el archivo es http://instatec.net/controlcostos/instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_4_Ferreteria_4_2018_10_15.pdf'),
 (45, 105, 5, 2, 0, 'Gasto registrado por orden de compra de materiales # 3. El link para descargar el archivo es http://instatec.net/controlcostos/instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_3_Proveedor_5_2018_10_15.pdf'),
-(46, 106, 4, 2, 0, 'Gasto registrado por orden de compra de materiales # 5. El link para descargar el archivo es http://instatec.net/controlcostos/instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_5_Ferreteria_4_2018_10_17.pdf');
+(47, 107, 1, 2, 0, 'Gasto registrado por orden de compra de materiales # 18. El link para descargar el archivo es http://instatec.net/controlcostos/instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_18_MACOPA_2018_11_16.pdf');
 
 -- --------------------------------------------------------
 
@@ -1496,7 +1496,7 @@ INSERT INTO `proyecto_gasto_material` (`proyecto_gasto_material_id`, `proyecto_g
 (11, 103, 14),
 (12, 104, 4),
 (13, 105, 3),
-(14, 106, 5);
+(15, 107, 18);
 
 -- --------------------------------------------------------
 
@@ -1565,7 +1565,7 @@ INSERT INTO `proyecto_gasto_monto` (`proyecto_gasto_monto_id`, `proyecto_gasto_i
 (140, 103, 1, 400.00, 1, '2018-10-23 01:34:10'),
 (141, 104, 2, 37466.67, 1, '2018-10-23 19:43:53'),
 (142, 105, 2, 909.09, 1, '2018-10-23 19:44:02'),
-(143, 106, 2, 18666.67, 1, '2018-10-23 19:44:30');
+(144, 107, 1, 10335.37, 1, '2018-11-16 11:57:43');
 
 -- --------------------------------------------------------
 
@@ -1613,7 +1613,7 @@ CREATE TABLE `proyecto_material` (
 --
 
 INSERT INTO `proyecto_material` (`proyecto_material_id`, `proyecto_id`, `material_id`, `usuario_id`, `material_unidad_id`, `proyecto_material_estado_id`, `proyecto_material_tipo`, `cantidad`, `comentario`, `estado_registro`, `fecha_registro`) VALUES
-(7, 21, 4, 1, 3, 2, 1, 20.50, 'Teja', 1, '2018-09-06 00:17:32'),
+(7, 21, 4, 1, 3, 3, 1, 20.50, 'Teja', 1, '2018-09-06 00:17:32'),
 (8, 21, 1, 1, 2, 2, 1, 12.00, 'Holcim', 1, '2018-09-06 00:18:35'),
 (9, 21, 10, 1, 3, 3, 1, 15.00, 'Truper', 1, '2018-09-06 00:19:18'),
 (10, 21, 1, 1, 2, 2, 2, 5.00, 'Cemex', 1, '2018-09-06 00:37:50'),
@@ -1631,7 +1631,8 @@ INSERT INTO `proyecto_material` (`proyecto_material_id`, `proyecto_id`, `materia
 (22, 20, 2, 1, 4, 3, 1, 10.00, '', 1, '2018-10-22 23:36:57'),
 (23, 20, 3, 1, 3, 3, 1, 10.00, '', 1, '2018-10-22 23:37:06'),
 (24, 20, 4, 1, 3, 3, 1, 10.00, '', 1, '2018-10-22 23:37:17'),
-(25, 20, 1, 1, 2, 3, 2, 10.00, '', 1, '2018-10-22 23:37:36');
+(25, 20, 1, 1, 2, 3, 2, 10.00, '', 1, '2018-10-22 23:37:36'),
+(26, 21, 10, 1, 3, 1, 2, 10.00, '', 1, '2018-11-16 12:16:50');
 
 -- --------------------------------------------------------
 
@@ -1705,7 +1706,8 @@ INSERT INTO `proyecto_material_detalle` (`proyecto_material_detalle_id`, `proyec
 (46, 21, 1, 1, 1, 10000.00, 0, 0.00, '2018-10-23 01:13:36', 1),
 (47, 22, 1, 2, 1, 20000.00, 0, 0.00, '2018-10-23 01:13:42', 1),
 (48, 23, 1, 3, 2, 100000.00, 0, 0.00, '2018-10-23 01:13:44', 1),
-(49, 24, 1, 4, 1, 1000.00, 0, 0.00, '2018-10-23 01:13:46', 1);
+(49, 24, 1, 4, 1, 1000.00, 0, 0.00, '2018-10-23 01:13:46', 1),
+(50, 26, 0, 0, 0, 0.00, 0, 0.00, '2018-11-16 12:16:50', 1);
 
 -- --------------------------------------------------------
 
@@ -1839,7 +1841,7 @@ INSERT INTO `proyecto_material_solicitud_compra_orden_compra` (`proyecto_materia
 (2, 2, 2, 1, 1, '2018-10-15 00:31:00', 'Orden_Compra_2_MACOPA_2018_10_15.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_2_MACOPA_2018_10_15.pdf'),
 (3, 2, 3, 1, 5, '2018-10-15 00:35:30', 'Orden_Compra_3_Proveedor_5_2018_10_15.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_3_Proveedor_5_2018_10_15.pdf'),
 (4, 2, 3, 1, 4, '2018-10-15 23:13:04', 'Orden_Compra_4_Ferreteria_4_2018_10_15.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_4_Ferreteria_4_2018_10_15.pdf'),
-(5, 1, 3, 1, 4, '2018-10-17 00:16:24', 'Orden_Compra_5_Ferreteria_4_2018_10_17.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_5_Ferreteria_4_2018_10_17.pdf'),
+(5, 1, 2, 1, 4, '2018-10-17 00:16:24', 'Orden_Compra_5_Ferreteria_4_2018_10_17.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_5_Ferreteria_4_2018_10_17.pdf'),
 (6, 3, 1, 1, 3, '2018-10-19 18:52:17', 'Orden_Compra_6_TECNIGYPSUM_SA_2018_10_19.pdf', 'instatec_pub/files/proyectos/7/ordenes_compra/Orden_Compra_6_TECNIGYPSUM_SA_2018_10_19.pdf'),
 (7, 3, 3, 1, 3, '2018-10-19 18:56:14', 'Orden_Compra_7_TECNIGYPSUM_SA_2018_10_19.pdf', 'instatec_pub/files/proyectos/7/ordenes_compra/Orden_Compra_7_TECNIGYPSUM_SA_2018_10_19.pdf'),
 (8, 4, 3, 1, 3, '2018-10-19 19:02:37', 'Orden_Compra_8_TECNIGYPSUM_SA_2018_10_19.pdf', 'instatec_pub/files/proyectos/7/ordenes_compra/Orden_Compra_8_TECNIGYPSUM_SA_2018_10_19.pdf'),
@@ -1849,7 +1851,10 @@ INSERT INTO `proyecto_material_solicitud_compra_orden_compra` (`proyecto_materia
 (12, 6, 3, 1, 3, '2018-10-23 01:31:03', 'Orden_Compra_12_TECNIGYPSUM_SA_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/ordenes_compra/Orden_Compra_12_TECNIGYPSUM_SA_2018_10_23.pdf'),
 (13, 6, 1, 1, 4, '2018-10-23 01:31:06', 'Orden_Compra_13_Ferreteria_4_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/ordenes_compra/Orden_Compra_13_Ferreteria_4_2018_10_23.pdf'),
 (14, 6, 3, 1, 4, '2018-10-23 01:33:02', 'Orden_Compra_14_Ferreteria_4_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/ordenes_compra/Orden_Compra_14_Ferreteria_4_2018_10_23.pdf'),
-(15, 6, 3, 1, 1, '2018-10-23 01:33:14', 'Orden_Compra_15_MACOPA_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/ordenes_compra/Orden_Compra_15_MACOPA_2018_10_23.pdf');
+(15, 6, 3, 1, 1, '2018-10-23 01:33:14', 'Orden_Compra_15_MACOPA_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/ordenes_compra/Orden_Compra_15_MACOPA_2018_10_23.pdf'),
+(16, 2, 1, 1, 1, '2018-11-02 19:34:15', 'Orden_Compra_16_MACOPA_2018_11_02.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_16_MACOPA_2018_11_02.pdf'),
+(17, 1, 1, 1, 1, '2018-11-16 11:56:47', 'Orden_Compra_17_MACOPA_2018_11_16.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_17_MACOPA_2018_11_16.pdf'),
+(18, 1, 3, 1, 1, '2018-11-16 11:57:20', 'Orden_Compra_18_MACOPA_2018_11_16.pdf', 'instatec_pub/files/proyectos/21/ordenes_compra/Orden_Compra_18_MACOPA_2018_11_16.pdf');
 
 -- --------------------------------------------------------
 
@@ -1926,7 +1931,8 @@ INSERT INTO `proyecto_material_solicitud_compra_proforma` (`proyecto_material_so
 (30, 6, 1, 1, 5, '2018-10-23 01:28:29', 'Proforma_30_Proveedor_5_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/proformas/Proforma_30_Proveedor_5_2018_10_23.pdf'),
 (31, 6, 1, 1, 5, '2018-10-23 01:28:48', 'Proforma_31_Proveedor_5_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/proformas/Proforma_31_Proveedor_5_2018_10_23.pdf'),
 (32, 6, 1, 1, 5, '2018-10-23 01:28:57', 'Proforma_32_Proveedor_5_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/proformas/Proforma_32_Proveedor_5_2018_10_23.pdf'),
-(33, 6, 1, 1, 5, '2018-10-23 01:29:07', 'Proforma_33_Proveedor_5_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/proformas/Proforma_33_Proveedor_5_2018_10_23.pdf');
+(33, 6, 1, 1, 5, '2018-10-23 01:29:07', 'Proforma_33_Proveedor_5_2018_10_23.pdf', 'instatec_pub/files/proyectos/20/proformas/Proforma_33_Proveedor_5_2018_10_23.pdf'),
+(34, 1, 1, 1, 1, '2018-11-16 12:01:58', 'Proforma_34_MACOPA_2018_11_16.pdf', 'instatec_pub/files/proyectos/21/proformas/Proforma_34_MACOPA_2018_11_16.pdf');
 
 -- --------------------------------------------------------
 
@@ -1991,7 +1997,8 @@ INSERT INTO `proyecto_material_solicitud_cotizacion` (`proyecto_material_solicit
 (21, 20, '2018-10-23 00:44:50', 'Solicitud_Cotizacion_Materiales_Proyecto_20_21_2018_10_23.xlsx', 'instatec_pub/files/proyectos/20/solicitud_cotizacion/Solicitud_Cotizacion_Materiales_Proyecto_20_21_2018_10_23.xlsx'),
 (22, 20, '2018-10-23 00:45:29', 'Solicitud_Cotizacion_Materiales_Proyecto_20_22_2018_10_23.xlsx', 'instatec_pub/files/proyectos/20/solicitud_cotizacion/Solicitud_Cotizacion_Materiales_Proyecto_20_22_2018_10_23.xlsx'),
 (23, 20, '2018-10-23 00:46:50', 'Solicitud_Cotizacion_Materiales_Proyecto_20_23_2018_10_23.xlsx', 'instatec_pub/files/proyectos/20/solicitud_cotizacion/Solicitud_Cotizacion_Materiales_Proyecto_20_23_2018_10_23.xlsx'),
-(24, 20, '2018-10-23 00:46:59', 'Solicitud_Cotizacion_Materiales_Proyecto_20_24_2018_10_23.xlsx', 'instatec_pub/files/proyectos/20/solicitud_cotizacion/Solicitud_Cotizacion_Materiales_Proyecto_20_24_2018_10_23.xlsx');
+(24, 20, '2018-10-23 00:46:59', 'Solicitud_Cotizacion_Materiales_Proyecto_20_24_2018_10_23.xlsx', 'instatec_pub/files/proyectos/20/solicitud_cotizacion/Solicitud_Cotizacion_Materiales_Proyecto_20_24_2018_10_23.xlsx'),
+(25, 21, '2018-11-16 12:03:03', 'Solicitud_Cotizacion_Materiales_Proyecto_21_25_2018_11_16.xlsx', 'instatec_pub/files/proyectos/21/solicitud_cotizacion/Solicitud_Cotizacion_Materiales_Proyecto_21_25_2018_11_16.xlsx');
 
 -- --------------------------------------------------------
 
@@ -2373,7 +2380,8 @@ INSERT INTO `usuario_bitacora_cambios` (`usuario_bitacora_cambio_id`, `usuario_i
 (165, 1, '2018-08-21 22:50:00', 'edicion', 'material', 1),
 (166, 1, '2018-08-21 22:50:09', 'edicion', 'material', 1),
 (167, 1, '2018-10-05 15:08:32', 'edicion', 'colaborador', 38),
-(168, 1, '2018-10-05 15:09:16', 'edicion', 'proyecto', 21);
+(168, 1, '2018-10-05 15:09:16', 'edicion', 'proyecto', 21),
+(169, 1, '2018-11-02 19:29:05', 'edicion', 'material', 1);
 
 -- --------------------------------------------------------
 
@@ -2640,7 +2648,13 @@ INSERT INTO `usuario_bitacora_ingreso` (`usuario_bitacora_id`, `usuario_id`, `fe
 (244, 1, '2018-10-21 23:40:20', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'),
 (245, 1, '2018-10-22 23:13:29', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'),
 (246, 1, '2018-10-23 19:41:12', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'),
-(247, 1, '2018-10-26 12:30:14', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36');
+(247, 1, '2018-10-26 12:30:14', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'),
+(248, 1, '2018-11-02 19:27:21', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'),
+(249, 25, '2018-11-02 19:44:27', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'),
+(250, 1, '2018-11-02 19:47:45', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'),
+(251, 1, '2018-11-09 14:13:28', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'),
+(252, 1, '2018-11-16 10:32:52', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'),
+(253, 1, '2018-11-17 17:34:28', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -3565,12 +3579,12 @@ ALTER TABLE `proyecto_estado`
 -- AUTO_INCREMENT de la tabla `proyecto_gasto`
 --
 ALTER TABLE `proyecto_gasto`
-  MODIFY `proyecto_gasto_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
+  MODIFY `proyecto_gasto_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_gasto_detalle`
 --
 ALTER TABLE `proyecto_gasto_detalle`
-  MODIFY `proyecto_gasto_detalle_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `proyecto_gasto_detalle_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_gasto_estado`
 --
@@ -3585,12 +3599,12 @@ ALTER TABLE `proyecto_gasto_mano_obra`
 -- AUTO_INCREMENT de la tabla `proyecto_gasto_material`
 --
 ALTER TABLE `proyecto_gasto_material`
-  MODIFY `proyecto_gasto_material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `proyecto_gasto_material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_gasto_monto`
 --
 ALTER TABLE `proyecto_gasto_monto`
-  MODIFY `proyecto_gasto_monto_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
+  MODIFY `proyecto_gasto_monto_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_gasto_tipo`
 --
@@ -3600,12 +3614,12 @@ ALTER TABLE `proyecto_gasto_tipo`
 -- AUTO_INCREMENT de la tabla `proyecto_material`
 --
 ALTER TABLE `proyecto_material`
-  MODIFY `proyecto_material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `proyecto_material_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_material_detalle`
 --
 ALTER TABLE `proyecto_material_detalle`
-  MODIFY `proyecto_material_detalle_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `proyecto_material_detalle_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_material_estado`
 --
@@ -3630,7 +3644,7 @@ ALTER TABLE `proyecto_material_solicitud_compra_estado`
 -- AUTO_INCREMENT de la tabla `proyecto_material_solicitud_compra_orden_compra`
 --
 ALTER TABLE `proyecto_material_solicitud_compra_orden_compra`
-  MODIFY `proyecto_material_solicitud_compra_orden_compra_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `proyecto_material_solicitud_compra_orden_compra_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_material_solicitud_compra_orden_compra_estado`
 --
@@ -3640,7 +3654,7 @@ ALTER TABLE `proyecto_material_solicitud_compra_orden_compra_estado`
 -- AUTO_INCREMENT de la tabla `proyecto_material_solicitud_compra_proforma`
 --
 ALTER TABLE `proyecto_material_solicitud_compra_proforma`
-  MODIFY `proyecto_material_solicitud_compra_proforma_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `proyecto_material_solicitud_compra_proforma_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_material_solicitud_compra_proforma_estado`
 --
@@ -3650,7 +3664,7 @@ ALTER TABLE `proyecto_material_solicitud_compra_proforma_estado`
 -- AUTO_INCREMENT de la tabla `proyecto_material_solicitud_cotizacion`
 --
 ALTER TABLE `proyecto_material_solicitud_cotizacion`
-  MODIFY `proyecto_material_solicitud_cotizacion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `proyecto_material_solicitud_cotizacion_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 --
 -- AUTO_INCREMENT de la tabla `proyecto_tipo_cambio`
 --
@@ -3685,12 +3699,12 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `usuario_bitacora_cambios`
 --
 ALTER TABLE `usuario_bitacora_cambios`
-  MODIFY `usuario_bitacora_cambio_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=169;
+  MODIFY `usuario_bitacora_cambio_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=170;
 --
 -- AUTO_INCREMENT de la tabla `usuario_bitacora_ingreso`
 --
 ALTER TABLE `usuario_bitacora_ingreso`
-  MODIFY `usuario_bitacora_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=248;
+  MODIFY `usuario_bitacora_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=254;
 --
 -- AUTO_INCREMENT de la tabla `usuario_colaborador`
 --
