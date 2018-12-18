@@ -97,7 +97,7 @@ switch (ENVIRONMENT)
  * This variable must contain the name of your "system" directory.
  * Set the path if it is not in the same directory as this file.
  */
-	$system_path = 'instatec_sys';
+	$system_path = 'src/instatec_sys';
 
 /*
  *---------------------------------------------------------------
@@ -114,7 +114,7 @@ switch (ENVIRONMENT)
  *
  * NO TRAILING SLASH!
  */
-	$application_folder = 'instatec_app';
+	$application_folder = 'src/instatec_app';
 
 /*
  *---------------------------------------------------------------
