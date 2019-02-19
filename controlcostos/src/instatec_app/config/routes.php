@@ -84,11 +84,14 @@ $route['proyectos/remover-proyecto/(:num)'] = 'proyecto/removerProyecto/$1';
 $route['proyectos/ordenes-cambio/(:num)'] = 'proyecto/verExtensionesProyecto/$1';
 $route['proyectos/ordenes-cambio/(:num)/agregar-orden-cambio'] = 'proyecto/agregarExtensionProyecto/$1';
 $route['proyectos/ordenes-cambio/(:num)/editar-orden-cambio/(:num)'] = 'proyecto/editarExtensionProyecto/$1/$2';
+$route['proyectos/ordenes-cambio/(:num)/editar-orden-cambio/(:num)/agregar-cambio'] = 'proyecto/agregarExtensionCambioProyecto/$1/$2';
+$route['proyectos/ordenes-cambio/(:num)/editar-orden-cambio/(:num)/editar-cambio/(:num)'] = 'proyecto/editarExtensionCambioProyecto/$1/$2/$3';
 $route['proyectos/ordenes-cambio/tipos-orden-cambio'] = 'proyecto/verTiposOrdenCambio';
 $route['proyectos/ordenes-cambio/agregar-tipo-orden-cambio'] = 'proyecto/agregarTipoOrdenCambio';
 $route['proyectos/ordenes-cambio/editar-tipo-orden-cambio/(:num)'] = 'proyecto/editarTipoOrdenCambio/$1';
 $route['proyectos/gastos/(:num)'] = 'proyecto/verGastosProyecto/$1';
 $route['proyectos/gastos/(:num)/agregar-gasto'] = 'proyecto/agregarGastoProyecto/$1/';
+$route['proyectos/gastos/(:num)/validar-duplicado/(:num)'] = 'proyecto/validarGastoDuplicado/$1/$2';
 $route['proyectos/gastos/(:num)/editar-gasto/(:num)'] = 'proyecto/editarGastoProyecto/$1/$2';
 $route['proyectos/colaboradores/(:num)'] = 'proyecto/verColaboradores/$1';
 $route['proyectos/colaboradores/(:num)/editar-colaboradores'] = 'proyecto/editarColaboradores/$1/';
@@ -106,6 +109,10 @@ $route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/proform
 $route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/proformas/generar'] = 'proyecto/generarSolicitudCompraMaterialesProforma/$1/$2';
 $route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/ordenes-compra'] = 'proyecto/verSolicitudCompraMaterialesOrdenesCompra/$1/$2';
 $route['proyectos/materiales/(:num)/solicitudes-compra-materiales/(:num)/ordenes-compra/generar'] = 'proyecto/generarSolicitudCompraMaterialesOrdenCompra/$1/$2';
+$route['proyectos/contactos/(:num)'] = 'proyecto/verContactosProyecto/$1';
+$route['proyectos/contactos/(:num)/agregar-contacto'] = 'proyecto/agregarContactoProyecto/$1/';
+$route['proyectos/contactos/(:num)/editar-contacto/(:num)'] = 'proyecto/editarContactoProyecto/$1/$2';
+$route['solicitud-aprobacion-orden-cambio'] = 'publico/comprobacionOrdenCambioCliente';
 
 
 //Reportes
@@ -152,3 +159,4 @@ $route['materiales/unidades/editar-unidad/(:num)'] = 'material/editarUnidad/$1';
 
 //Errores
 $route['acceso-denegado'] = 'general/errorPermisoDenegado';
+$route['pagina-no-encontrada'] = 'publico/errorPaginaNoEncontrada';

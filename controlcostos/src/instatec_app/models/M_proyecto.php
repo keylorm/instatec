@@ -8,7 +8,14 @@ class M_Proyecto extends CI_Model {
 			$t_proyecto_tipo_cambio = 'proyecto_tipo_cambio',
 			$t_proyecto_valor_oferta_tipo = 'proyecto_valor_oferta_tipo',
 			$t_proyecto_valor_oferta_extension_detalle = 'proyecto_valor_oferta_extension_detalle',
+			$t_proyecto_valor_oferta_extension = 'proyecto_valor_oferta_extension',
+			$t_proyecto_valor_oferta_extension_estado = 'proyecto_valor_oferta_extension_estado',
+			$t_proyecto_valor_oferta_extension_cambio = 'proyecto_valor_oferta_extension_cambio',
 			$t_proyecto_valor_oferta_extension_tipo = 'proyecto_valor_oferta_extension_tipo',
+			$t_proyecto_valor_oferta_extension_unidad = 'proyecto_valor_oferta_extension_unidad',
+			$t_proyecto_valor_oferta_extension_rechazo = 'proyecto_valor_oferta_extension_rechazo',
+			$t_contacto = 'contacto',
+			$t_proyecto_contacto = 'proyecto_contacto',
 			$t_proyecto_gasto = 'proyecto_gasto',
 			$t_proyecto_gasto_tipo = 'proyecto_gasto_tipo',
 			$t_proyecto_gasto_estado = 'proyecto_gasto_estado',
@@ -251,9 +258,9 @@ class M_Proyecto extends CI_Model {
 			$datos2 = $datos;			
 			$datos['usuario_id'] = $this->usuario_id;
 			$datos['fecha_registro'] = date('Y-m-d H:i:s');
-			$datos['fecha_firma_contrato'] = ($datos['fecha_firma_contrato']!='' && $datos['fecha_firma_contrato']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_firma_contrato']))):'';
-			$datos['fecha_inicio'] = ($datos['fecha_inicio']!='' && $datos['fecha_inicio']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_inicio']))):'';
-			$datos['fecha_entrega_estimada'] = ($datos['fecha_entrega_estimada']!='' && $datos['fecha_entrega_estimada']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_entrega_estimada']))):'';
+			$datos['fecha_firma_contrato'] = ($datos['fecha_firma_contrato']!='' && $datos['fecha_firma_contrato']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_firma_contrato']))):'0000-00-00';
+			$datos['fecha_inicio'] = ($datos['fecha_inicio']!='' && $datos['fecha_inicio']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_inicio']))):'0000-00-00';
+			$datos['fecha_entrega_estimada'] = ($datos['fecha_entrega_estimada']!='' && $datos['fecha_entrega_estimada']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_entrega_estimada']))):'0000-00-00';
 			$datos['moneda_id'] = 1;
 			unset($datos['provincia_id']);
 			unset($datos['canton_id']);
@@ -464,7 +471,31 @@ class M_Proyecto extends CI_Model {
 				$this->db->order_by($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_tipo_id', 'ASC');
 				$result_valor_oferta = $this->db->get($this->t_proyecto_valor_oferta);
 				if($result_valor_oferta->num_rows()>0){
-					$result['valor_oferta'] = $this->security->xss_clean($result_valor_oferta->result_array());
+					$valores_ofertas = $this->security->xss_clean($result_valor_oferta->result_array());
+
+					// Recorremos todos los valores para ver si hay extensiones que no estan aprobadas para no contarlas en el total
+					foreach ($valores_ofertas as $kvalor => $vvalor) {
+						$saltar_valor_oferta = false;
+							
+						// Validamos si el tipo de valor de oferta es una orden de cambio y revisamos su estado para ver si esta aprobado o no
+						if($vvalor['proyecto_valor_oferta_tipo_id'] == 6) {
+							$this->db->where($this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id', $vvalor['proyecto_valor_oferta_id']);
+							$proyecto_valor_oferta_extension = $this->db->get($this->t_proyecto_valor_oferta_extension);
+							$proyecto_valor_oferta_extension_count = $proyecto_valor_oferta_extension->num_rows();
+							if ($proyecto_valor_oferta_extension_count > 0) {
+								$proyecto_valor_oferta_extension_result = $proyecto_valor_oferta_extension->row_array();
+								if ($proyecto_valor_oferta_extension_result['proyecto_valor_oferta_extension_estado_id'] != 2) {
+									$saltar_valor_oferta = true;
+								}
+							}
+						}
+	
+						if ($saltar_valor_oferta) {
+							unset($valores_ofertas[$kvalor]);
+						}
+					}
+
+					$result['valor_oferta'] = $valores_ofertas;
 				}
 				
 				// Obtiene el tipo de cambio
@@ -533,7 +564,24 @@ class M_Proyecto extends CI_Model {
 				if($result_valor_oferta_num_rows>0){
 					$result_valor_oferta_result = $this->security->xss_clean($result_valor_oferta->result_array());
 					foreach ($result_valor_oferta_result as $kvalor => $vvalor) {
-						$valor_oferta_tmp[$vvalor['proyecto_valor_oferta_tipo_id']][] = $vvalor['valor_oferta'];
+						$saltar_valor_oferta = false;
+						
+						// Validamos si el tipo de valor de oferta es una orden de cambio y revisamos su estado para ver si esta aprobado o no
+						if($vvalor['proyecto_valor_oferta_tipo_id'] == 6) {
+							$this->db->where($this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id', $vvalor['proyecto_valor_oferta_id']);
+							$proyecto_valor_oferta_extension = $this->db->get($this->t_proyecto_valor_oferta_extension);
+							$proyecto_valor_oferta_extension_count = $proyecto_valor_oferta_extension->num_rows();
+							if ($proyecto_valor_oferta_extension_count > 0) {
+								$proyecto_valor_oferta_extension_result = $proyecto_valor_oferta_extension->row_array();
+								if ($proyecto_valor_oferta_extension_result['proyecto_valor_oferta_extension_estado_id'] != 2) {
+									$saltar_valor_oferta = true;
+								}
+							}
+						}
+
+						if (!$saltar_valor_oferta) {
+							$valor_oferta_tmp[$vvalor['proyecto_valor_oferta_tipo_id']][] = $vvalor['valor_oferta'];
+						}
 					}
 
 
@@ -735,8 +783,16 @@ class M_Proyecto extends CI_Model {
 				foreach ($valores_oferta_result as $kvalor => $vvalor) {
 					//Si es un valor de tipo extension borra la extension
 					if($vvalor->proyecto_valor_oferta_tipo_id==6){
-						$this->db->where($this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_id', $vvalor->proyecto_valor_oferta_id);
-						$this->db->delete($this->t_proyecto_valor_oferta_extension_detalle);		
+						// Elimina lo datos de comentarios en caso de ser una orden rechazada
+						$this->db->where($this->t_proyecto_valor_oferta_extension_rechazo.'.proyecto_valor_oferta_id', $vvalor->proyecto_valor_oferta_id);
+						$this->db->delete($this->t_proyecto_valor_oferta_extension_rechazo);	
+
+						// Elimina los cambios de esta orden de cambio
+						$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_id', $vvalor->proyecto_valor_oferta_id);
+						$this->db->delete($this->t_proyecto_valor_oferta_extension_cambio);	
+
+						$this->db->where($this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id', $vvalor->proyecto_valor_oferta_id);
+						$this->db->delete($this->t_proyecto_valor_oferta_extension);		
 					}
 				}
 				//Borra el valor de la oferta
@@ -833,18 +889,19 @@ class M_Proyecto extends CI_Model {
 
 	function consultaAllExtensionesConFiltros($data){
 		//Consulta primero los datos
-		$this->db->select($this->t_proyecto_valor_oferta.'.*, '.$this->t_proyecto_valor_oferta_extension_detalle.'.*, '.$this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo');
-		$this->db->join($this->t_proyecto_valor_oferta_extension_detalle, $this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_id = '.$this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', 'LEFT');
-		$this->db->join($this->t_proyecto_valor_oferta_extension_tipo, $this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo_id = '.$this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_extension_tipo_id', 'LEFT');
+		$this->db->select($this->t_proyecto_valor_oferta.'.*, '.$this->t_proyecto_valor_oferta_extension.'.*, '.$this->t_proyecto_valor_oferta_extension_estado.'.proyecto_valor_oferta_extension_estado');
+		$this->db->join($this->t_proyecto_valor_oferta_extension, $this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id = '.$this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', 'LEFT');
+		$this->db->join($this->t_proyecto_valor_oferta_extension_estado, $this->t_proyecto_valor_oferta_extension_estado.'.proyecto_valor_oferta_extension_estado_id = '.$this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_extension_estado_id', 'LEFT');
 		
+
 		$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_tipo_id', 6);
 
 		if(isset($data['filtros'])){			
 			foreach ($data['filtros'] as $key => $value) {
 				if($value!='' && $value!='undefined' && $value!=null  &&  $value!='all'){
-					if($key=='proyecto_valor_oferta_extension_tipo_id'){
-						$this->db->where($this->t_proyecto_valor_oferta_extension_detalle.'.'.$key, $value);
-					}else if($key=='fecha_registro'){
+					if($key=='proyecto_valor_oferta_extension_estado_id'){
+						$this->db->where($this->t_proyecto_valor_oferta_extension_estado.'.'.$key, $value);
+					} else if($key=='fecha_registro'){
 						if($value['from']!='' && $value['from']!='undefined' && $value['from']!='IS NULL'){
 							$value['from'] = date('Y-m-d', strtotime(str_replace('/', '-', $value['from'])));
 							$this->db->where($this->t_proyecto_valor_oferta.'.'.$key.'>="'.$value['from'].'"');
@@ -876,6 +933,7 @@ class M_Proyecto extends CI_Model {
 
 		$this->db->limit($cantidad_mostrar, $offset);*/
 
+		$this->db->order_by($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', 'ASC');
 
 		$result_extensiones = $this->db->get($this->t_proyecto_valor_oferta);
 
@@ -936,12 +994,34 @@ class M_Proyecto extends CI_Model {
 
 	}
 
+	function consultarEstadosExtensiones(){
+		$result_extensiones_estados = $this->db->get($this->t_proyecto_valor_oferta_extension_estado);
+
+		if($result_extensiones_estados->num_rows()>0){
+			return $this->security->xss_clean($result_extensiones_estados->result_array());
+		}else{
+			return false;
+		}
+
+	}
+
+	function consultarUnidadesExtensiones(){
+		$result_extensiones_unidades = $this->db->get($this->t_proyecto_valor_oferta_extension_unidad);
+
+		if($result_extensiones_unidades->num_rows()>0){
+			return $this->security->xss_clean($result_extensiones_unidades->result_array());
+		}else{
+			return false;
+		}
+
+	}
+
 
 	function consultarExtension($extension_id){
 		if($extension_id!=null){
-			$this->db->join($this->t_proyecto_valor_oferta_extension_detalle, $this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_id = '.$this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', 'LEFT');
-			$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', $extension_id);
-			$proyecto_valor_oferta_extension_result = $this->db->get($this->t_proyecto_valor_oferta);
+			$this->db->join($this->t_proyecto_valor_oferta_extension_estado, $this->t_proyecto_valor_oferta_extension_estado.'.proyecto_valor_oferta_extension_estado_id = '.$this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_extension_estado_id');
+			$this->db->where($this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id', $extension_id);
+			$proyecto_valor_oferta_extension_result = $this->db->get($this->t_proyecto_valor_oferta_extension);
 			if($proyecto_valor_oferta_extension_result->num_rows() > 0){
 				return $this->security->xss_clean($proyecto_valor_oferta_extension_result->row_array());
 			}else{
@@ -955,23 +1035,48 @@ class M_Proyecto extends CI_Model {
 		if($extension_id!=null && $datos!=null){
 			$this->db->where('proyecto_valor_oferta_id', $extension_id);
 			$proyecto_valor_oferta_extension_result = $this->db->get($this->t_proyecto_valor_oferta);
-			if($proyecto_valor_oferta_extension_result->num_rows() > 0){
+			if($proyecto_valor_oferta_extension_result->num_rows() > 0){ 
 				$datos2 = $datos;
-				unset($datos['proyecto_valor_oferta_extension_tipo_id']);
-				unset($datos['proyecto_valor_oferta_extension_descripcion']);
-				$datos['valor_oferta'] = str_replace(' ', '',$datos['valor_oferta']);
+				$datos3 = $datos;
+				unset($datos2['comentarios']);
+				$datos2['tiene_impuesto'] = str_replace('number:', '', $datos2['tiene_impuesto']);
+				if (isset($datos2['proyecto_valor_oferta_extension_estado_id'])) {
+					$datos2['proyecto_valor_oferta_extension_estado_id'] = str_replace('number:', '', $datos2['proyecto_valor_oferta_extension_estado_id']);
+				}
+				$this->db->where('proyecto_valor_oferta_id', $extension_id);
+				$this->db->update($this->t_proyecto_valor_oferta_extension, $datos2);
+
+				unset($datos['proyecto_valor_oferta_extension_estado_id']);
+				unset($datos['tiene_impuesto']);
+				unset($datos['impuesto']);
+				unset($datos['comentarios']);
+				$totales_valor_oferta = $this->consultarTotalValorOfertaExtension($extension_id);
+				$datos['valor_oferta'] = $totales_valor_oferta['total'];
 				$this->db->where('proyecto_valor_oferta_id', $extension_id);
 				$this->db->update($this->t_proyecto_valor_oferta, $datos);
 
-				unset($datos2['valor_oferta']);
-				$this->db->where('proyecto_valor_oferta_id', $extension_id);
-				$this->db->update($this->t_proyecto_valor_oferta_extension_detalle, $datos2);
+				if (isset($datos3['comentarios']) && $datos3['comentarios'] != '') {
+					$this->db->where('proyecto_valor_oferta_id', $extension_id);
+					$comentarios = $this->db->get($this->t_proyecto_valor_oferta_extension_rechazo);
+					$comentarios_count = $comentarios->num_rows();
+					if ($comentarios_count > 0) {
+						$this->db->set('comentarios', $datos3['comentarios']);
+						$this->db->where('proyecto_valor_oferta_id', $extension_id);
+						$this->db->update($this->t_proyecto_valor_oferta_extension_rechazo);
+					} else {
+						$this->db->set('comentarios', $datos3['comentarios']);
+						$this->db->set('proyecto_valor_oferta_id', $extension_id);
+						$this->db->insert($this->t_proyecto_valor_oferta_extension_rechazo);
+					}
+
+				}
+
 				return array('tipo' => 'success',
 						'texto' => 'Extensión editada con éxito',
 						'inserted_id'=> $extension_id);
 			}else{
 				return array('tipo' => 'danger',
-						'texto' => 'No la extensión indicada en la Base de Datos',
+						'texto' => 'No existe la extensión indicada en la Base de Datos',
 						'inserted_id'=> $extension_id);
 			}
 		}
@@ -979,24 +1084,48 @@ class M_Proyecto extends CI_Model {
 
 	function insertarExtension($proyecto_id,$datos){
 		if($proyecto_id!=null && $datos!=null){
-
-		
-			$datos2 = $datos;			
+			$datos2 = $datos;	
+			$datos3 = $datos;		
 			$datos['fecha_registro'] = date('Y-m-d H:i:s');			
 			$datos['moneda_id'] = 1;
 			$datos['proyecto_id'] = $proyecto_id;
 			$datos['proyecto_valor_oferta_tipo_id'] = 6;
 			$datos['estado_registro'] = 1;
-			$datos['valor_oferta'] = str_replace(' ', '',$datos['valor_oferta']);
-			unset($datos['proyecto_valor_oferta_extension_tipo_id']);
-			unset($datos['proyecto_valor_oferta_extension_descripcion']);
+			//$datos['valor_oferta'] = str_replace(' ', '',$datos['valor_oferta']);
+			$datos['valor_oferta'] = 0;
+			unset($datos['proyecto_valor_oferta_extension_estado_id']);
+			unset($datos['tiene_impuesto']);
+			unset($datos['impuesto']);
+			unset($datos['comentarios']);
 			$this->db->insert($this->t_proyecto_valor_oferta, $datos);
 			$proyecto_valor_oferta_id = $this->db->insert_id();
 
+			unset($datos2['comentarios']);
 			$datos2['proyecto_valor_oferta_id'] = $proyecto_valor_oferta_id;
-			unset($datos2['valor_oferta']);
-			$this->db->insert($this->t_proyecto_valor_oferta_extension_detalle, $datos2);
+			$datos2['proyecto_valor_oferta_extension_codigo'] = '';
 			
+			if (!isset($datos2['proyecto_valor_oferta_extension_estado_id'])) {
+				$datos2['proyecto_valor_oferta_extension_estado_id'] = 1;
+			}
+
+			if ($datos2['tiene_impuesto'] == 0) {
+				$datos2['impuesto'] = 0;
+			}
+			$this->db->insert($this->t_proyecto_valor_oferta_extension, $datos2);
+
+			$proyecto_valor_oferta_extension_id = $this->db->insert_id();
+			$codigo_extension = $proyecto_id.'-'.$proyecto_valor_oferta_id;
+			$this->db->set('proyecto_valor_oferta_extension_codigo', $codigo_extension);
+			$this->db->where('proyecto_valor_oferta_extension_id', $proyecto_valor_oferta_extension_id);
+			$this->db->update($this->t_proyecto_valor_oferta_extension);
+			
+
+			if (isset($datos3['comentarios']) && $datos3['comentarios'] != '') {
+				$this->db->set('comentarios', $datos3['comentarios']);
+				$this->db->set('proyecto_valor_oferta_id', $proyecto_valor_oferta_id);
+				$this->db->insert($this->t_proyecto_valor_oferta_extension_rechazo);
+
+			}
 
 			return array('tipo' => 'success',
 						'texto' => 'Extensión ingresada con éxito',
@@ -1008,9 +1137,20 @@ class M_Proyecto extends CI_Model {
 
 	function eliminarExtension($extension_id){
 		if( $extension_id!=null ){
-			$this->db->where($this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_id', $extension_id);
-			$this->db->delete($this->t_proyecto_valor_oferta_extension_detalle);		
-			
+			// Elimina lo datos de comentarios en caso de ser una orden rechazada
+			$this->db->where($this->t_proyecto_valor_oferta_extension_rechazo.'.proyecto_valor_oferta_id', $extension_id);
+			$this->db->delete($this->t_proyecto_valor_oferta_extension_rechazo);	
+
+			// Elimina los cambios de esta orden de cambio
+			$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_id', $extension_id);
+			$this->db->delete($this->t_proyecto_valor_oferta_extension_cambio);	
+
+			// Elimina la extension
+			$this->db->where($this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id', $extension_id);
+			$this->db->delete($this->t_proyecto_valor_oferta_extension);		
+
+
+			// elimina el valor de la oferta
 			$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', $extension_id);
 			$this->db->delete($this->t_proyecto_valor_oferta);
 
@@ -1020,6 +1160,502 @@ class M_Proyecto extends CI_Model {
 		}
 	}
 
+
+	function consultarExtensionRechazo($extension_id) {
+		$this->db->where('proyecto_valor_oferta_id', $extension_id);
+		$result_rechazo = $this->db->get($this->t_proyecto_valor_oferta_extension_rechazo);
+		$result_rechazo_count = $result_rechazo->num_rows();
+		if ($result_rechazo_count > 0) {
+			return $this->security->xss_clean($result_rechazo->row_array());
+		} else {
+			return false;
+		}
+	}
+
+
+	function consultarAllExtensionCambios($data) {
+		//Consulta primero los datos
+		$this->db->select($this->t_proyecto_valor_oferta_extension_cambio.'.*, '.$this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo, '.$this->t_proyecto_valor_oferta_extension_unidad.'.proyecto_valor_oferta_extension_unidad, '.$this->t_proyecto_valor_oferta_extension_unidad.'.proyecto_valor_oferta_extension_unidad_simbolo');
+		$this->db->join($this->t_proyecto_valor_oferta_extension_tipo, $this->t_proyecto_valor_oferta_extension_tipo.'.proyecto_valor_oferta_extension_tipo_id = '.$this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_tipo_id', 'LEFT');
+		$this->db->join($this->t_proyecto_valor_oferta_extension_unidad, $this->t_proyecto_valor_oferta_extension_unidad.'.proyecto_valor_oferta_extension_unidad_id = '.$this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_unidad_id', 'LEFT');
+		
+		if(isset($data['filtros'])){			
+			foreach ($data['filtros'] as $key => $value) {
+				if($value!='' && $value!='undefined' && $value!=null  &&  $value!='all'){
+					if($key=='proyecto_valor_oferta_extension_tipo_id'){
+						$this->db->where($this->t_proyecto_valor_oferta_extension_tipo.'.'.$key, $value);
+					}else{
+						$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.'.$key, $value);
+					}
+					
+				}
+			}
+		}
+
+		/*$offset = 0;
+		$cantidad_mostrar = 2;
+		if(isset($data['cantidad_mostrar'])){
+			$cantidad_mostrar = (int)$data['cantidad_mostrar'];
+		}
+		if(isset($data['pagina'])){
+			$pagina = (int)$data['pagina'];
+			if($pagina>1){
+				$offset=$pagina*$cantidad_mostrar;
+			}
+		}
+
+		$this->db->limit($cantidad_mostrar, $offset);*/
+		$this->db->order_by($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_cambio_id', 'ASC');
+
+		$result_extensiones_cambios = $this->db->get($this->t_proyecto_valor_oferta_extension_cambio);
+		$result_extensiones_cambios_result = $this->security->xss_clean($result_extensiones_cambios->result_array());
+
+		// Consutla la informacion del proyecto
+		$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', $data['filtros']['proyecto_valor_oferta_id']);
+		$this->db->join($this->t_proyecto, $this->t_proyecto.'.proyecto_id = '.$this->t_proyecto_valor_oferta.'.proyecto_id');
+		$this->db->join($this->t_proyecto_tipo_cambio, $this->t_proyecto_tipo_cambio.'.proyecto_id = '.$this->t_proyecto.'.proyecto_id', 'LEFT');
+		$proyecto_result = $this->db->get($this->t_proyecto_valor_oferta);
+		$proyecto = $proyecto_result->row_array();
+
+		foreach ($result_extensiones_cambios_result as $key => $value) {
+			if ($value['moneda_id'] == 2) {
+				$proyecto_tipo_cambio_venta = $proyecto['valor_venta'];							
+				$result_extensiones_cambios_result[$key]['total'] = $value['total'] / $proyecto_tipo_cambio_venta;
+			}
+		}
+
+
+
+		if($result_extensiones_cambios->num_rows()>0){
+			$result = array(
+							'total_rows' => $result_extensiones_cambios->num_rows(),
+							'datos' => $result_extensiones_cambios_result,
+							);
+
+			return $result;
+
+		}else{
+			return false;
+		}
+	}
+
+	function consultarExtensionCambio($proyecto_extension_cambio_id) {
+		if($proyecto_extension_cambio_id !== null){
+			$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_cambio_id', $proyecto_extension_cambio_id);
+			$proyecto_valor_oferta_extension_cambios_result = $this->db->get($this->t_proyecto_valor_oferta_extension_cambio);
+			if($proyecto_valor_oferta_extension_cambios_result->num_rows() > 0){
+				return $this->security->xss_clean($proyecto_valor_oferta_extension_cambios_result->row_array());
+			}else{
+				return false;
+			}
+		}
+	}
+
+
+	
+	function insertarExtensionCambio($proyecto_extension_id, $datos) {
+		if($proyecto_extension_id !== null && $datos!=null){
+			foreach ($datos as $key => $value) {
+				$datos[$key] = str_replace('number:', '', $value);
+			}
+			$datos['proyecto_valor_oferta_id'] = $proyecto_extension_id;
+			$datos['precio_unitario'] = str_replace(' ', '', $datos['precio_unitario']);
+			$datos['total'] = str_replace(' ', '', $datos['total']);
+			$this->db->insert($this->t_proyecto_valor_oferta_extension_cambio, $datos);
+			$proyecto_valor_oferta_extension_cambio_id = $this->db->insert_id();
+
+			$this->actualizarTotalValorOfertaExtension($proyecto_extension_id);
+
+			return array('tipo' => 'success',
+						'texto' => 'Extensión ingresada con éxito',
+						'inserted_id'=> $proyecto_valor_oferta_extension_cambio_id);
+			
+
+		}
+	}
+
+	function actualizarExtensionCambio($proyecto_extension_id, $proyecto_extension_cambio_id, $datos) {
+		if($proyecto_extension_cambio_id !== null && $datos!=null){
+			foreach ($datos as $key => $value) {
+				$datos[$key] = str_replace('number:', '', $value);
+			}
+			$datos['precio_unitario'] = str_replace(' ', '', $datos['precio_unitario']);
+			$datos['total'] = str_replace(' ', '', $datos['total']);
+			$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_cambio_id', $proyecto_extension_cambio_id);
+			$this->db->update($this->t_proyecto_valor_oferta_extension_cambio, $datos);
+			$proyecto_valor_oferta_extension_cambio_id = $this->db->insert_id();
+
+			$this->actualizarTotalValorOfertaExtension($proyecto_extension_id);
+
+
+			return array('tipo' => 'success',
+						'texto' => 'Extensión actualizada con éxito',
+						'inserted_id'=> $proyecto_valor_oferta_extension_cambio_id);
+			
+
+		}
+	}
+
+
+	function eliminarExtensionCambio($proyecto_extension_cambio_id){
+		if( $proyecto_extension_cambio_id!=null ){
+			$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_cambio_id', $proyecto_extension_cambio_id);
+			$result_extension = $this->db->get($this->t_proyecto_valor_oferta_extension_cambio);
+			$result_extension_row = $result_extension->row_array();
+			$proyecto_extension_id = $result_extension_row['proyecto_valor_oferta_id'];
+
+			$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_extension_cambio_id', $proyecto_extension_cambio_id);
+			$this->db->delete($this->t_proyecto_valor_oferta_extension_cambio);
+
+			$this->actualizarTotalValorOfertaExtension($proyecto_extension_id);
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+
+	function consultarTotalValorOfertaExtension($proyecto_extension_id) {
+		// Consutla la informacion del proyecto
+		$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', $proyecto_extension_id);
+		$this->db->join($this->t_proyecto, $this->t_proyecto.'.proyecto_id = '.$this->t_proyecto_valor_oferta.'.proyecto_id');
+		$this->db->join($this->t_proyecto_tipo_cambio, $this->t_proyecto_tipo_cambio.'.proyecto_id = '.$this->t_proyecto.'.proyecto_id', 'LEFT');
+		$proyecto_result = $this->db->get($this->t_proyecto_valor_oferta);
+		$proyecto = $proyecto_result->row_array();
+
+		$this->db->join($this->t_proyecto_valor_oferta_extension, $this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id = '.$this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_id');
+		$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_id', $proyecto_extension_id);
+		$proyecto_valor_oferta_extension_cambios_result = $this->db->get($this->t_proyecto_valor_oferta_extension_cambio);
+		$proyecto_valor_oferta_extension_cambios_result_count = $proyecto_valor_oferta_extension_cambios_result->num_rows();
+		if ($proyecto_valor_oferta_extension_cambios_result_count > 0){
+			$proyecto_valor_oferta_extension_cambios_result_rows = $proyecto_valor_oferta_extension_cambios_result->result_array();
+			$subtotal = 0;
+			$impuesto = 0;
+			$total = 0;
+			foreach ($proyecto_valor_oferta_extension_cambios_result_rows as $kcambio => $vcambio) {
+				$total_cambio = $vcambio['total'];
+				if ($vcambio['tipo_operacion'] == 2) {
+					$total_cambio = $total_cambio * -1;
+				}
+
+				//Convertir a Dolares si esta en colones
+
+				if($vcambio['moneda_id']==2){
+					$proyecto_tipo_cambio_venta = $proyecto['valor_venta'];							
+					$total_cambio = $total_cambio / $proyecto_tipo_cambio_venta;
+				}
+
+				$subtotal = $subtotal + $total_cambio;
+			}
+			
+			if ($subtotal > 0) {
+				if ($proyecto_valor_oferta_extension_cambios_result_rows[0]['tiene_impuesto'] == 1){
+					if ($proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'] !== '' && $proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'] !== null && $proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'] > 0) {
+						$impuesto = ($subtotal / 100) * $proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'];
+					}
+				}
+			}
+
+			$total = $subtotal + $impuesto;
+
+			$result = array(
+				'subtotal' => $subtotal,
+				'impuesto' => $impuesto,
+				'total' => $total,
+			);
+			return $result;
+		}else{
+			return false;
+		}
+	}
+
+	function actualizarTotalValorOfertaExtension($extension_id) {
+		// Consutla la informacion del proyecto
+		$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', $extension_id);
+		$this->db->join($this->t_proyecto, $this->t_proyecto.'.proyecto_id = '.$this->t_proyecto_valor_oferta.'.proyecto_id');
+		$this->db->join($this->t_proyecto_tipo_cambio, $this->t_proyecto_tipo_cambio.'.proyecto_id = '.$this->t_proyecto.'.proyecto_id', 'LEFT');
+		$proyecto_result = $this->db->get($this->t_proyecto_valor_oferta);
+		$proyecto = $proyecto_result->row_array();
+
+
+		$this->db->join($this->t_proyecto_valor_oferta_extension, $this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id = '.$this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_id');
+		$this->db->where($this->t_proyecto_valor_oferta_extension_cambio.'.proyecto_valor_oferta_id', $extension_id);
+		$proyecto_valor_oferta_extension_cambios_result = $this->db->get($this->t_proyecto_valor_oferta_extension_cambio);
+		$proyecto_valor_oferta_extension_cambios_result_count = $proyecto_valor_oferta_extension_cambios_result->num_rows();
+		if ($proyecto_valor_oferta_extension_cambios_result_count > 0){
+			$proyecto_valor_oferta_extension_cambios_result_rows = $proyecto_valor_oferta_extension_cambios_result->result_array();
+			$subtotal = 0;
+			$impuesto = 0;
+			$total = 0;
+			foreach ($proyecto_valor_oferta_extension_cambios_result_rows as $kcambio => $vcambio) {
+				$total_cambio = $vcambio['total'];
+				if ($vcambio['tipo_operacion'] == 2) {
+					$total_cambio = $total_cambio * -1;
+				}
+
+				//Convertir a Dolares si esta en colones
+
+				if($vcambio['moneda_id']==2){
+					$proyecto_tipo_cambio_venta = $proyecto['valor_venta'];							
+					$total_cambio = $total_cambio / $proyecto_tipo_cambio_venta;
+				}
+
+
+				$subtotal = $subtotal + $total_cambio;
+			}
+			
+			if ($subtotal > 0) {
+				if ($proyecto_valor_oferta_extension_cambios_result_rows[0]['tiene_impuesto'] == 1){
+					if ($proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'] !== '' && $proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'] !== null && $proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'] > 0) {
+						$impuesto = ($subtotal / 100) * $proyecto_valor_oferta_extension_cambios_result_rows[0]['impuesto'];
+					}
+				}
+			}
+
+			$total = $subtotal + $impuesto;
+
+			$this->db->set('valor_oferta', $total);
+			$this->db->where($this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id', $proyecto_valor_oferta_extension_cambios_result_rows[0]['proyecto_valor_oferta_id']);
+			$this->db->update($this->t_proyecto_valor_oferta);
+		}else{
+			return false;
+		}
+	}
+
+
+	function migrarExtensionesSinCambios() {
+		$this->db->join($this->t_proyecto_valor_oferta, $this->t_proyecto_valor_oferta.'.proyecto_valor_oferta_id = '.$this->t_proyecto_valor_oferta_extension_detalle.'.proyecto_valor_oferta_id');
+		$result_extensiones_viejas = $this->db->get($this->t_proyecto_valor_oferta_extension_detalle);
+		$result_extensiones_viejas_rows = $result_extensiones_viejas->result_array();
+
+		$extensiones = array();
+		$extensiones_cambios = array();
+		foreach ($result_extensiones_viejas_rows as $koferta => $voferta) {
+			$extension_nueva = array(
+				'proyecto_valor_oferta_id' => $voferta['proyecto_valor_oferta_id'],
+				'proyecto_valor_oferta_extension_estado_id' => 2,
+				'proyecto_valor_oferta_extension_codigo' => $voferta['proyecto_id'].'-'.$voferta['proyecto_valor_oferta_id'],
+				'tiene_impuesto' => 0,
+				'impuesto' => 0,
+			);
+
+			$extension_cambio_nueva = array(
+				'proyecto_valor_oferta_id' => $voferta['proyecto_valor_oferta_id'],
+				'proyecto_valor_oferta_extension_tipo_id' => $voferta['proyecto_valor_oferta_extension_tipo_id'],
+				'tipo_operacion' => ($voferta['valor_oferta'] >= 0)?1:2,
+				'lamina_arquitectonica' => '',
+				'cantidad' => 1,
+				'proyecto_valor_oferta_extension_unidad_id' => 4,
+				'moneda_id' => 1,
+				'precio_unitario' => $voferta['valor_oferta'],
+				'total' => $voferta['valor_oferta'],
+				'descripcion' => $voferta['proyecto_valor_oferta_extension_descripcion'],
+			);
+			$extensiones[] = $extension_nueva;
+			$extensiones_cambios[] = $extension_cambio_nueva;
+			$this->db->insert($this->t_proyecto_valor_oferta_extension, $extension_nueva);
+			$this->db->insert($this->t_proyecto_valor_oferta_extension_cambio, $extension_cambio_nueva);
+		}
+		return array(
+			'extensiones' => $extensiones,
+			'extensiones_cambios' => $extensiones_cambios,
+		);
+	}
+
+	function migrarPathsArchivosViejos() {
+		$archivos = array();
+		$ordenes_compra = $this->db->get($this->t_proyecto_material_solicitud_compra_orden_compra);
+		$ordenes_compra_count = $ordenes_compra->num_rows();
+		if ($ordenes_compra_count > 0) {
+			$ordenes_compra_rows = $ordenes_compra->result_array();
+			foreach ($ordenes_compra_rows as $korden => $vorden) {
+				$url_archivo_migrado = str_replace('instatec_pub', 'src/instatec_pub', $vorden['url_archivo']);
+				$this->db->set('url_archivo', $url_archivo_migrado);
+				$this->db->where('proyecto_material_solicitud_compra_orden_compra_id', $vorden['proyecto_material_solicitud_compra_orden_compra_id']);
+				$this->db->update($this->t_proyecto_material_solicitud_compra_orden_compra);
+				$archivos[] = $url_archivo_migrado;
+			}
+		}
+
+		$proformas = $this->db->get($this->t_proyecto_material_solicitud_compra_proforma);
+		$proformas_count = $proformas->num_rows();
+		if ($proformas_count > 0) {
+			$proformas_rows = $proformas->result_array();
+			foreach ($proformas_rows as $kproforma => $vproforma) {
+				$url_archivo_migrado = str_replace('instatec_pub', 'src/instatec_pub', $vproforma['url_archivo']);
+				$this->db->set('url_archivo', $url_archivo_migrado);
+				$this->db->where('proyecto_material_solicitud_compra_proforma_id', $vproforma['proyecto_material_solicitud_compra_proforma_id']);
+				$this->db->update($this->t_proyecto_material_solicitud_compra_proforma);
+				$archivos[] = $url_archivo_migrado;
+			}
+		}
+
+		$cotizaciones = $this->db->get($this->t_proyecto_material_solicitud_cotizacion);
+		$cotizaciones_count = $cotizaciones->num_rows();
+		if ($cotizaciones_count > 0) {
+			$cotizaciones_rows = $cotizaciones->result_array();
+			foreach ($cotizaciones_rows as $kcotizacion => $vcotizacion) {
+				$url_archivo_migrado = str_replace('instatec_pub', 'src/instatec_pub', $vcotizacion['url_archivo']);
+				$this->db->set('url_archivo', $url_archivo_migrado);
+				$this->db->where('proyecto_material_solicitud_cotizacion_id', $vcotizacion['proyecto_material_solicitud_cotizacion_id']);
+				$this->db->update($this->t_proyecto_material_solicitud_cotizacion);
+				$archivos[] = $url_archivo_migrado;
+			}
+		}
+
+		return $archivos;
+		
+	}
+
+	
+
+	function rechazarOrdenCambioCliente($data){
+		if ($data != null) {
+			$this->db->set('proyecto_valor_oferta_extension_estado_id', 3);
+			$this->db->where('proyecto_valor_oferta_id', $data['proyecto_valor_oferta_id']);
+			$this->db->update($this->t_proyecto_valor_oferta_extension);
+
+			$this->db->set('proyecto_valor_oferta_id', $data['proyecto_valor_oferta_id']);
+			$this->db->set('comentarios', $data['comentarios']);
+			$this->db->insert($this->t_proyecto_valor_oferta_extension_rechazo);
+			
+		}
+
+	}
+
+	function aprobarOrdenCambioCliente($data){
+		if ($data != null) {
+			$this->db->set('proyecto_valor_oferta_extension_estado_id', 2);
+			$this->db->where('proyecto_valor_oferta_id', $data['proyecto_valor_oferta_id']);
+			$this->db->update($this->t_proyecto_valor_oferta_extension);
+		}
+	}
+
+	/* Para manejo de contactos */
+	function consultaAllContactos($filtros){
+		if($filtros['filtros']['proyecto_id']!=null){
+			$this->db->join($this->t_contacto, $this->t_contacto.'.contacto_id = '.$this->t_proyecto_contacto.'.contacto_id', 'LEFT');
+			$this->db->where($this->t_proyecto_contacto.'.proyecto_id', $filtros['filtros']['proyecto_id']);
+			$result_contactos = $this->db->get($this->t_proyecto_contacto);
+			if($result_contactos->num_rows()> 0){
+				$result = array(
+					'total_rows' => $result_contactos->num_rows(),
+					'datos' =>  $this->security->xss_clean($result_contactos->result_array()),
+				);
+				return $result;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+	function insertarContacto($proyecto_id,$datos){
+		if($proyecto_id!=null && $datos!=null){
+			$this->db->where($this->t_contacto.'.correo_contacto', $datos['correo_contacto']);
+			$contacto_existente = $this->db->get($this->t_contacto);
+			$contacto_existente_count = $contacto_existente->num_rows();
+			if ($contacto_existente_count > 0) {
+				$contacto_existente_row = $contacto_existente->row_array();
+				$contacto_id = $contacto_existente_row['contacto_id'];
+				// Actualiza el contacto
+				$this->db->where($this->t_contacto.'.correo_contacto', $datos['correo_contacto']);
+				$this->db->update($this->t_contacto, $datos);
+			} else {
+				// Ingresa el contacto nuevo
+				$this->db->insert($this->t_contacto, $datos);
+				$contacto_id = $this->db->insert_id();
+			}
+			
+			$this->db->set('proyecto_id', $proyecto_id);
+			$this->db->set('contacto_id', $contacto_id);
+			$this->db->insert($this->t_proyecto_contacto);
+
+			return array('tipo' => 'success',
+						'texto' => 'Contacto registrado con éxito',
+						'inserted_id'=> $contacto_id);
+			
+
+		}
+	}
+
+	function actualizarContacto($contacto_id,$datos){
+		if($contacto_id!=null && $datos!=null){
+			$this->db->where($this->t_contacto.'.contacto_id', $contacto_id);
+			$contacto_existente = $this->db->get($this->t_contacto);
+			$contacto_existente_count = $contacto_existente->num_rows();
+			if ($contacto_existente_count > 0) {
+				// Actualiza el contacto
+				$this->db->where($this->t_contacto.'.contacto_id', $contacto_id);
+				$this->db->update($this->t_contacto, $datos);
+			}
+
+			return array('tipo' => 'success',
+						'texto' => 'Contacto actualizado con éxito',
+						'inserted_id'=> $contacto_id);
+			
+
+		}
+	}
+
+	function consultarContacto($contacto_id){
+		if($contacto_id!=null){
+			$this->db->where($this->t_contacto.'.contacto_id', $contacto_id);
+			$contacto_existente = $this->db->get($this->t_contacto);
+			$contacto_existente_count = $contacto_existente->num_rows();
+			if($contacto_existente_count > 0){
+				return $this->security->xss_clean($contacto_existente->row_array());
+			}else{
+				return false;
+			}
+		}
+	}
+
+
+	function desvincularContacto($proyecto_id, $contacto_id){
+		if($proyecto_id!=null && $contacto_id!=null){
+			$this->db->where($this->t_proyecto_contacto.'.proyecto_id', $proyecto_id);
+			$this->db->where($this->t_proyecto_contacto.'.contacto_id', $contacto_id);
+			$contacto_proyecto_existenate = $this->db->get($this->t_proyecto_contacto);
+			$contacto_proyecto_existenate_count = $contacto_proyecto_existenate->num_rows();
+			if ($contacto_proyecto_existenate_count > 0){
+				$this->db->where($this->t_proyecto_contacto.'.contacto_id', $contacto_id);
+				$total_contactos = $this->db->get($this->t_proyecto_contacto);
+				$total_contactos_count = $total_contactos->num_rows();
+
+				$this->db->where($this->t_proyecto_contacto.'.proyecto_id', $proyecto_id);
+				$this->db->where($this->t_proyecto_contacto.'.contacto_id', $contacto_id);
+				$this->db->delete($this->t_proyecto_contacto);
+				if ($total_contactos_count < 2) {
+					// Si solo habia un proyecto con este contacto se elimina el contacto del todo de la base de datos
+					$this->eliminarContacto($contacto_id);
+				}
+				return true;
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
+
+	function eliminarContacto($contacto_id){
+		if($contacto_id!=null){
+			$this->db->where($this->t_contacto.'.contacto_id', $contacto_id);
+			$this->db->delete($this->t_contacto);
+		}
+	}
+
+	function consultarContactosPorID($correos_ids) {
+		$this->db->where_in($this->t_contacto.'.contacto_id', $correos_ids);
+		$correos_result = $this->db->get($this->t_contacto);
+		$correos_result_count = $correos_result->num_rows();
+		if ($correos_result_count > 0) {
+			return $this->security->xss_clean($correos_result->result_array());
+		} else {
+			return false;
+		}
+	}
 
 
 	/* Para manejo de gastos */
@@ -1102,7 +1738,7 @@ class M_Proyecto extends CI_Model {
 
 		$this->db->limit($cantidad_mostrar, $offset);*/
 
-		$this->db->order_by($this->t_proyecto_gasto.'.fecha_registro', 'DESC');
+		$this->db->order_by($this->t_proyecto_gasto.'.fecha_gasto', 'DESC');
 		$result_gastos = $this->db->get($this->t_proyecto_gasto);
 
 		//vuelve a hacer la consulta para obtener el total de rows 
@@ -1213,10 +1849,10 @@ class M_Proyecto extends CI_Model {
 			$datos['fecha_gasto'] = ($datos['fecha_gasto']!='' && $datos['fecha_gasto']!=null )?date('Y-m-d', strtotime(str_replace('/','-',$datos['fecha_gasto']))):'';
 			unset($datos['moneda_id']);
 			unset($datos['proyecto_gasto_monto']);
-                        unset($datos['proveedor_id']); 
-                        unset($datos['numero_factura']);
-                        unset($datos['proyecto_gasto_estado_id']);
-                        unset($datos['gasto_detalle']);
+			unset($datos['proveedor_id']); 
+			unset($datos['numero_factura']);
+			unset($datos['proyecto_gasto_estado_id']);
+			unset($datos['gasto_detalle']);
 			$datos['tiene_desgloce'] = 0;
 			$this->db->insert($this->t_proyecto_gasto, $datos);
 			$proyecto_gasto_id = $this->db->insert_id();
@@ -1236,12 +1872,12 @@ class M_Proyecto extends CI_Model {
 
 			//Registra el detalle del gasto
 			
-                        $datos3['proyecto_gasto_id'] = $proyecto_gasto_id;
-                        unset($datos3['proyecto_gasto_tipo_id']);
-                        unset($datos3['fecha_gasto']);
-                        unset($datos3['proyecto_gasto_monto']);
-                        unset($datos3['moneda_id']);
-                        $this->db->insert($this->t_proyecto_gasto_detalle, $datos3);
+			$datos3['proyecto_gasto_id'] = $proyecto_gasto_id;
+			unset($datos3['proyecto_gasto_tipo_id']);
+			unset($datos3['fecha_gasto']);
+			unset($datos3['proyecto_gasto_monto']);
+			unset($datos3['moneda_id']);
+			$this->db->insert($this->t_proyecto_gasto_detalle, $datos3);
 			
 			
 
@@ -1252,6 +1888,28 @@ class M_Proyecto extends CI_Model {
 
 		}
 		
+	}
+
+	function validarGastoNuevo($proyecto_id, $datos) {
+		$this->db->join($this->t_proyecto_gasto_monto, $this->t_proyecto_gasto_monto.'.proyecto_gasto_id = '.$this->t_proyecto_gasto.'.proyecto_gasto_id AND '.$this->t_proyecto_gasto_monto.'.estado_registro = 1', 'LEFT');	
+		$this->db->join($this->t_proyecto_gasto_detalle, $this->t_proyecto_gasto_detalle.'.proyecto_gasto_id = '.$this->t_proyecto_gasto.'.proyecto_gasto_id');
+		$this->db->where($this->t_proyecto_gasto.'.proyecto_id', $proyecto_id);
+		$this->db->where($this->t_proyecto_gasto_detalle.'.proveedor_id', $datos['proveedor_id']);
+		$this->db->where($this->t_proyecto_gasto_detalle.'.numero_factura', $datos['numero_factura']);
+		$this->db->where($this->t_proyecto_gasto_monto.'.proyecto_gasto_monto', str_replace(' ', '',$datos['proyecto_gasto_monto']));
+		$proyecto_gasto_existente = $this->db->get($this->t_proyecto_gasto);
+		$proyecto_gasto_existente_count = $proyecto_gasto_existente->num_rows();
+		if ($proyecto_gasto_existente_count > 0) {
+			$proyecto_gasto_existente_row = $proyecto_gasto_existente->row_array();
+			return array(
+				'result' => false, 
+				'gasto_viejo' => $proyecto_gasto_existente_row['proyecto_gasto_id'],
+			);
+		} else {
+			return array(
+				'result' => true
+			);
+		}
 	}
 	
 
@@ -1958,7 +2616,24 @@ class M_Proyecto extends CI_Model {
 				if($result_valor_oferta_num_rows>0){
 					$result_valor_oferta_result = $this->security->xss_clean($result_valor_oferta->result_array());
 					foreach ($result_valor_oferta_result as $kvalor => $vvalor) {
-						$valor_oferta_tmp[$vvalor['proyecto_valor_oferta_tipo_id']][] = $vvalor['valor_oferta'];
+						$saltar_valor_oferta = false;
+						
+						// Validamos si el tipo de valor de oferta es una orden de cambio y revisamos su estado para ver si esta aprobado o no
+						if($vvalor['proyecto_valor_oferta_tipo_id'] == 6) {
+							$this->db->where($this->t_proyecto_valor_oferta_extension.'.proyecto_valor_oferta_id', $vvalor['proyecto_valor_oferta_id']);
+							$proyecto_valor_oferta_extension = $this->db->get($this->t_proyecto_valor_oferta_extension);
+							$proyecto_valor_oferta_extension_count = $proyecto_valor_oferta_extension->num_rows();
+							if ($proyecto_valor_oferta_extension_count > 0) {
+								$proyecto_valor_oferta_extension_result = $proyecto_valor_oferta_extension->row_array();
+								if ($proyecto_valor_oferta_extension_result['proyecto_valor_oferta_extension_estado_id'] != 2) {
+									$saltar_valor_oferta = true;
+								}
+							}
+						}
+
+						if (!$saltar_valor_oferta) {
+							$valor_oferta_tmp[$vvalor['proyecto_valor_oferta_tipo_id']][] = $vvalor['valor_oferta'];
+						}
 					}
 
 

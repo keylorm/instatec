@@ -11,13 +11,15 @@ class Proyecto extends CI_Controller {
 		$vista_master = 'index',
 		$rol_id,
 		$usuario_id,
-		$data;
+		$data,
+		$path_archivos;
 
 
 	function __construct(){
 		parent::__construct();
 		//Carga la vista
 		$this->data['vista'] = $this->router->class.'/'.$this->router->method;
+		$this->path_archivos = $this->config->item('path_archivos');
 		//carga el modelo
 		$this->load->model('m_proyecto');
 		$this->load->model('m_cliente');
@@ -76,8 +78,6 @@ class Proyecto extends CI_Controller {
 	public function agregarProyecto(){
 		$acceso = $this->m_general->validarRol($this->router->class, 'create');
 		if($acceso){
-			
-
 			$post_data = $this->input->post(NULL,TRUE);
 			if($post_data!=null){		
 				$result_insert = $this->m_proyecto->insertar($post_data);
@@ -231,9 +231,9 @@ class Proyecto extends CI_Controller {
 			if($proyecto_result!==false){
 				$this->data['proyecto'] = $proyecto_result['proyecto'];
 
-				$proyecto_tipo_extensiones = $this->m_proyecto->consultarTiposExtensiones();
-				if($proyecto_tipo_extensiones!==false){
-					$this->data['extensiones_tipos'] = $proyecto_tipo_extensiones;
+				$proyecto_extensiones_estados = $this->m_proyecto->consultarEstadosExtensiones();
+				if($proyecto_extensiones_estados!==false){
+					$this->data['extensiones_estados'] = $proyecto_extensiones_estados;
 				}				
 
 				$this->data['title'] = 'Proyectos - '.$this->data['proyecto']['nombre_proyecto'].' - Ver extensiones';
@@ -253,17 +253,17 @@ class Proyecto extends CI_Controller {
 			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
 			if($proyecto_result!==false){
 				$this->data['proyecto'] = $proyecto_result['proyecto'];
-				$proyecto_tipo_extensiones = $this->m_proyecto->consultarTiposExtensiones();
+				$proyecto_estados_extensiones = $this->m_proyecto->consultarEstadosExtensiones();
 
-				if($proyecto_tipo_extensiones!==false){
-					$this->data['extensiones_tipos'] = $proyecto_tipo_extensiones;
+				if($proyecto_estados_extensiones!==false){
+					$this->data['extensiones_estados'] = $proyecto_estados_extensiones;
 				}
 
 				$post_data = $this->input->post(NULL,TRUE);
 				if($post_data!=null){		
 					$result_insert = $this->m_proyecto->insertarExtension($proyecto_id, $post_data);
 					if($result_insert['tipo']=='success'){
-						redirect('/proyectos/ordenes-cambio/'.$proyecto_id.'?nuevo=1', 'refresh');
+						redirect('/proyectos/ordenes-cambio/'.$proyecto_id.'/editar-orden-cambio/'.$result_insert['inserted_id'].'?nuevo=1', 'refresh');
 					}else{
 						$this->data['msg'][] = $result_insert;
 					}
@@ -287,22 +287,32 @@ class Proyecto extends CI_Controller {
 			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
 			if($proyecto_result!==false){
 				$this->data['proyecto'] = $proyecto_result['proyecto'];
-				$proyecto_tipo_extensiones = $this->m_proyecto->consultarTiposExtensiones();
-
-				if($proyecto_tipo_extensiones!==false){
-					$this->data['extensiones_tipos'] = $proyecto_tipo_extensiones;
+				$proyecto_estados_extensiones = $this->m_proyecto->consultarEstadosExtensiones();
+				if($proyecto_estados_extensiones!==false){
+					$this->data['extensiones_estados'] = $proyecto_estados_extensiones;
 				}
-
+				
 				$proyecto_extension = $this->m_proyecto->consultarExtension($extension_id);
 				if($proyecto_extension!==false){
 					$this->data['proyecto_extension'] = $proyecto_extension;
+					$proyecto_extension_rechazo = $this->m_proyecto->consultarExtensionRechazo($extension_id);
+					if ($proyecto_extension_rechazo != false) {
+						$this->data['proyecto_extension_rechazo'] = $proyecto_extension_rechazo;
+					}
 				}
 
+				$correos_contactos = $this->m_proyecto->consultaAllContactos(array('filtros'=>array('proyecto_id' => $proyecto_id)));
+				if ($correos_contactos != false) {
+					$this->data['correos_contactos'] = $correos_contactos['datos'];
+				}
+
+				
+				
 				$post_data = $this->input->post(NULL,TRUE);
 				if($post_data!=null){
 					$result_insert = $this->m_proyecto->actualizarExtension($extension_id, $post_data);
 					if($result_insert['tipo']=='success'){
-						redirect('/proyectos/ordenes-cambio/'.$proyecto_id.'?editar=1', 'refresh');
+						redirect('/proyectos/ordenes-cambio/'.$proyecto_id.'/editar-orden-cambio/'.$extension_id.'/?editar=1', 'refresh');
 					}else{
 						$this->data['msg'][] = $result_insert;
 					}
@@ -319,6 +329,412 @@ class Proyecto extends CI_Controller {
 		}
 	}
 
+	public function consultarExtensionCambiosProyectoAjax() {
+		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		
+		//$post_data = $this->input->post(NULL, TRUE);
+		$this->output->set_content_type('application/json');
+		$post_data = json_decode(file_get_contents("php://input"), true);
+    	if($post_data!=null){
+			$result['cambios'] = $this->m_proyecto->consultarAllExtensionCambios($post_data);
+			$result['cambios_totales'] = $this->m_proyecto->consultarTotalValorOfertaExtension($post_data['filtros']['proyecto_valor_oferta_id']);
+			die(json_encode($result));
+    	}
+	}
+
+
+	public function consultarTotalesExtensionCambiosProyectoAjax() {
+		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		
+		//$post_data = $this->input->post(NULL, TRUE);
+		$this->output->set_content_type('application/json');
+		$post_data = json_decode(file_get_contents("php://input"), true);
+    	if($post_data!=null){
+    		$result = $this->m_proyecto->consultarTotalValorOfertaExtension($post_data);
+			die(json_encode($result));
+    	}
+	}
+
+	public function agregarExtensionCambioProyecto($proyecto_id, $proyecto_extension_id){
+		$acceso = $this->m_general->validarRol($this->router->class.'_extensiones_cambios', 'create');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				$this->data['proyecto'] = $proyecto_result['proyecto'];
+				
+				$proyecto_extension = $this->m_proyecto->consultarExtension($proyecto_extension_id);
+				if($proyecto_extension!==false){
+					$this->data['proyecto_extension'] = $proyecto_extension;
+				}
+				
+				$proyecto_extensiones_unidades = $this->m_proyecto->consultarUnidadesExtensiones();
+				if($proyecto_extensiones_unidades!==false){
+					$this->data['extensiones_unidades'] = $proyecto_extensiones_unidades;
+				}
+
+				$proyecto_extensiones_tipos = $this->m_proyecto->consultarTiposExtensiones();
+				if($proyecto_extensiones_tipos!==false){
+					$this->data['extensiones_tipos'] = $proyecto_extensiones_tipos;
+				}
+
+				// carga monedas
+				$monedas = $this->m_general->getMonedas();				
+				if($monedas!==false){
+					$this->data['monedas'] = $monedas;
+				}
+
+				$post_data = $this->input->post(NULL,TRUE);
+				if($post_data!=null){
+					$result_insert = $this->m_proyecto->insertarExtensionCambio($proyecto_extension_id, $post_data);
+					if($result_insert['tipo']=='success'){
+						redirect('/proyectos/ordenes-cambio/'.$proyecto_id.'/editar-orden-cambio/'.$proyecto_extension_id.'?nuevo=1', 'refresh');
+					}else{
+						$this->data['msg'][] = $result_insert;
+					}
+				}
+
+				$this->data['title'] = 'Proyectos';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+			
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function editarExtensionCambioProyecto($proyecto_id, $proyecto_extension_id, $proyecto_extension_cambio_id){
+		$acceso = $this->m_general->validarRol($this->router->class.'_extensiones_cambios', 'create');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				$this->data['proyecto'] = $proyecto_result['proyecto'];
+
+				$proyecto_extension_cambio = $this->m_proyecto->consultarExtensionCambio($proyecto_extension_cambio_id);
+				if($proyecto_extension_cambio!==false){
+					$this->data['proyecto_extension_cambio'] = $proyecto_extension_cambio;
+				}
+				
+				$proyecto_extension = $this->m_proyecto->consultarExtension($proyecto_extension_id);
+				if($proyecto_extension!==false){
+					$this->data['proyecto_extension'] = $proyecto_extension;
+				}
+				
+				$proyecto_extensiones_unidades = $this->m_proyecto->consultarUnidadesExtensiones();
+				if($proyecto_extensiones_unidades!==false){
+					$this->data['extensiones_unidades'] = $proyecto_extensiones_unidades;
+				}
+
+				$proyecto_extensiones_tipos = $this->m_proyecto->consultarTiposExtensiones();
+				if($proyecto_extensiones_tipos!==false){
+					$this->data['extensiones_tipos'] = $proyecto_extensiones_tipos;
+				}
+
+				// carga monedas
+				$monedas = $this->m_general->getMonedas();				
+				if($monedas!==false){
+					$this->data['monedas'] = $monedas;
+				}
+
+				$post_data = $this->input->post(NULL,TRUE);
+				if($post_data!=null){
+					$result_insert = $this->m_proyecto->actualizarExtensionCambio($proyecto_extension_id, $proyecto_extension_cambio_id, $post_data);
+					if($result_insert['tipo']=='success'){
+						redirect('/proyectos/ordenes-cambio/'.$proyecto_id.'/editar-orden-cambio/'.$proyecto_extension_id.'?nuevo=1', 'refresh');
+					}else{
+						$this->data['msg'][] = $result_insert;
+					}
+				}
+
+				$this->data['title'] = 'Proyectos';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+			
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function generarArchivoOrdenCambio($proyecto_id, $proyecto_valor_oferta_id) {
+		$acceso = $this->m_general->validarRol($this->router->class.'_extensiones', 'edit');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				
+				// Busca la informacion 
+				$proyecto = $proyecto_result['proyecto'];
+				$proyecto_extension = $this->m_proyecto->consultarExtension($proyecto_valor_oferta_id);
+				
+
+				$post_data = array(
+					'filtros' => array(
+						'proyecto_valor_oferta_id' => $proyecto_valor_oferta_id,
+					),
+				);
+				$cambios = $this->m_proyecto->consultarAllExtensionCambios($post_data);
+				$cambios_totales = $this->m_proyecto->consultarTotalValorOfertaExtension($post_data['filtros']['proyecto_valor_oferta_id']);
+				
+				$this->generarPDFOrdenCambio($proyecto_id, $proyecto, $proyecto_extension, $proyecto_valor_oferta_id, $cambios, $cambios_totales);
+				
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	function generarPDFOrdenCambio($proyecto_id, $proyecto, $proyecto_extension, $proyecto_valor_oferta_id, $cambios, $cambios_totales){
+		$info = array(
+			'widths' => array(16, 16, 16, 38,14),
+			'cols' => array (
+				array(
+					'nombre' => 'Cantidad',
+					'tipo' => 'numeric',
+					'align' => 'left'
+				),
+				array(
+					'nombre' => 'Tipo',
+					'tipo' => 'long_text',
+					'align' => 'center'
+				),
+				array(
+					'nombre' => 'Lámina arquitectónica',
+					'tipo' => 'long_text',
+					'align' => 'left'
+				),
+				array(
+					'nombre' => 'Descripción',
+					'tipo' => 'long_text',
+					'align' => 'left'
+				),
+				array(
+					'nombre' => 'Total',
+					'tipo' => 'numeric',
+					'align' => 'right'
+				),
+			),
+		);
+
+		$info['rows'] = array();
+		$contador = 1;
+	
+		foreach ($cambios['datos'] as $kcambio => $vcambio) {
+			
+			$info['rows'][] = array(
+				$vcambio['cantidad'].' '.$vcambio['proyecto_valor_oferta_extension_unidad_simbolo'],
+				$vcambio['proyecto_valor_oferta_extension_tipo'],
+				$vcambio['lamina_arquitectonica'],
+				$vcambio['descripcion'],
+				(($vcambio['tipo_operacion']==2)?'-':'').' $'.' '.round($vcambio['total'],2),
+			);
+			$contador++;
+			
+		} 
+		
+		$pdf = $this->generarPDFGeneral('Orden de cambio - Instatec CR');
+
+		// set font
+		$pdf->SetFont('times', 'B', 12);
+		$pdf->CustomHeaderText = "";
+		// add a page
+		$pdf->AddPage();
+
+		// print a block of text using Write()
+		$pdf->Ln(10);
+		$pdf->SetFont('times', '', 11);
+		$tableTopHTML = '<table width="100%" cellpadding="2" cellspacing="0" border="0">';
+		$tableTopHTML .= '<tr>';
+		$tableTopHTML .= '<td colspan="3"><strong>Orden de cambio</strong></td>';
+		$tableTopHTML .= '<td colspan="2" align="right"><strong>Orden de cambio #'.$proyecto_valor_oferta_id.'</strong></td>';
+		$tableTopHTML .= '</tr>';
+        $tableTopHTML .= '<tr>';
+		$tableTopHTML .= '<td>Proyecto: </td>';
+		$tableTopHTML .= '<td colspan="2">'.$proyecto['nombre_proyecto'].'</td>';
+		$tableTopHTML .= '<td>Cliente: </td>';
+		$tableTopHTML .= '<td>'.$proyecto['nombre_cliente'].'</td>';
+		$tableTopHTML .= '</tr>';
+		$tableTopHTML .= '<tr>';
+		$tableTopHTML .= '<td>Jefe de Proyecto: </td>';
+		$tableTopHTML .= '<td colspan="2">'.$proyecto['nombre'].' '.$proyecto['apellidos'].'</td>';
+		$tableTopHTML .= '<td>Teléfono: </td>';
+		$tableTopHTML .= '<td>'.$proyecto['telefono'].'</td>';
+		$tableTopHTML .= '</tr>';
+		$tableTopHTML .= '<tr>';
+		$tableTopHTML .= '<td>Estado de orden: </td>';
+		$tableTopHTML .= '<td colspan="2">'.$proyecto_extension['proyecto_valor_oferta_extension_estado'].'</td>';
+		$tableTopHTML .= '<td></td>';
+		$tableTopHTML .= '<td></td>';
+		$tableTopHTML .= '</tr>';
+		$tableTopHTML .= "</table>";
+		$pdf->writeHTML($tableTopHTML);
+		
+		$pdf->Ln(10);
+		//Si es reporte se usan tablas
+		$pdf->SetFont('times', '', 10);
+
+		$tableHTML = "<table width=\"100%\" cellpadding=\"4\" cellspacing=\"0\" border=\"1\"><tr>";
+		foreach ($info['cols'] as $kcol => $col) {
+			$tableHTML .= "<th width=\"".$info['widths'][$kcol]."%\" align=\"center\"><b>".$col['nombre']."</b></th>";
+		}
+		$tableHTML .= "</tr>";
+		foreach ($info['rows'] as $krow => $row) {
+			$tableHTML .= "<tr>";
+			foreach ($row as $key => $value) {
+				$tableHTML .= '<td align="'.$info['cols'][$key]['align'].'">'.$value.'</td>';
+				
+			}
+			$tableHTML .= "</tr>";
+		}
+		$tableHTML .= "</table>";
+		$pdf->writeHTML($tableHTML);
+		
+		$pdf->Ln(2);
+
+		$tableTotalHTML = "<table width=\"100%\" border=\"0\"><tr><td width=\"72%\"></td><td width=\"28%\">";
+		$tableTotalHTML .= "<table align=\"right\" cellpadding=\"4\" cellspacing=\"0\" border=\"1\">";
+		$tableTotalHTML .= "<tr><td>Subtotal</td><td align=\"right\">".'$ '.round($cambios_totales['subtotal'],2)."</td></tr>";
+		//$tableTotalHTML .= "<tr><td>Descuento (".$info_post['descuento']." %)</td><td align=\"right\">".(($informacion_materiales['datos'][0]['moneda_id'] == 1)?'$ ':'¢ ').$descuento_total."</td></tr>";
+		$tableTotalHTML .= "<tr><td>Impuesto</td><td align=\"right\">".'$ '.round($cambios_totales['impuesto'],2)."</td></tr>";
+		$tableTotalHTML .= "<tr><td><strong>Total</strong></td><td align=\"right\">".'$ '.round($cambios_totales['total'],2)."</td></tr>";
+		$tableTotalHTML .= "</table>";
+		$tableTotalHTML .= "</td></tr></table>";
+		$pdf->writeHTML($tableTotalHTML);
+
+		$pdf->Ln(10);
+
+		$pdf->writeHTML('<hr>');
+		$pdf->Ln(20);
+
+		$tableFooterHTML = '<table width="100%" cellpadding="4" cellspacing="0" border="0">';
+		$tableFooterHTML .= '<tr>';
+		$tableFooterHTML .= '<td>APROBADO POR: </td>';
+		$tableFooterHTML .= '<td colspan="2"></td>';
+		$tableFooterHTML .= '<td>RECIBIDO POR: </td>';
+		$tableFooterHTML .= '<td align="right"></td>';
+		$tableFooterHTML .= '</tr>';
+		$tableFooterHTML .= "</table>";
+		$pdf->writeHTML($tableFooterHTML);
+
+		// ---------------------------------------------------------
+
+		//Close and output PDF document
+		//$pdf->Output($filename, 'I');
+		$dirname = $this->path_archivos.$proyecto_id.'/ordenes_cambio';
+		$filename = 'Orden_Cambio_'.$proyecto_valor_oferta_id.'_'.$proyecto['nombre_proyecto'].'_'.date('Y_m_d').'.pdf';
+		if (!file_exists($dirname.'/')) {
+	    	mkdir($dirname, 0777,true);
+	    }
+		$pdf->Output(FCPATH.$dirname.'/'.$filename, 'FD');
+		$archivo = array(
+			'url_archivo' => $dirname.'/'.$filename,
+			'filename' => $filename,
+		);
+
+		//Descarga el archivo
+		$this->load->helper('download');
+		force_download($dirname.'/'.$filename, NULL);
+	}
+
+	public function migrarExtensionesSinCambios() {
+		$acceso = ($this->rol_id == 1)?true:false;
+		if($acceso){
+			$result_migracion = $this->m_proyecto->migrarExtensionesSinCambios();
+			echo '<h1>Migracion realizada con exito</h1>';
+			echo '<p>Datos migrados:</p>';
+			echo '<code>'.json_encode($result_migracion).'</code>';
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function migrarPathsArchivosViejos() {
+		$acceso = ($this->rol_id == 1)?true:false;
+		if($acceso){
+			$result_migracion = $this->m_proyecto->migrarPathsArchivosViejos();
+			echo '<h1>Migracion realizada con exito</h1>';
+			echo '<p>Archivos migrados:</p>';
+			echo '<code>'.json_encode($result_migracion).'</code>';
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function enviarCorreoContactoExtensionAjax(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_extensiones', 'edit');
+		if($acceso){
+			$this->output->set_content_type('application/json');
+			$post_data = json_decode(file_get_contents("php://input"), true);
+	    	if($post_data!=null){
+				if (isset($post_data['proyecto_id']) && is_numeric($post_data['proyecto_id']) && isset($post_data['proyecto_valor_oferta_id']) && is_numeric($post_data['proyecto_valor_oferta_id']) ) {
+					// Se obtiene la informacion del proyecto
+					$proyecto_id = $post_data['proyecto_id'];
+					$proyecto_valor_oferta_id = $post_data['proyecto_valor_oferta_id'];
+					$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+					$proyecto = $proyecto_result['proyecto'];
+					// SE encripta el ID del proyecto y de la oferta
+					$idToEncrypt = $proyecto_id.'|'.$proyecto_valor_oferta_id;
+					$encrypted_id = $this->encrypt($idToEncrypt);
+					$url_encrypted = base_url().'solicitud-aprobacion-orden-cambio/?q='.$encrypted_id;
+
+					// Se sacan los correos
+					$correos_seleccionados = array();
+					if (isset($post_data['correos_seleccionados'])) {
+						foreach ($post_data['correos_seleccionados'] as $kcorreo => $vcorreo) {
+							if ($vcorreo === true) {
+								$correos_seleccionados[] = $kcorreo;
+							}
+						}
+					}
+
+					$result = true;
+					if (!empty($correos_seleccionados) && $url_encrypted != null) {
+						$contactos = $this->m_proyecto->consultarContactosPorID($correos_seleccionados);
+						if ($contactos !== false) {
+							$correos = array();
+							foreach ($contactos as $kcontacto => $vcontacto) {
+								$correos[] = $vcontacto['correo_contacto'];
+							}
+							if (!empty($correos)) {
+								$result = $this->enviarCorreosPorContacto($proyecto, $proyecto_valor_oferta_id, $correos, $url_encrypted);
+							}
+						}
+					}
+
+					die(json_encode($result));
+
+				} else {
+					$result=false;
+					die(json_encode($result));
+				}
+	    	}
+    	}else{
+    		$result=false;
+			die(json_encode($result));
+		}
+	}
+
+	function enviarCorreosPorContacto($proyecto, $proyecto_valor_oferta_id, $correos, $url_encrypted) {
+		$body_message = '<p>Hola,</p>
+		<p>Solicitud aprobación Orden de Cambio #'.$proyecto_valor_oferta_id.' - '.$proyecto['nombre_proyecto'].'</p>
+		<p>Ver el siguiente enlace para su aprobación:</p>
+		<p><strong><a href="'.$url_encrypted.'" target="_blank">'.$url_encrypted.'</a></strong></p>
+		<p>Una vez aprobada o rechazada la orden de cambio, el link quedará disponible solo para consulta.</p>
+		<p>Cualquier duda o consulta, contactarse al teléfono  <a href="tel:'.$proyecto['telefono'].'">'.$proyecto['telefono'].'</a> o escríbanos al correo electrónico <a href="mailto:'.$proyecto['correo_electronico'].'">'.$proyecto['correo_electronico'].'</a>.</p>
+		<p>¡Muchas gracias!</p>
+		<p><strong>Instalaciones Tecnológicas INSTATEC SA</strong></p>';
+		$this->load->library('email');
+
+		$this->email->from('envios@instateccr.com', 'Instalaciones Tecnológicas INSTATEC SA');
+		$this->email->to($correos);
+
+		$this->email->subject('Orden de Cambio #'.$proyecto_valor_oferta_id.' - Proyecto: '.$proyecto['nombre_proyecto']);
+		$this->email->message($body_message);
+
+		$this->email->send();
+		return true;
+	}
 
 	/* Para manejo de tipos de ordenes de cambio */
 	/* Para puestos de trabajo */
@@ -382,6 +798,92 @@ class Proyecto extends CI_Controller {
 			}else{
 				redirect('/proyectos/ordenes-cambio/tipos-orden-cambio', 'refresh');
 			}
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+		/* Para manejo de Contactos */
+
+	public function verContactosProyecto($proyecto_id){
+		$acceso = $this->m_general->validarRol($this->router->class.'_contactos', 'list');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				$this->data['proyecto'] = $proyecto_result['proyecto'];				
+
+				$this->data['title'] = 'Proyectos - '.$this->data['proyecto']['nombre_proyecto'].' - Ver contactos';
+				$this->load->view($this->vista_master, $this->data);
+				
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function agregarContactoProyecto($proyecto_id){
+		$acceso = $this->m_general->validarRol($this->router->class.'_contactos', 'create');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				// carga datos del proyecto	
+				$this->data['proyecto'] = $proyecto_result['proyecto'];
+
+				// Agarra los datos por post
+				$post_data = $this->input->post(NULL,TRUE);
+				if($post_data!=null){	
+					$result_insert = $this->m_proyecto->insertarContacto($proyecto_id, $post_data);
+					if($result_insert['tipo']=='success'){
+						redirect('/proyectos/contactos/'.$proyecto_id.'?nuevo=1', 'refresh');
+					}else{
+						$this->data['msg'][] = $result_insert;
+					}
+				}
+
+				$this->data['title'] = 'Proyectos';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+			
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function editarContactoProyecto($proyecto_id, $contacto_id){
+
+		$acceso = $this->m_general->validarRol($this->router->class.'_contactos', 'edit');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				$this->data['proyecto'] = $proyecto_result['proyecto'];
+
+				
+
+				$proyecto_contacto = $this->m_proyecto->consultarContacto($contacto_id);
+				if($proyecto_contacto!==false){
+					$this->data['proyecto_contacto'] = $proyecto_contacto;
+				}
+
+				$post_data = $this->input->post(NULL,TRUE);
+				if($post_data!=null){		
+					$result_actualizar = $this->m_proyecto->actualizarContacto($contacto_id, $post_data);
+					if($result_actualizar['tipo']=='success'){
+						redirect('/proyectos/contactos/'.$proyecto_id.'?editar=1', 'refresh');
+					}else{
+						$this->data['msg'][] = $result_actualizar;
+					}
+				}
+
+				$this->data['title'] = 'Proyectos';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+			
 		}else{
 			redirect('/acceso-denegado', 'refresh');
 		}
@@ -463,14 +965,88 @@ class Proyecto extends CI_Controller {
 				// Agarra los datos por post
 				$post_data = $this->input->post(NULL,TRUE);
 				if($post_data!=null){	
-					$result_insert = $this->m_proyecto->insertarGasto($proyecto_id, $post_data);
-					if($result_insert['tipo']=='success'){
-						redirect('/proyectos/gastos/'.$proyecto_id.'?nuevo=1', 'refresh');
-					}else{
-						$this->data['msg'][] = $result_insert;
+					$validar_gasto = $this->m_proyecto->validarGastoNuevo($proyecto_id, $post_data);
+					
+					if ($validar_gasto['result']) {
+						$result_insert = $this->m_proyecto->insertarGasto($proyecto_id, $post_data);
+						if($result_insert['tipo']=='success'){
+							redirect('/proyectos/gastos/'.$proyecto_id.'?nuevo=1', 'refresh');
+						}else{
+							$this->data['msg'][] = $result_insert;
+						}
+
+					} else {
+						$this->session->set_userdata('gasto_nuevo_temp', $post_data);
+						redirect('/proyectos/gastos/'.$proyecto_id.'/validar-duplicado/'.$validar_gasto['gasto_viejo'], 'refresh');
 					}
 				}
 
+				$this->data['title'] = 'Proyectos';
+				$this->load->view($this->vista_master, $this->data);
+			}else{
+				redirect('/proyectos', 'refresh');
+			}
+			
+		}else{
+			redirect('/acceso-denegado', 'refresh');
+		}
+	}
+
+	public function validarGastoDuplicado($proyecto_id, $gasto_viejo_id) {
+		$acceso = $this->m_general->validarRol($this->router->class.'_gastos', 'create');
+		if($acceso){
+			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
+			if($proyecto_result!==false){
+				// carga datos del proyecto	
+				$this->data['proyecto'] = $proyecto_result['proyecto'];
+
+				// carga los tipos de gasto
+				$proyecto_tipo_gastos = $this->m_proyecto->consultarTiposGastos();
+				if($proyecto_tipo_gastos!==false){
+					$this->data['gasto_tipo'] = $proyecto_tipo_gastos;
+				}
+
+				// carga monedas
+				$monedas = $this->m_general->getMonedas();				
+				if($monedas!==false){
+					$this->data['monedas'] = $monedas;
+				}
+
+				$proveedores = $this->m_proveedor->getAllActiveProveedores();
+				if($proveedores!==false){
+					$this->data['proveedores'] = $proveedores;
+				}
+
+				$gasto_estados = $this->m_proyecto->consultarEstadosGastos();
+				if($gasto_estados!==false){
+					$this->data['gasto_estados'] = $gasto_estados;
+				}
+
+				$gasto_nuevo =$this->session->userdata('gasto_nuevo_temp');
+				$this->data['gasto_nuevo'] = $gasto_nuevo;
+
+				$proyecto_gasto = $this->m_proyecto->consultarGasto($gasto_viejo_id);
+				if($proyecto_gasto!==false){
+					if($proyecto_gasto['fecha_gasto']!=null && $proyecto_gasto['fecha_gasto']!=''){
+						$proyecto_gasto['fecha_gasto'] = date('d/m/Y', strtotime($proyecto_gasto['fecha_gasto']));
+					}
+					
+					$this->data['proyecto_gasto'] = $proyecto_gasto;
+				}
+
+				// Agarra los datos por post
+				$post_data = $this->input->post(NULL,TRUE);
+				if ($post_data!=null){
+					if (isset($post_data['guardar_duplicado']) && $post_data['guardar_duplicado'] == true) {
+						$result_insert = $this->m_proyecto->insertarGasto($proyecto_id, $gasto_nuevo);
+						if($result_insert['tipo']=='success'){
+							$this->session->unset_userdata('gasto_nuevo_temp');
+							redirect('/proyectos/gastos/'.$proyecto_id.'?nuevo=1', 'refresh');
+						}else{
+							$this->data['msg'][] = $result_insert;
+						}
+					}
+				}
 				$this->data['title'] = 'Proyectos';
 				$this->load->view($this->vista_master, $this->data);
 			}else{
@@ -488,7 +1064,7 @@ class Proyecto extends CI_Controller {
 		if($acceso){
 			$proyecto_result = $this->m_proyecto->consultar($proyecto_id);
 			if($proyecto_result!==false){
-				$this->data['proyecto'] = $proyecto_result['proyecto'];
+				
 				// carga datos del proyecto	
 				$this->data['proyecto'] = $proyecto_result['proyecto'];
 
@@ -544,7 +1120,7 @@ class Proyecto extends CI_Controller {
 		}
 	}
 
-	/* Para proyectos */
+	/* Para colaboradores */
 	public function verColaboradores($proyecto_id){
 		$acceso = $this->m_general->validarRol($this->router->class.'_colaboradores', 'view');
 		if($acceso){
@@ -731,6 +1307,33 @@ class Proyecto extends CI_Controller {
     	}
 	}
 
+	public function consultaContactosProyectosAjax(){
+		//Se usa esta forma para obtener los post de angular. Si se usa jquery se descomenta la otra forma		
+		//$post_data = $this->input->post(NULL, TRUE);
+		$this->output->set_content_type('application/json');
+		$post_data = json_decode(file_get_contents("php://input"), true);
+    	if($post_data!=null){
+    		$result = $this->m_proyecto->consultaAllContactos($post_data);
+			die(json_encode($result));
+    	}
+	}
+
+	public function eliminarContactoAjax(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_contactos', 'delete');
+		if($acceso){
+			$this->output->set_content_type('application/json');
+			$post_data = json_decode(file_get_contents("php://input"), true);
+	    	if($post_data!=null){
+	    		$result_eliminar = $this->m_proyecto->desvincularContacto($post_data['proyecto_id'], $post_data['contacto_id']);
+	    		$result = $result_eliminar;
+				die(json_encode($result));
+	    	}
+    	}else{
+    		$result=false;
+			die(json_encode($result));
+		}
+	}
+
 	public function eliminarExtensionAjax(){
 		$acceso = $this->m_general->validarRol($this->router->class.'_extensiones', 'delete');
 		if($acceso){
@@ -738,6 +1341,22 @@ class Proyecto extends CI_Controller {
 			$post_data = json_decode(file_get_contents("php://input"), true);
 	    	if($post_data!=null){
 	    		$result_eliminar = $this->m_proyecto->eliminarExtension($post_data['extension_id']);
+	    		$result = $result_eliminar;
+				die(json_encode($result));
+	    	}
+    	}else{
+    		$result=false;
+			die(json_encode($result));
+		}
+	}
+
+	public function eliminarExtensionCambioAjax(){
+		$acceso = $this->m_general->validarRol($this->router->class.'_extensiones_cambios', 'delete');
+		if($acceso){
+			$this->output->set_content_type('application/json');
+			$post_data = json_decode(file_get_contents("php://input"), true);
+	    	if($post_data!=null){
+	    		$result_eliminar = $this->m_proyecto->eliminarExtensionCambio($post_data['proyecto_valor_oferta_extension_cambio_id']);
 	    		$result = $result_eliminar;
 				die(json_encode($result));
 	    	}
@@ -1461,7 +2080,7 @@ class Proyecto extends CI_Controller {
 
 		//Genera el archivo
 		$writer = new Xlsx($spreadsheet);
-		$dirname = 'src/instatec_pub/files/proyectos/'.$proyecto_id.'/solicitud_cotizacion';
+		$dirname = $this->path_archivos.$proyecto_id.'/solicitud_cotizacion';
 		$filename = 'Solicitud_Cotizacion_Materiales_Proyecto_'.$proyecto_id.'_'.$proyecto_material_solicitud_cotizacion_id.'_'.date('Y_m_d').'.xlsx';
 
 		if (!file_exists($dirname.'/')) {
@@ -1988,7 +2607,7 @@ class Proyecto extends CI_Controller {
 
 		//Close and output PDF document
 		//$pdf->Output($filename, 'I');
-		$dirname = 'src/instatec_pub/files/proyectos/'.$proyecto_id.'/proformas';
+		$dirname = $this->path_archivos.$proyecto_id.'/proformas';
 		$filename = 'Proforma_'.$proforma_id.'_'.str_replace(" ", "_", $informacion_materiales['datos'][0]['nombre_proveedor']).'_'.date('Y_m_d').'.pdf';
 		if (!file_exists($dirname.'/')) {
 	    	mkdir($dirname, 0777,true);
@@ -2296,7 +2915,7 @@ class Proyecto extends CI_Controller {
 
 		//Close and output PDF document
 		//$pdf->Output($filename, 'I');
-		$dirname = 'src/instatec_pub/files/proyectos/'.$proyecto_id.'/ordenes_compra';
+		$dirname = $this->path_archivos.$proyecto_id.'/ordenes_compra';
 		$filename = 'Orden_Compra_'.$orden_compra_id.'_'.str_replace(" ", "_", $informacion_materiales['datos'][0]['nombre_proveedor']).'_'.date('Y_m_d').'.pdf';
 		if (!file_exists($dirname.'/')) {
 	    	mkdir($dirname, 0777,true);
@@ -2408,5 +3027,29 @@ class Proyecto extends CI_Controller {
 		}
 
 		return $pdf;
+	}
+
+
+
+	function encrypt($input)
+	{
+		$iv = $this->config->item('iv_encrypt');
+		$pass= $this->config->item('pass_encrypt');
+		$method = $this->config->item('method_encrypt');
+		$output = base64_encode(openssl_encrypt($input, $method, $pass, 0, $iv));
+		$output = str_replace("=", "_", $output);
+		$output = str_replace("+", "!", $output);
+		return $output;
+	}
+
+	function decrypt($input)
+	{
+		$iv = $this->config->item('iv_encrypt');
+		$pass= $this->config->item('pass_encrypt');
+		$method = $this->config->item('method_encrypt');
+		$input = str_replace("_", "=", $input);
+		$input = str_replace("!", "+", $input);
+		$output = rtrim(openssl_decrypt(base64_decode($input), $method, $pass, 0, $iv ), "\0");
+		return $output;
 	}
 }

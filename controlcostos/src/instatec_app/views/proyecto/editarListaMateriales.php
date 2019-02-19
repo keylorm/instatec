@@ -77,8 +77,8 @@ extract($get_data);
                         </small>
                     </div>
                     <div class="form-group col-12 col-md-4">
-                        <label for="material_codigo">Código del material *</label>
-                        <input type="text" name="material_codigo" ng-class="{'skip-validation': agregar_material==false}" class="form-control input-required" id="material_codigo" aria-describedby="material_codigoHelp" value="<?=(isset($post_data['material_codigo']))?$post_data['material_codigo']:''?>" >
+                        <label for="material_codigo">Código del material</label>
+                        <input type="text" name="material_codigo" ng-class="{'skip-validation': agregar_material==false}" class="form-control" id="material_codigo" aria-describedby="material_codigoHelp" value="<?=(isset($post_data['material_codigo']))?$post_data['material_codigo']:''?>" >
                         <small id="material_codigoHelp" class="form-text text-muted">Ingrese el código del material.<br/>
                         </small>
                     </div>

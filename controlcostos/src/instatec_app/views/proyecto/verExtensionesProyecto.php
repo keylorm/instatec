@@ -37,7 +37,9 @@
 			<a class="btn btn-sm btn-secondary float-md-right mb-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/ver-proyecto/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver al proyecto</a>
 		</div>
 		<div class="col-12 col-md-3 text-right ">
-			<a class="btn btn-sm btn-primary float-md-right mb-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/agregar-orden-cambio" role="button"><i class="fa fa-fw fa-plus-circle"></i> Agregar orden de cambio</a>
+			<?php if(isset($permisos['proyecto_extensiones']['create'])){ ?>
+				<a class="btn btn-sm btn-primary float-md-right mb-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/agregar-orden-cambio" role="button"><i class="fa fa-fw fa-plus-circle"></i> Agregar orden de cambio</a>
+			<?php } ?>
 		</div>
 	</div>
 
@@ -61,15 +63,17 @@
 			<div class="filtros">
 				<form id="form-filtro">
 					<div class="row">
+						
 						<div class="form-group col-12 col-md-3">
-							<label for="proyecto_valor_oferta_extension_tipo_id">Tipo de orden de cambio:</label>
-							<select class="form-control" name="proyecto_valor_oferta_extension_tipo_id" id="proyecto_valor_oferta_extension_tipo_id" aria-describedby="tipoextensionHelp" required="true" ng-model="proyecto_valor_oferta_extension_tipo_id">
+							<label for="proyecto_valor_oferta_extension_estado_id">Estado de orden de cambio:</label>
+							<select class="form-control" name="proyecto_valor_oferta_extension_estado_id" id="proyecto_valor_oferta_extension_estado_id" aria-describedby="tipoextensionHelp" required="true" ng-model="proyecto_valor_oferta_extension_estado_id">
 								<option value="all">Todos</option>
-								<?php foreach($extensiones_tipos as $kextension => $vextension){ ?>
-									<option value="<?=$vextension['proyecto_valor_oferta_extension_tipo_id']?>"><?=$vextension['proyecto_valor_oferta_extension_tipo']?></option>
+								<?php foreach($extensiones_estados as $kextension => $vextension){ ?>
+									<option value="<?=$vextension['proyecto_valor_oferta_extension_estado_id']?>"><?=$vextension['proyecto_valor_oferta_extension_estado']?></option>
 								<?php } ?>
 							</select>
 						</div>
+						
 
 						<div class="form-group col-12 col-md-3">
 							<label for="fecha_registro">Fecha de registro de orden de cambio:</label>
@@ -104,7 +108,8 @@
 			        <tr>
 			        	<th class="d-md-none">Acciones</th>
 						<th>Fecha de orden de cambio</th>
-						<th>Tipo de orden de cambio</th>
+						<th>Código de Orden de cambio</th>
+						<th>Estado</th>
 						<th>Monto</th>
 						<th class="d-none d-md-table-cell">Acciones</th>
 					</tr>
@@ -152,7 +157,8 @@
 							<?php } ?>
 						</td>
 						<td><a href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/editar-orden-cambio/{{extension.proyecto_valor_oferta_id}}">{{extension.fecha_registro}}</a></td>
-						<td><a href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/editar-orden-cambio/{{extension.proyecto_valor_oferta_id}}">{{extension.proyecto_valor_oferta_extension_tipo}}</a></td>
+						<td><a href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/editar-orden-cambio/{{extension.proyecto_valor_oferta_id}}">{{extension.proyecto_id + '-' + extension.proyecto_valor_oferta_id}}</a></td>
+						<td><a href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/editar-orden-cambio/{{extension.proyecto_valor_oferta_id}}">{{extension.proyecto_valor_oferta_extension_estado}}</a></td>
 						<td><a href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>/editar-orden-cambio/{{extension.proyecto_valor_oferta_id}}">{{extension.valor_oferta | currency }}</a></td>
 						<td  class="d-none d-md-table-cell"><a href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id'] ?>/editar-orden-cambio/{{extension.proyecto_valor_oferta_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a> 
 							<?php if(isset($rol_id) && $rol_id==1){ ?>

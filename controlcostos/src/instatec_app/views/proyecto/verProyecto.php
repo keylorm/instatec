@@ -52,17 +52,20 @@
 				
 			</div>
 			<div class="col-12">
-				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
-				<?php } ?>
 				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
 				<?php } ?>
 				<?php if(isset($permisos['proyecto_colaboradores']['view'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-users"></i> Colaboradores</a> 
 				<?php } ?>
 				<?php if(isset($permisos['proyecto_materiales']['view'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-wrench"></i> Materiales</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_contactos']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/contactos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-phone"></i> Contactos</a> 
 				<?php } ?>
 			</div>
 		</div>
@@ -387,17 +390,20 @@
 				
 			</div>
 			<div class="col-12">
-				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
-					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
-				<?php } ?>
 				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
 				<?php } ?>
 				<?php if(isset($permisos['proyecto_colaboradores']['view'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-users"></i> Colaboradores</a> 
 				<?php } ?>
 				<?php if(isset($permisos['proyecto_materiales']['view'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-wrench"></i> Materiales</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_contactos']['view'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/contactos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-phone"></i> Contactos</a> 
 				<?php } ?>
 			</div>
 		</div>
@@ -414,6 +420,12 @@
 		<div class="row">
 			
 			<div class="col-12">
+				<?php if(isset($permisos['proyecto_extensiones']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/ordenes-cambio/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-plus-circle"></i> Ordenes de cambio</a> 
+				<?php } ?>
+				<?php if(isset($permisos['proyecto_gastos']['list'])){ ?>
+					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-money"></i> Gastos</a>
+				<?php } ?>
 				<?php if(isset($permisos['proyecto_materiales']['view'])){ ?>
 					<a class="btn btn-sm btn-success mr-md-3 mx-auto d-block d-md-inline-block mb-3" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-wrench"></i> Materiales</a> 
 				<?php } ?>
@@ -505,17 +517,17 @@
 																			<td>{{colaborador.puesto}}</td>
 																			<td> 
 																			<?php if($rol_id==1 || $rol_id==2){ ?>
-																				<input type="number" ng-if="colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" {{(colaborador.cantidad_horas!==undefined) ? 'value="'+colaborador.cantidad_horas+'"' : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas!==undefined) ? colaborador.cantidad_horas : '0'}}" class="input-number form-control" name="horas_colaborador[{{colaborador.colaborador_id}}]">
+																				<input type="ntextumber" ng-if="colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" {{(colaborador.cantidad_horas!==undefined) ? 'value="'+colaborador.cantidad_horas+'"' : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas!==undefined) ? colaborador.cantidad_horas : '0'}}" class="form-control input-number" name="horas_colaborador[{{colaborador.colaborador_id}}]">
 																			<?php }else if($rol_id==3){ ?>
-																				<input ng-if="today==true && colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" type="number" {{(colaborador.cantidad_horas!==undefined) ? 'value="'+colaborador.cantidad_horas+'"' : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas!==undefined) ? colaborador.cantidad_horas : '0'}}" class="input-number form-control" name="horas_colaborador[{{colaborador.colaborador_id}}]">
+																				<input ng-if="today==true && colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" type="text" {{(colaborador.cantidad_horas!==undefined) ? 'value="'+colaborador.cantidad_horas+'"' : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas!==undefined) ? colaborador.cantidad_horas : '0'}}" class="form-control input-number" name="horas_colaborador[{{colaborador.colaborador_id}}]">
 																				<span ng-if="today==false">{{colaborador.cantidad_horas}}</span>
 																			<?php } ?>
 																			</td>
 																			<td> 
 																			<?php if($rol_id==1 || $rol_id==2){ ?>
-																				<input type="number" ng-if="colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" {{(colaborador.cantidad_horas_extra!==undefined) ? 'value="'+colaborador.cantidad_horas_extra+'"' : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas_extra!==undefined) ? colaborador.cantidad_horas_extra : '0'}}" class="input-number form-control" name="horas_extra_colaborador[{{colaborador.colaborador_id}}]">
+																				<input type="text" ng-if="colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" {{(colaborador.cantidad_horas_extra!==undefined) ? 'value="'+colaborador.cantidad_horas_extra+'"' : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas_extra!==undefined) ? colaborador.cantidad_horas_extra : '0'}}" class="form-control input-number" name="horas_extra_colaborador[{{colaborador.colaborador_id}}]">
 																			<?php }else if($rol_id==3){ ?>
-																				<input ng-if="today==true && colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" type="number" {{(colaborador.cantidad_horas_extra!==undefined) ? 'value="'+colaborador.cantidad_horas_extra : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas_extra!==undefined) ? colaborador.cantidad_horas_extra : '0'}}" class="input-number form-control" name="horas_extra_colaborador[{{colaborador.colaborador_id}}]">
+																				<input ng-if="today==true && colaborador.colaborador_costo_hora_id!==null && colaborador.estado_costo!==null" type="text" {{(colaborador.cantidad_horas_extra!==undefined) ? 'value="'+colaborador.cantidad_horas_extra : 'value="0"'}} ng-value="{{(colaborador.cantidad_horas_extra!==undefined) ? colaborador.cantidad_horas_extra : '0'}}" class="form-control input-number" name="horas_extra_colaborador[{{colaborador.colaborador_id}}]">
 																				<span ng-if="today==false">{{colaborador.cantidad_horas_extra}}</span>
 																			<?php } ?>
 																			</td>

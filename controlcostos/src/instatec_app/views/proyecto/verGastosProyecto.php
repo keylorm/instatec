@@ -156,12 +156,17 @@
                     </td>
 				</tfoot>
 				<tbody>
-					<tr class="valor-oferta-item" ng-repeat="gasto in gastos  | limitTo : cantidad_mostrar : currentPage*cantidad_mostrar">
+					<tr class="valor-oferta-item" ng-repeat="gasto in gastos">
 						<td  class="d-md-none">
 							<?php if(isset($permisos['proyecto_gastos']['edit'])){ ?>
-								<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a> 
-								<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1  && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
-								<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1  && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra/" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+								<?php if ($rol_id!=3) { ?> 
+									<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a> 
+									<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1  && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+									<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1  && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver/" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+								
+								<?php } else { ?>
+									<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0"  href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success mb-1"><i class="fa fa-fw fa-edit"></i></a>
+								<?php } ?>
 							<?php } ?>
 							<?php if(isset($permisos['proyecto_gastos']['delete'])){ ?>
 								<a class="btn btn-sm btn-danger  mb-1" href="#" data-toggle="modal" ng-if="gasto.proyecto_gasto_tipo_id!=4" data-target="#deleteModal1{{gasto.proyecto_gasto_id}}"><i class="fa fa-fw fa-trash-o"></i></a>
@@ -192,40 +197,74 @@
 							<?php } ?>
 						</td>
 						<td>
-							<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.fecha_gasto}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.fecha_gasto}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra">{{gasto.fecha_gasto}}</a>
+							<?php if ($rol_id!=3) { ?> 
+								<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.fecha_gasto}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.fecha_gasto}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver">{{gasto.fecha_gasto}}</a>
+							<?php } else { ?>
+								<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.fecha_gasto}}</a>
+								<div ng-if="gasto.usuario_id != <?=$usuario_id?> || gasto.proyecto_gasto_tipo_id==4 || gasto.tiene_desgloce!=0">{{gasto.fecha_gasto}}</div>
+							<?php } ?>
 						</td>
 						<td>
-							<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
+							<?php if ($rol_id!=3) { ?> 
+								<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
+							<?php } else { ?>
+								<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</a>
+								<div ng-if="gasto.usuario_id != <?=$usuario_id?> || gasto.proyecto_gasto_tipo_id==4 || gasto.tiene_desgloce!=0">{{(gasto.tiene_desgloce==1)?gasto.proyecto_gasto_tipo+' *':gasto.proyecto_gasto_tipo}}</div>
+							<?php } ?>
 						</td>
 						<td>
-							<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
+							<?php if ($rol_id!=3) { ?> 
+								<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
+							<?php } else { ?>
+								<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</a>
+								<div ng-if="gasto.usuario_id != <?=$usuario_id?> || gasto.proyecto_gasto_tipo_id==4 || gasto.tiene_desgloce!=0">{{gasto.proyecto_gasto_monto | currency:gasto.simbolo+" " }}</div>
+							<?php } ?>
 						</td>
 						<td>
-							<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.nombre_proveedor}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.nombre_proveedor}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra">{{gasto.nombre_proveedor}}</a>
+							<?php if ($rol_id!=3) { ?> 
+								<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.nombre_proveedor}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.nombre_proveedor}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver">{{gasto.nombre_proveedor}}</a>
+							<?php } else { ?>
+								<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.nombre_proveedor}}</a>
+								<div ng-if="gasto.usuario_id != <?=$usuario_id?> || gasto.proyecto_gasto_tipo_id==4 || gasto.tiene_desgloce!=0">{{gasto.nombre_proveedor}}</div>
+							<?php } ?>
 						</td>
 						<td>
-							<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.numero_factura}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.numero_factura}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra">{{gasto.numero_factura}}</a>
+							<?php if ($rol_id!=3) { ?> 
+								<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.numero_factura}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.numero_factura}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver">{{gasto.numero_factura}}</a>
+							<?php } else { ?>
+								<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.numero_factura}}</a>
+								<div ng-if="gasto.usuario_id != <?=$usuario_id?> || gasto.proyecto_gasto_tipo_id==4 || gasto.tiene_desgloce!=0">{{gasto.numero_factura}}</div>
+							<?php } ?>
 						</td>
 						<td>
-							<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_estado}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_estado}}</a>
-							<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra">{{gasto.proyecto_gasto_estado}}</a>
+							<?php if ($rol_id!=3) { ?> 
+								<a ng-if="gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_estado}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_estado}}</a>
+								<a ng-if="gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver">{{gasto.proyecto_gasto_estado}}</a>
+							<?php } else { ?>
+								<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}">{{gasto.proyecto_gasto_estado}}</a>
+								<div ng-if="gasto.usuario_id != <?=$usuario_id?> || gasto.proyecto_gasto_tipo_id==4 || gasto.tiene_desgloce!=0">{{gasto.proyecto_gasto_estado}}</div>
+							<?php } ?>
 						</td>
 						<td  class="d-none d-md-table-cell">
 							<?php if(isset($permisos['proyecto_gastos']['edit'])){ ?>
-								<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a> 
-								<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
-								<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ordenes-compra" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+								<?php if ($rol_id!=3) { ?> 
+									<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a> 
+									<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 2" href="<?=base_url()?>proyectos/colaboradores/<?=$proyecto['proyecto_id']?>/registrar-tiempo-colaboradores?gasto_id={{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+									<a ng-if="gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==1 && gasto.proyecto_gasto_tipo_id == 1" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/solicitudes-compra-materiales/{{gasto.proyecto_material_solicitud_compra_id}}/ver" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+								<?php } else { ?>
+									<a ng-if="gasto.usuario_id == <?=$usuario_id?> && gasto.proyecto_gasto_tipo_id!=4 && gasto.tiene_desgloce==0" href="<?=base_url()?>proyectos/gastos/<?=$proyecto['proyecto_id']?>/editar-gasto/{{gasto.proyecto_gasto_id}}" class="btn btn-sm btn-edit btn-success  mb-1"><i class="fa fa-fw fa-edit"></i></a>
+								<?php } ?>
 							<?php } ?>
 							<?php if(isset($permisos['proyecto_gastos']['delete'])){ ?>
 								<a class="btn btn-sm btn-danger  mb-1" href="#" ng-if="gasto.proyecto_gasto_tipo_id!=4" data-toggle="modal" data-target="#deleteModal2{{gasto.proyecto_gasto_id}}"><i class="fa fa-fw fa-trash-o"></i></a>

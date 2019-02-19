@@ -25,7 +25,7 @@
 </div>
 
 
-<div class="page-content">
+<div class="page-content" ng-cloak ng-controller="agregarExtensionProyecto">
 	<?php 
 		if(validation_errors()){ ?>
     		<div class="alert alert-danger alert-dismissable"><?php echo validation_errors(); ?></div>
@@ -40,49 +40,64 @@
 		}
 
     ?>
-	<form id="agregarExtensionProyecto" class="form-validation" method="post" name="agregarExtensionProyecto">
+	<form id="agregarExtensionProyecto" class="form-validation " method="post" name="agregarExtensionProyecto" >
 		<div class="card mb-3">
 	        <div class="card-header">
 	          	Información de la orden de cambio</div>
 	        <div class="card-body">
 	        	<div class="row">
-	        		<div class="col-12 col-md-6">
+					<?php 
+					if ($rol_id != 3) { ?>
+						<div class="col-12 col-md-4">
+							<div class="form-group">
+								<label for="proyecto_valor_oferta_extension_estado_id">Estado de orden de cambio:</label>
+								<select class="form-control" ng-model="proyecto_valor_oferta_extension_estado_id" name="proyecto_valor_oferta_extension_estado_id" id="proyecto_valor_oferta_extension_estado_id" aria-describedby="tipoextensionHelp">
+									<?php if(isset($extensiones_estados)){
+											foreach ($extensiones_estados as $kextension => $vextension) { ?>
+												<option value="<?=$vextension['proyecto_valor_oferta_extension_estado_id']?>"><?=$vextension['proyecto_valor_oferta_extension_estado']?></option>
+									<?php 	}
+										}
+									?>
+								</select>
+								<small id="tipoextensionHelp" class="form-text text-muted">Indique el estado de orden de cambio que está registrando.<br/>
+								</small>
+							</div>
+						</div>
+					<?php } ?>
+	        		<div class="col-12 col-md-4">
 	        			<div class="form-group">
-							<label for="proyecto_valor_oferta_extension_tipo_id">Tipo de orden de cambio:</label>
-							<select class="form-control" name="proyecto_valor_oferta_extension_tipo_id" id="proyecto_valor_oferta_extension_tipo_id" aria-describedby="tipoextensionHelp">
-								<?php if(isset($extensiones_tipos)){
-								 		foreach ($extensiones_tipos as $kextension => $vextension) { ?>
-											<option value="<?=$vextension['proyecto_valor_oferta_extension_tipo_id']?>"><?=$vextension['proyecto_valor_oferta_extension_tipo']?></option>
-								<?php 	}
-									}
-								?>
+							<label for="tiene_impuesto">¿Tiene impuesto?:</label>							
+							<select class="form-control" name="tiene_impuesto" id="tiene_impuesto" ng-model="tiene_impuesto" aria-describedby="tieneImpuestoHelp">
+								<option value="0">No</option>
+								<option value="1">Si</option>
+								
 							</select>
-							<small id="tipoextensionHelp" class="form-text text-muted">Indique el tipo de orden de cambio que está registrando.<br/>
+							<small id="tieneImpuestoHelp" class="form-text text-muted">Ingrese el valor de la orden de cambio.<br/>
 							</small>
 						</div>
 	        		</div>
-	        		<div class="col-12 col-md-6">
-	        			<div class="form-group">
-							<label for="valor_oferta">Monto de la orden de cambio ($):</label>							
-							<input type="text" name="valor_oferta" class="form-control input-money-mask " id="valor_oferta"  aria-describedby="valorExtensionHelp" >
-							<small id="valorExtensionHelp" class="form-text text-muted">Ingrese el valor de la orden de cambio.<br/>
-							</small>
-						</div>
-	        		</div>
-	        	</div>
-	        	<div class="row">
-	        		<div class="col-12">
-	        			<div class="form-group">
-							<label for="proyecto_valor_oferta_extension_descripcion">Descripción de la orden de cambio:</label>
-							<textarea class="form-control" name="proyecto_valor_oferta_extension_descripcion" id="proyecto_valor_oferta_extension_descripcion" rows="3" aria-describedby="descripcionHelp"></textarea>
-							<small id="descripcionHelp" class="form-text text-muted">Ingrese la descripción detallada de la orden de cambio.<br/>
+	        		<div class="col-12 col-md-4">
+	        			<div class="form-group" ng-show="tiene_impuesto==1">
+							<label for="impuesto">Impuesto (%):</label>
+							<input  type="number"  value="0" step="0.05" pattern="^\d+(?:\.\d{1,2})?$" name="impuesto" id="impuesto" class="form-control" ng-class="{'input-required': tiene_impuesto==1}" aria-describedby="impuestoHelp" ng-model="impuesto">
+							<small id="impuestoHelp" class="form-text text-muted">Ingrese el impuesto asignado a esta orden de cambio<br/>
 							</small>
 							
 						</div>
-	        		</div>	        		
+					</div>
+					<div class="col-12" ng-if="proyecto_valor_oferta_extension_estado_id==3">
+						<div class="form-group">
+							
+							<label for="proyecto_valor_oferta_extension_estado_id">Motivo del rechazo:</label>
+							<textarea name="comentarios" id="comentarios" cols="30" rows="10" class="form-control"></textarea>
+							
+						</div>
+					</div>      		
+	        	</div>
+	        	<div class="row">
+					<button type="submit" class="btn btn-primary form-submit"><i class="fa fa-fw fa-save"></i> Guardar</button>
 	        	</div>
 	        </div>
 	    </div>
-		<button type="submit" class="btn btn-primary form-submit"><i class="fa fa-fw fa-save"></i> Guardar</button>
 	</form>
 </div>

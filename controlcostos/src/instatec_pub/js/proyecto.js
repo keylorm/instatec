@@ -594,6 +594,272 @@ myApp.controller('proyectoExtensionesController', ['$scope','$log','$http', '$fi
 
 }]);
 
+myApp.controller('agregarExtensionProyecto', ['$scope', '$log', '$http', '$filter', '$window', function ($scope, $log, $http, $filter, $window) {
+
+}]);
+
+myApp.controller('editarExtensionProyecto', ['$scope', '$log', '$http', '$filter', '$window', function ($scope, $log, $http, $filter, $window) {
+	$scope.cantidad_mostrar = 20;
+	$scope.total_rows = 0;
+	$scope.pages = 1;
+	$scope.q = '';
+	$scope.bloqueo_button_email = false;
+
+	$scope.currentPage = 0;
+
+
+	$scope.filtrar = function () {
+		$scope.consultarExtensionCambiosProyecto();
+	};
+
+	$scope.limpiarFiltro = function () {
+		$scope.consultarExtensionCambiosProyecto();
+	}
+
+
+
+	$scope.consultarExtensionCambiosProyecto = function () {
+		$http({
+			url: BASE_URL + 'proyecto/consultarExtensionCambiosProyectoAjax/',
+			method: "POST",
+			data: {
+				filtros: {
+					proyecto_valor_oferta_id: $scope.proyecto_valor_oferta_id,
+				},
+				cantidad_mostrar: $scope.cantidad_mostrar,
+			},
+		})
+			.then(function (result) {
+				if (result.data !== "false") {
+					if (result.data.cambios !== false) {
+						$scope.cambios = result.data.cambios.datos;
+						$scope.total_rows = result.data.cambios.total_rows;
+						$scope.calcularPaginas();
+					} else {
+						$scope.cambios = false;
+					}
+
+					if (result.data.cambios_totales !== false) {
+						$scope.cambios_totales = result.data.cambios_totales;
+					} else {
+						$scope.cambios_totales = false;
+					}
+
+
+				} else {
+					$scope.cambios = false;
+					$scope.cambios_totales = false;
+				}
+			}, function (result) {
+				$log.error(result);
+			});
+	}
+
+	$scope.validarPrev = function () {
+		if ($scope.currentPage > 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	$scope.validarNext = function () {
+		if ($scope.currentPage >= ($scope.pages - 1)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	$scope.pagePrev = function () {
+		$scope.currentPage = $scope.currentPage - 1;
+	}
+
+	$scope.pageNext = function () {
+		$scope.currentPage = $scope.currentPage + 1;
+	}
+
+	$scope.calcularPaginas = function () {
+		if ($scope.total_rows > $scope.cantidad_mostrar) {
+			$scope.pages = Math.ceil($scope.total_rows / $scope.cantidad_mostrar);
+		}
+	}
+
+	$scope.borrarRow = function (row_id) {
+		$http({
+			url: BASE_URL + 'proyecto/eliminarExtensionCambioAjax/',
+			method: "POST",
+			data: { proyecto_valor_oferta_extension_cambio_id: row_id },
+		})
+			.then(function (result) {
+				if (result.data !== "false") {
+					$window.location.reload();
+					return true;
+
+				} else {
+					$window.location.reload();
+					return false;
+				}
+			}, function (result) {
+				$log.error(result);
+			});
+	}
+
+	$scope.enviarCorreos = function() {
+		$scope.bloqueo_button_email = true;
+		$http({
+			url: BASE_URL + 'proyecto/enviarCorreoContactoExtensionAjax/',
+			method: "POST",
+			data: { 
+				proyecto_id: $scope.proyecto_id, 
+				proyecto_valor_oferta_id: $scope.proyecto_valor_oferta_id,
+				correos_seleccionados: $scope.correo_envio,
+			},
+		})
+			.then(function (result) {
+				if (result.data !== "false") {
+					//$window.location.reload();
+					$scope.bloqueo_button_email = false;
+					return true;
+
+				} else {
+					//$window.location.reload();
+					$scope.bloqueo_button_email = false;
+					return false;
+				}
+			}, function (result) {
+				$log.error(result);
+			});
+	}
+
+}]);
+
+myApp.controller('agregarExtensionCambioProyecto', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+	$scope.moneda_id = 1;
+	$scope.cantidad = 1;
+
+	$scope.calcularTotal = function() {
+		if ($scope.cantidad == 0){
+			$scope.cantidad = 1;
+		}
+		if ($scope.precio_unitario !== undefined && $scope.precio_unitario !== '' && Number(String($scope.precio_unitario).replace(/[^0-9.-]+/g, "")) > 0) {
+			$scope.total = Number(String($scope.precio_unitario).replace(/[^0-9.-]+/g, "")) * $scope.cantidad;
+		}
+	}
+
+	$scope.calcularUnitario = function () {
+		if ($scope.cantidad == 0) {
+			$scope.cantidad = 1;
+		}
+		
+		if ($scope.total !== undefined && $scope.total !== '' && Number(String($scope.total).replace(/[^0-9.-]+/g, "")) > 0) {
+			$scope.precio_unitario =Number(String($scope.total).replace(/[^0-9.-]+/g, "")) / $scope.cantidad;
+		}
+	}
+
+	$scope.inputMask = function () {
+		$timeout(function () {
+			jQuery(".input-money-mask").maskMoney({ prefix: '$ ', allowNegative: true, thousands: '', decimal: '.', affixesStay: false });
+			jQuery(".input-money-mask-colones").maskMoney({ prefix: '₡ ', allowNegative: true, thousands: '', decimal: '.', affixesStay: false });
+
+		}, 1);
+	}
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+}]);
+
+myApp.controller('editarExtensionCambioProyecto', ['$scope', '$log', '$http', '$filter', '$window', '$timeout', function ($scope, $log, $http, $filter, $window, $timeout) {
+
+	$scope.calcularTotal = function () {
+		if ($scope.cantidad == 0) {
+			$scope.cantidad = 1;
+		}
+		if ($scope.precio_unitario !== undefined && $scope.precio_unitario !== '' && Number(String($scope.precio_unitario).replace(/[^0-9.-]+/g, "")) > 0) {
+			$scope.total = Number(String($scope.precio_unitario).replace(/[^0-9.-]+/g, "")) * $scope.cantidad;
+		}
+	}
+
+	$scope.calcularUnitario = function () {
+		if ($scope.cantidad == 0) {
+			$scope.cantidad = 1;
+		}
+
+		if ($scope.total !== undefined && $scope.total !== '' && Number(String($scope.total).replace(/[^0-9.-]+/g, "")) > 0) {
+			$scope.precio_unitario = Number(String($scope.total).replace(/[^0-9.-]+/g, "")) / $scope.cantidad;
+		}
+	}
+
+	$scope.inputMask = function () {
+		$timeout(function () {
+			jQuery(".input-money-mask").maskMoney({ prefix: '$ ', allowNegative: true, thousands: '', decimal: '.', affixesStay: false });
+			jQuery(".input-money-mask-colones").maskMoney({ prefix: '₡ ', allowNegative: true, thousands: '', decimal: '.', affixesStay: false });
+
+		}, 1);
+	}
+
+	$scope.chosenSelect = function () {
+		$timeout(function () {
+			jQuery(".chosen-select").chosen({ no_results_text: "Sin resultados." });
+		}, 1);
+	}
+}]);
+
+myApp.controller('proyectoContactosController', ['$scope', '$log', '$http', '$filter', '$window', function ($scope, $log, $http, $filter, $window) {
+	$scope.total_rows = 0;
+	$scope.q = '';
+
+
+	$scope.consultarContactosProyecto = function () {
+		$http({
+			url: BASE_URL + 'proyecto/consultaContactosProyectosAjax/',
+			method: "POST",
+			data: {
+				filtros: {
+					proyecto_id: $scope.proyecto_id,
+				},
+			},
+		})
+			.then(function (result) {
+				if (result.data !== "false") {
+					$scope.contactos = result.data.datos;
+					$scope.total_rows = result.data.total_rows;
+
+				} else {
+					$scope.contactos = false;
+				}
+			}, function (result) {
+				$log.error(result);
+			});
+	}
+
+
+
+	$scope.borrarRow = function (row_id) {
+		$http({
+			url: BASE_URL + 'proyecto/eliminarContactoAjax/',
+			method: "POST",
+			data: { contacto_id: row_id, proyecto_id: $scope.proyecto_id },
+		})
+			.then(function (result) {
+				if (result.data !== "false") {
+					$window.location.reload();
+					return true;
+
+				} else {
+					$window.location.reload();
+					return false;
+				}
+			}, function (result) {
+				$log.error(result);
+			});
+	}
+
+}]);
+
 myApp.controller('proyectoGastosController', ['$scope','$log','$http', '$filter', '$window','$timeout', function($scope, $log, $http, $filter, $window, $timeout){
 	$scope.cantidad_mostrar = 20;
 	$scope.total_rows = 0;

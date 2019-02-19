@@ -7,6 +7,8 @@ class M_General extends CI_Model {
 			$t_distrito = 'distrito',
 			$t_usuario_rol_permiso = 'usuario_rol_permiso',
 			$t_moneda = 'moneda',
+			$t_usuario = 'usuario',
+			$t_usuario_detalle = 'usuario_detalle',
 			$rol_id,
 			$usuario_id;
 
@@ -162,5 +164,15 @@ class M_General extends CI_Model {
 		}else{
 			return false;
 		}
+	}
+
+	function consultarCorreosAdmins(){
+		$this->db->join($this->t_usuario_detalle, $this->t_usuario_detalle.'.usuario_id = '.$this->t_usuario.'.usuario_id');
+		$this->db->where_in($this->t_usuario.'.rol_id', array(1,2));
+		$this->db->where($this->t_usuario.'.estado_id', 1);
+		$this->db->where($this->t_usuario.'.estado_row', 1);
+		$usuarios_result = $this->db->get($this->t_usuario);
+		$usuarios_result_rows = $this->security->xss_clean($usuarios_result->result_array());
+		return $usuarios_result_rows;
 	}
 }

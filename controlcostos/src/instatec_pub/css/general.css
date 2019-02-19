@@ -1,17 +1,18 @@
-html{
+html {
     font-size: 14px;
 }
-footer p{
-  margin-bottom: 0px;
+
+footer p {
+    margin-bottom: 0px;
 }
 
-nav a{
-	color: 	#fff;
+nav a {
+    color: #fff;
 }
 
 .menu-toggle,
-.menu-toggle:hover{
-	color: #fff;
+.menu-toggle:hover {
+    color: #fff;
     font-size: 24px;
     text-decoration: none;
 }
@@ -24,26 +25,25 @@ nav a{
     margin: 20px 0;
 }
 
-
 nav#menu li.nav-item {
     width: 100%;
     text-align: center;
     border-top: 1px solid #fff;
 }
 
-.page-content{
-  padding: 50px 2%;
+.page-content {
+    padding: 50px 2%;
 }
 
-.table-espaciado{
+.table-espaciado {
     margin: 40px 0;
 }
 
-.anchor-class{
+.anchor-class {
     cursor: pointer;
 }
 
-.chosen-container-single .chosen-single{
+.chosen-container-single .chosen-single {
     padding: .375rem .75rem;
     border: 1px solid #ced4da;
     border-radius: .25rem;
@@ -53,20 +53,49 @@ nav#menu li.nav-item {
     height: auto;
 }
 
-.chosen-container{
+.chosen-container {
     width: 100% !important;
 }
 
-table.table a:not(.btn){
+table.table a:not(.btn) {
     color: #212529;
     display: block;
 }
 
-table.table a:not(.btn):hover{
+table.table a:not(.btn):hover {
     color: #757575;
     text-decoration: none;
 }
 
-.chosen-container.chosen-with-drop .chosen-drop{
+.chosen-container.chosen-with-drop .chosen-drop {
     position: relative;
+}
+
+.btn {
+    cursor: pointer;
+}
+
+.btn-loading-primary {
+    background-image: url(../images/ajax-loader-azul.gif);
+    background-repeat: no-repeat;
+    background-position: 90% center;
+    padding-right: 50px;
+}
+
+.btn-loading-success {
+    background-image: url(../images/ajax-loader-verde.gif);
+    background-repeat: no-repeat;
+    background-position: 90% center;
+    padding-right: 50px;
+}
+
+.btn-loading-danger {
+    background-image: url(../images/ajax-loader-rojo.gif);
+    background-repeat: no-repeat;
+    background-position: 90% center;
+    padding-right: 50px;
+}
+
+.cambio-desc-col{
+    width: 40%;
 }

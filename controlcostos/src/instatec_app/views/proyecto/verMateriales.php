@@ -50,6 +50,7 @@
 			<?php if(isset($permisos['proyecto_materiales']['edit'])){ ?>
 				<a class="btn btn-sm btn-primary float-md-right mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/materiales/<?=$proyecto['proyecto_id']?>/editar-lista-materiales" role="button"><i class="fa fa-fw fa-edit"></i> Editar lista de materiales</a> 
 			<?php } ?>
+			<a class="btn btn-sm btn-secondary float-md-right mb-3 mr-md-3 mx-auto d-block d-md-inline-block" href="<?=base_url()?>proyectos/ver-proyecto/<?=$proyecto['proyecto_id']?>" role="button"><i class="fa fa-fw fa-arrow-left"></i> Volver al proyecto</a>
 		</div>
 	</div>
 

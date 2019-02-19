@@ -1,0 +1,2 @@
+ALTER TABLE `proyecto_gasto_mano_obra` CHANGE `cantidad_horas` `cantidad_horas` FLOAT(12,2) NOT NULL;
+ALTER TABLE `proyecto_gasto_mano_obra` CHANGE `cantidad_horas_extra` `cantidad_horas_extra` FLOAT(12,2) NOT NULL;

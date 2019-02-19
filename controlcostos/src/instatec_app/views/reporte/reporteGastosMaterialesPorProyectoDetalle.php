@@ -49,7 +49,7 @@
 								<option value=""></option>
 								<option value="all">Todos</option>
 								<?php foreach($proveedores as $kproveedor => $vproveedor){ ?>
-									<option value="<?=$vproveedor->proveedor_id?>"><?=$vproveedor->nombre_proveedor?></option>
+									<option value="<?=$vproveedor['proveedor_id']?>"><?=$vproveedor['nombre_proveedor']?></option>
 								<?php } ?>
 							</select>						
 						</div>	

@@ -8,6 +8,7 @@
 		<meta name="HandheldFriendly" content="true">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no">
 		<meta http-equiv="cleartype" content="on">
+		<meta name="robots" content="noindex, nofollow">
 
 		
 

@@ -66,7 +66,7 @@
 									<div class="edit-container row" ng-show="material_check[material_inicial.proyecto_material_id]===true">
 	                                    
 	                                    <div class="col-12">
-	                                        <input class="form-control" aria-describedby="cantidadHelp" type="number" value="0" min="0" step="0.05" pattern="^\d+(?:\.\d{1,2})?$" name="cantidad[{{material_inicial.proyecto_material_id}}]" max="{{material_inicial.cantidad_restante}}">
+	                                        <input class="form-control" aria-describedby="cantidadHelp" type="number" value="" min="0" step="0.05" pattern="^\d+(?:\.\d{1,2})?$" name="cantidad[{{material_inicial.proyecto_material_id}}]" max="{{material_inicial.cantidad_restante}}">
 	                                        <small id="cantidadHelp" class="form-text text-muted">{{material_inicial.material_unidad}}<br/>
 											</small>
 	                                    </div>
@@ -129,7 +129,7 @@
 									<div class="edit-container row" ng-show="material_check[material_extension.proyecto_material_id]===true">
 	                                    
 	                                    <div class="col-12">
-	                                        <input class="form-control" aria-describedby="cantidadHelp" type="number"  step="0.05" pattern="^\d+(?:\.\d{1,2})?$" name="cantidad[{{material_extension.proyecto_material_id}}]" min="0" max="{{material_extension.cantidad_restante}}" value="0" min="0" />
+	                                        <input class="form-control" aria-describedby="cantidadHelp" type="number"  step="0.05" pattern="^\d+(?:\.\d{1,2})?$" name="cantidad[{{material_extension.proyecto_material_id}}]" min="0" max="{{material_extension.cantidad_restante}}" value="" />
 	                                        <small id="cantidadHelp" class="form-text text-muted">{{material_extension.material_unidad}}<br/>
 											</small>
 	                                    </div>

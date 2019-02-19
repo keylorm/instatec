@@ -5,6 +5,7 @@ class M_Material extends CI_Model {
 	private $t_material = 'material',
 			$t_material_unidad = 'material_unidad',
 			$t_usuario = 'usuario',
+			$t_proyecto_material = 'proyecto_material',
 			$usuario_id,
 			$ip,
 			$agente_usuario;
@@ -128,12 +129,12 @@ class M_Material extends CI_Model {
     function validarExistenciaMaterial($data, $material_id = null){
 		$response = array();
 		//se valida que los campos requeridos vengan
-		if(isset($data['material']) && isset($data['material_codigo'])){
-			if($data['material'] != '' && $data['material_codigo'] != ''){
+		if(isset($data['material']) /*&& isset($data['material_codigo'])*/){
+			if($data['material'] != '' /*&& $data['material_codigo'] != ''*/){
 				//primero validamos el material
 				$this->db->where('material', $data['material']);
 				$this->db->where('estado_registro', 1);
-				// validamos que no sea la cedula del mismo colaborador que se esta consultando para cuando se esta editando un colaborador
+				// validamos que no sea el mismo id que se esta consultando para los casos en los que se esta editando un material
 				if($material_id!=null){
 					$this->db->where('material_id !=', $material_id);
 				}
@@ -145,6 +146,7 @@ class M_Material extends CI_Model {
 					$response['tipo'] = 'danger';
 					$response['texto'] = 'Ya existe un material con ese nombre.';
 				}else{
+					/*
 					//primero validamos el material
 					$this->db->where('material_codigo', $data['material_codigo']);
 					$this->db->where('estado_registro', 1);
@@ -159,14 +161,14 @@ class M_Material extends CI_Model {
 						$result_material_codigo_info = $result_material_codigo->row();
 						$response['tipo'] = 'danger';
 						$response['texto'] = 'Ya existe un material con ese código.';
-					}else{
+					}else{*/
 						// si llego aqui es porque paso todas las validaciones
 						$response['tipo'] = 'success';
-					}
+					/*}*/
 				}
 			}else{
 				$response['tipo'] = 'warning';
-				$response['texto'] = 'No se introdujo el material o el código del material';
+				$response['texto'] = 'No se introdujo el material';
 			}
 		}
 		return $response;

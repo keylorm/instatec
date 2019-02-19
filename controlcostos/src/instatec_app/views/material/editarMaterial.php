@@ -44,8 +44,8 @@
 					</div>
 
 					<div class="form-group col-12 col-md-4">
-						<label for="material_codigo">Código del material *</label>
-						<input type="text" name="material_codigo" class="form-control input-required" id="material_codigo" aria-describedby="material_codigoHelp" value="<?=(isset($material['material_codigo']))?$material['material_codigo']:''?>" >
+						<label for="material_codigo">Código del material</label>
+						<input type="text" name="material_codigo" class="form-control" id="material_codigo" aria-describedby="material_codigoHelp" value="<?=(isset($material['material_codigo']))?$material['material_codigo']:''?>" >
 						<small id="material_codigoHelp" class="form-text text-muted">Ingrese el código del material.<br/>
 						</small>
 					</div>

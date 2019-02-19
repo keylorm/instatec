@@ -7,6 +7,10 @@ date_default_timezone_set('America/Costa_Rica');
 /* Tipo de cambio default */
 $config['tipo_cambio_compra'] = 562;
 $config['tipo_cambio_venta'] = 570;
+$config['iv_encrypt'] = '4568135698745589';
+$config['pass_encrypt'] = ')#=)#vsWEGcf';
+$config['method_encrypt'] = 'aes128';
+$config['path_archivos'] = 'src/instatec_pub/files/proyectos/';
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +34,7 @@ $config['tipo_cambio_venta'] = 570;
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://instatec.net/controlcostos/';
+$config['base_url'] = 'http://instatec.net/controlcostos/';/* https://instateccr.com/controlcostos/ */
 
 /*
 |--------------------------------------------------------------------------
